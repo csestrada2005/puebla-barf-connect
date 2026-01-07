@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/", label: "Inicio" },
   { href: "/tienda", label: "Tienda" },
   { href: "/ai", label: "Recomendador AI" },
+  { href: "/cobertura", label: "Cobertura" },
   { href: "/suscripcion", label: "Suscripción" },
   { href: "/faq", label: "FAQ" },
 ];
