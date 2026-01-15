@@ -68,6 +68,38 @@ export type Database = {
         }
         Relationships: []
       }
+      order_statuses: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_statuses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           ai_recommendation: Json | null
@@ -89,6 +121,7 @@ export type Database = {
           subtotal: number
           total: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           ai_recommendation?: Json | null
@@ -110,6 +143,7 @@ export type Database = {
           subtotal: number
           total: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           ai_recommendation?: Json | null
@@ -131,6 +165,7 @@ export type Database = {
           subtotal?: number
           total?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -144,6 +179,7 @@ export type Database = {
       }
       products: {
         Row: {
+          benefits: Json | null
           category: string | null
           created_at: string
           description: string | null
@@ -151,11 +187,14 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
+          ingredients: string[] | null
           is_active: boolean | null
           is_subscription: boolean | null
           name: string
           original_price: number | null
+          presentation: string | null
           price: number
+          protein_line: string | null
           short_description: string | null
           slug: string
           sort_order: number | null
@@ -165,6 +204,7 @@ export type Database = {
           weight_range_min: number | null
         }
         Insert: {
+          benefits?: Json | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -172,11 +212,14 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          ingredients?: string[] | null
           is_active?: boolean | null
           is_subscription?: boolean | null
           name: string
           original_price?: number | null
+          presentation?: string | null
           price: number
+          protein_line?: string | null
           short_description?: string | null
           slug: string
           sort_order?: number | null
@@ -186,6 +229,7 @@ export type Database = {
           weight_range_min?: number | null
         }
         Update: {
+          benefits?: Json | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -193,11 +237,14 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          ingredients?: string[] | null
           is_active?: boolean | null
           is_subscription?: boolean | null
           name?: string
           original_price?: number | null
+          presentation?: string | null
           price?: number
+          protein_line?: string | null
           short_description?: string | null
           slug?: string
           sort_order?: number | null
@@ -207,6 +254,110 @@ export type Database = {
           weight_range_min?: number | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string
+          colonia: string | null
+          created_at: string
+          email: string
+          family_name: string
+          id: string
+          is_coverage_verified: boolean | null
+          pet_name: string
+          phone: string
+          postal_code: string
+          references_notes: string | null
+          special_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          colonia?: string | null
+          created_at?: string
+          email: string
+          family_name: string
+          id: string
+          is_coverage_verified?: boolean | null
+          pet_name: string
+          phone: string
+          postal_code: string
+          references_notes?: string | null
+          special_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          colonia?: string | null
+          created_at?: string
+          email?: string
+          family_name?: string
+          id?: string
+          is_coverage_verified?: boolean | null
+          pet_name?: string
+          phone?: string
+          postal_code?: string
+          references_notes?: string | null
+          special_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          frequency: string
+          id: string
+          next_delivery_date: string | null
+          payment_method: string | null
+          plan_type: string
+          points: number | null
+          presentation: string
+          product_id: string | null
+          protein_line: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          frequency: string
+          id?: string
+          next_delivery_date?: string | null
+          payment_method?: string | null
+          plan_type: string
+          points?: number | null
+          presentation: string
+          product_id?: string | null
+          protein_line: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: string
+          id?: string
+          next_delivery_date?: string | null
+          payment_method?: string | null
+          plan_type?: string
+          points?: number | null
+          presentation?: string
+          product_id?: string | null
+          protein_line?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
