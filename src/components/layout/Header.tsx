@@ -1,23 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogIn } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
+import { useAuthContext } from "@/components/auth";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
   { href: "/tienda", label: "Tienda" },
-  { href: "/ai", label: "Recomendador AI" },
+  { href: "/ai", label: "Asistente AI" },
   { href: "/cobertura", label: "Cobertura" },
   { href: "/suscripcion", label: "Suscripción" },
-  { href: "/faq", label: "FAQ" },
 ];
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { items } = useCart();
+  const { isAuthenticated, loading } = useAuthContext();
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -49,8 +50,22 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Cart & Mobile Menu */}
+        {/* Cart, Auth & Mobile Menu */}
         <div className="flex items-center gap-2">
+          {/* Auth Button */}
+          {!loading && (
+            <Link to={isAuthenticated ? "/mi-cuenta" : "/login"}>
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                {isAuthenticated ? (
+                  <User className="h-5 w-5" />
+                ) : (
+                  <LogIn className="h-5 w-5" />
+                )}
+              </Button>
+            </Link>
+          )}
+
+          {/* Cart */}
           <Link to="/carrito">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
@@ -92,6 +107,24 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            {/* Mobile Auth Link */}
+            <Link
+              to={isAuthenticated ? "/mi-cuenta" : "/login"}
+              onClick={() => setIsOpen(false)}
+              className="px-4 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted flex items-center gap-2"
+            >
+              {isAuthenticated ? (
+                <>
+                  <User className="h-4 w-4" />
+                  Mi Cuenta
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4" />
+                  Iniciar Sesión
+                </>
+              )}
+            </Link>
           </nav>
         </div>
       )}
