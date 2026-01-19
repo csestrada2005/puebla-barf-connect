@@ -1,33 +1,119 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Repeat, Sparkles, ArrowRight } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const features = [
-  "Entrega semanal automática",
-  "10% de descuento permanente",
-  "Prioridad en entregas",
-  "Pausar o cancelar cuando quieras",
-  "Soporte prioritario por WhatsApp",
+const WHATSAPP_NUMBER = "5212213606464";
+
+const proteinOptions = [
+  { value: "pollo", label: "Pollo", emoji: "🍗", description: "Línea base, ideal para iniciar" },
+  { value: "res", label: "Res", emoji: "🥩", description: "Línea premium, mayor proteína" },
+];
+
+const presentationOptions = [
+  { value: "500g", label: "500g", description: "Perros pequeños (hasta 10kg)" },
+  { value: "1kg", label: "1kg", description: "Perros medianos y grandes" },
+];
+
+const planTypes = [
+  {
+    id: "basico",
+    name: "Plan Básico",
+    description: "Recibe cada mes sin complicaciones",
+    benefits: [
+      "Precio igual al producto individual",
+      "No requiere re-ingresar tarjeta",
+      "Status de cliente fiel",
+      "Regalos sorpresa mensuales",
+      "Cambia línea cada mes si quieres",
+    ],
+    badge: null,
+  },
+  {
+    id: "pro",
+    name: "Plan Pro",
+    description: "Beneficios exclusivos para los más comprometidos",
+    benefits: [
+      "Sistema de puntos acumulables",
+      "Prioridad en entregas",
+      "Acceso a productos exclusivos",
+      "Descuentos en productos adicionales",
+      "Soporte prioritario por WhatsApp",
+    ],
+    badge: "Recomendado",
+    priceMultiplier: 1.15,
+  },
+];
+
+const frequencyOptions = [
+  { 
+    value: "mensual", 
+    label: "Mensual", 
+    description: "Pago cada mes, puedes iniciar con efectivo",
+    discount: 0,
+  },
+  { 
+    value: "anual", 
+    label: "Anual", 
+    description: "15% de descuento, solo tarjeta",
+    discount: 15,
+    requiresCard: true,
+  },
 ];
 
 export default function Suscripcion() {
-  const { data: subscription } = useQuery({
-    queryKey: ["subscription-product"],
+  const [protein, setProtein] = useState("pollo");
+  const [presentation, setPresentation] = useState("500g");
+  const [planType, setPlanType] = useState("basico");
+  const [frequency, setFrequency] = useState("mensual");
+
+  const { data: products } = useQuery({
+    queryKey: ["subscription-products"],
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
         .select("*")
-        .eq("is_subscription", true)
         .eq("is_active", true)
-        .single();
-      return data;
+        .eq("is_subscription", false);
+      return data || [];
     },
   });
+
+  // Find matching product
+  const selectedProduct = products?.find(
+    (p) => p.protein_line === protein && p.presentation === presentation
+  );
+
+  // Calculate price
+  const basePrice = selectedProduct ? Number(selectedProduct.price) : 0;
+  const planMultiplier = planType === "pro" ? 1.15 : 1;
+  const frequencyDiscount = frequency === "anual" ? 0.85 : 1;
+  const finalPrice = Math.round(basePrice * planMultiplier * frequencyDiscount);
+
+  const handleSubscribe = () => {
+    const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
+    const planName = planType === "pro" ? "Pro" : "Básico";
+    const freqName = frequency === "anual" ? "Anual" : "Mensual";
+    
+    const message = encodeURIComponent(
+      `Hola! Quiero suscribirme a Raw Paw:\n\n` +
+      `*Producto:* ${productName}\n` +
+      `*Plan:* ${planName}\n` +
+      `*Frecuencia:* ${freqName}\n` +
+      `*Precio:* $${finalPrice.toLocaleString("es-MX")}/mes\n\n` +
+      `¿Cómo puedo continuar?`
+    );
+    
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+  };
 
   return (
     <Layout>
@@ -47,122 +133,219 @@ export default function Suscripcion() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Plan card */}
-          <Card className="border-primary border-2 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-sm font-medium">
-              Más popular
-            </div>
-            <CardHeader>
-              <CardTitle className="text-2xl">Suscripción Mensual</CardTitle>
-              <CardDescription>
-                Plan mensual BARF entregado cada 30 días
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-baseline gap-2">
-                {subscription?.original_price && (
-                  <span className="text-xl text-muted-foreground line-through">
-                    ${Number(subscription.original_price).toLocaleString("es-MX")}
-                  </span>
-                )}
-                <span className="text-4xl font-bold text-primary">
-                  ${subscription ? Number(subscription.price).toLocaleString("es-MX") : "1,709"}
-                </span>
-                <span className="text-muted-foreground">/mes</span>
-              </div>
-
-              <ul className="space-y-3">
-                {features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-primary" />
-                    </div>
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="space-y-3">
-                <Button asChild className="w-full gap-2" size="lg">
-                  <Link to="/ai">
-                    <Sparkles className="h-4 w-4" />
-                    Calcular mi plan ideal
-                  </Link>
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  Usa nuestro recomendador AI para encontrar las porciones ideales
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* How it works */}
+        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {/* Configurator */}
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">¿Cómo funciona?</h2>
-            
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
-                  1
-                </div>
-                <div>
-                  <h3 className="font-medium">Elige tu plan</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Usa el recomendador AI o elige manualmente según el peso de tu perro.
-                  </p>
-                </div>
-              </div>
+            {/* Protein Line */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">1. Elige tu línea</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={protein} onValueChange={setProtein} className="grid grid-cols-2 gap-3">
+                  {proteinOptions.map((option) => (
+                    <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={`protein-${option.value}`} className="peer sr-only" />
+                      <Label
+                        htmlFor={`protein-${option.value}`}
+                        className="flex flex-col items-center gap-2 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                      >
+                        <span className="text-3xl">{option.emoji}</span>
+                        <span className="font-semibold">{option.label}</span>
+                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </CardContent>
+            </Card>
 
-              <div className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
-                  2
-                </div>
-                <div>
-                  <h3 className="font-medium">Confirma por WhatsApp</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Completa tu primera orden y activa tu suscripción.
-                  </p>
-                </div>
-              </div>
+            {/* Presentation */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">2. Presentación</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={presentation} onValueChange={setPresentation} className="grid grid-cols-2 gap-3">
+                  {presentationOptions.map((option) => (
+                    <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={`pres-${option.value}`} className="peer sr-only" />
+                      <Label
+                        htmlFor={`pres-${option.value}`}
+                        className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                      >
+                        <span className="text-xl font-bold">{option.label}</span>
+                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </CardContent>
+            </Card>
 
-              <div className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
-                  3
-                </div>
-                <div>
-                  <h3 className="font-medium">Recibe cada mes</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Entregamos automáticamente. Te avisamos 2 días antes.
-                  </p>
-                </div>
-              </div>
+            {/* Plan Type */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">3. Tipo de plan</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={planType} onValueChange={setPlanType} className="space-y-3">
+                  {planTypes.map((plan) => (
+                    <div key={plan.id} className="relative">
+                      <RadioGroupItem value={plan.id} id={`plan-${plan.id}`} className="peer sr-only" />
+                      <Label
+                        htmlFor={`plan-${plan.id}`}
+                        className="flex items-start gap-4 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold">{plan.name}</span>
+                            {plan.badge && (
+                              <Badge variant="default" className="text-xs">{plan.badge}</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{plan.description}</p>
+                          <ul className="space-y-1">
+                            {plan.benefits.slice(0, 3).map((b, i) => (
+                              <li key={i} className="flex items-center gap-2 text-xs">
+                                <Check className="h-3 w-3 text-primary" />
+                                <span>{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </CardContent>
+            </Card>
 
-              <div className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold shrink-0">
-                  ∞
-                </div>
-                <div>
-                  <h3 className="font-medium">Sin compromisos</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Pausa, modifica o cancela cuando quieras sin penalización.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Frequency */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">4. Frecuencia</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-3">
+                  {frequencyOptions.map((option) => (
+                    <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={`freq-${option.value}`} className="peer sr-only" />
+                      <Label
+                        htmlFor={`freq-${option.value}`}
+                        className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                      >
+                        <span className="font-semibold">{option.label}</span>
+                        {option.discount > 0 && (
+                          <Badge variant="secondary" className="text-xs">-{option.discount}%</Badge>
+                        )}
+                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
 
-            <Card className="bg-muted/50">
-              <CardContent className="pt-6">
-                <p className="text-sm">
-                  <strong>¿Tienes dudas?</strong> Escríbenos por WhatsApp y te ayudamos 
-                  a elegir el plan perfecto para tu perro.
-                </p>
-                <Button asChild variant="outline" className="mt-4 gap-2" size="sm">
-                  <a href="https://wa.me/5212223334455" target="_blank" rel="noopener noreferrer">
-                    Contactar por WhatsApp
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
+                {frequency === "anual" && (
+                  <Alert className="mt-4">
+                    <CreditCard className="h-4 w-4" />
+                    <AlertDescription>
+                      El plan anual requiere pago con tarjeta. Próximamente disponible.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Summary & Benefits */}
+          <div className="space-y-6">
+            {/* Price Card */}
+            <Card className="border-primary border-2 sticky top-24">
+              <CardHeader>
+                <CardTitle className="text-xl">Tu suscripción</CardTitle>
+                <CardDescription>
+                  BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - Plan {planType === "pro" ? "Pro" : "Básico"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-baseline gap-2">
+                  {basePrice !== finalPrice && (
+                    <span className="text-xl text-muted-foreground line-through">
+                      ${basePrice.toLocaleString("es-MX")}
+                    </span>
+                  )}
+                  <span className="text-4xl font-bold text-primary">
+                    ${finalPrice.toLocaleString("es-MX")}
+                  </span>
+                  <span className="text-muted-foreground">/mes</span>
+                </div>
+
+                <div className="space-y-2">
+                  {planTypes.find(p => p.id === planType)?.benefits.map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button 
+                  onClick={handleSubscribe} 
+                  className="w-full gap-2" 
+                  size="lg"
+                  disabled={frequency === "anual"}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {frequency === "anual" ? "Próximamente" : "Suscribirme por WhatsApp"}
                 </Button>
+
+                <p className="text-xs text-center text-muted-foreground">
+                  Sin compromiso. Cancela cuando quieras.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Extra Benefits */}
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex gap-3">
+                  <Gift className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Regalos sorpresa</p>
+                    <p className="text-xs text-muted-foreground">Cada mes incluimos algo especial para tu perro</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Truck className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Entrega automática</p>
+                    <p className="text-xs text-muted-foreground">Te avisamos 2 días antes de cada entrega</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Star className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Sin permanencia</p>
+                    <p className="text-xs text-muted-foreground">Pausa o cancela cuando quieras sin penalización</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Policies */}
+            <Card className="bg-muted/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Info className="h-4 w-4" />
+                  Políticas de suscripción
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-xs text-muted-foreground space-y-2">
+                <p>• <strong>Mensual:</strong> Puedes cambiar de línea cada mes y pagar con efectivo.</p>
+                <p>• <strong>Anual:</strong> Línea fija durante el año, solo pago con tarjeta. Cancelación disponible 2 semanas después del pago.</p>
+                <p>• Pausar la suscripción está disponible en cualquier momento sin costo.</p>
               </CardContent>
             </Card>
           </div>

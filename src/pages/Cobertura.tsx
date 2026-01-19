@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout";
 import { CoverageResult } from "@/components";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCoverage } from "@/hooks/useCoverage";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const WHATSAPP_NUMBER = "5212213606464";
 
 export default function Cobertura() {
   const [search, setSearch] = useState("");
@@ -36,10 +39,16 @@ export default function Cobertura() {
     }
   };
 
-  const handleJoinWaitlist = () => {
-    const whatsappNumber = "5212223334455";
-    const message = encodeURIComponent(`Hola, me interesa Raw Paw pero mi zona (${search}) aún no tiene cobertura. ¿Pueden avisarme cuando lleguen?`);
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+  const handleRequestCoverage = () => {
+    const message = encodeURIComponent(
+      `Hola! Me interesa Raw Paw pero mi zona no aparece en cobertura.\n\n` +
+      `*Mi ubicación:* ${search}\n` +
+      `*Producto de interés:* [Por definir]\n` +
+      `*Cantidad estimada:* [Por definir]\n` +
+      `*Tipo:* Compra única / Suscripción\n\n` +
+      `¿Pueden cotizar envío a mi zona?`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (
@@ -66,12 +75,35 @@ export default function Cobertura() {
           </div>
 
           {hasSearched && (
-            <CoverageResult
-              status={selectedZone ? "covered" : "not-covered"}
-              zoneName={selectedZone?.zone_name}
-              deliveryFee={selectedZone?.delivery_fee}
-              onJoinWaitlist={handleJoinWaitlist}
-            />
+            <>
+              <CoverageResult
+                status={selectedZone ? "covered" : "not-covered"}
+                zoneName={selectedZone?.zone_name}
+                deliveryFee={selectedZone?.delivery_fee}
+                onJoinWaitlist={handleRequestCoverage}
+              />
+
+              {/* Enhanced no-coverage CTA */}
+              {!selectedZone && (
+                <Card className="mt-6 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      ¿No está tu localidad?
+                    </CardTitle>
+                    <CardDescription>
+                      Estamos creciendo en Puebla. Escríbenos para cotizar envío a tu zona.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={handleRequestCoverage} className="w-full gap-2">
+                      <MessageCircle className="h-4 w-4" />
+                      Solicitar cobertura por WhatsApp
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
 
           {zones && zones.length > 0 && !hasSearched && (

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
-  CreditCard, Smartphone, Building, MessageCircle, 
-  ArrowLeft, Check, Copy, ExternalLink, Loader2 
+  CreditCard, Banknote, MessageCircle, 
+  ArrowLeft, Check, Loader2, AlertCircle 
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -12,51 +12,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+const WHATSAPP_NUMBER = "5212213606464";
+
 const paymentMethods = [
   {
-    id: "whatsapp",
-    name: "WhatsApp",
-    description: "Confirma tu pedido por WhatsApp",
-    icon: MessageCircle,
+    id: "efectivo",
+    name: "Efectivo",
+    description: "Pago al recibir tu pedido",
+    icon: Banknote,
     color: "text-green-600",
   },
   {
-    id: "transfer",
-    name: "Transferencia SPEI",
-    description: "Paga con transferencia bancaria",
-    icon: Building,
-    color: "text-blue-600",
-  },
-  {
-    id: "stripe",
+    id: "tarjeta",
     name: "Tarjeta de crédito/débito",
-    description: "Pago seguro con Stripe",
+    description: "Pago seguro con tarjeta",
     icon: CreditCard,
     color: "text-purple-600",
     comingSoon: true,
   },
-  {
-    id: "mercadopago",
-    name: "MercadoPago",
-    description: "Tarjetas, OXXO, SPEI",
-    icon: Smartphone,
-    color: "text-sky-600",
-    comingSoon: true,
-  },
 ];
-
-const bankInfo = {
-  bank: "BBVA",
-  clabe: "012180015239745892",
-  beneficiary: "Raw Paw MX",
-  concept: "Pedido Raw Paw",
-};
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -65,7 +46,7 @@ export default function Checkout() {
   const { isConfirmed, zoneName, address, deliveryFee } = useCoverage();
   const { recommendation } = useRecommendation();
   
-  const [paymentMethod, setPaymentMethod] = useState("whatsapp");
+  const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
@@ -75,6 +56,7 @@ export default function Checkout() {
     phone: "",
     address: address || "",
     notes: "",
+    deliveryWindow: "",
   });
 
   const subtotal = getSubtotal();
@@ -98,6 +80,15 @@ export default function Checkout() {
       return;
     }
 
+    if (!isConfirmed) {
+      toast({
+        title: "Verifica tu cobertura",
+        description: "Necesitas confirmar que entregamos en tu zona.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     const newOrderNumber = generateOrderNumber();
@@ -115,7 +106,7 @@ export default function Checkout() {
         delivery_fee: deliveryFee,
         total: total,
         payment_method: paymentMethod,
-        payment_status: paymentMethod === "whatsapp" ? "pending" : "pending",
+        payment_status: "pending",
         status: "pending",
         ai_recommendation: recommendation as any,
       });
@@ -124,25 +115,26 @@ export default function Checkout() {
 
       setOrderNumber(newOrderNumber);
       
-      if (paymentMethod === "whatsapp") {
-        // Generate WhatsApp message
-        const itemsList = items.map(i => `• ${i.name} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
-        const message = encodeURIComponent(
-          `🐾 *Nuevo Pedido Raw Paw*\n\n` +
-          `📋 *Orden:* ${newOrderNumber}\n\n` +
-          `*Productos:*\n${itemsList}\n\n` +
-          `💰 *Subtotal:* $${subtotal.toLocaleString("es-MX")}\n` +
-          `🚚 *Envío:* $${deliveryFee.toLocaleString("es-MX")}\n` +
-          `*Total:* $${total.toLocaleString("es-MX")}\n\n` +
-          `👤 *Nombre:* ${formData.name}\n` +
-          `📱 *Teléfono:* ${formData.phone}\n` +
-          `📍 *Dirección:* ${formData.address}\n` +
-          (formData.notes ? `📝 *Notas:* ${formData.notes}\n` : "") +
-          `\n¡Quiero confirmar mi pedido! 🙌`
-        );
-        
-        window.open(`https://wa.me/5212223334455?text=${message}`, "_blank");
-      }
+      // Generate WhatsApp message with structured format
+      const itemsList = items.map(i => `• ${i.name} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
+      const petInfo = recommendation?.breed ? `${recommendation.breed}` : "No especificado";
+      const familyName = formData.name.split(" ").slice(-1)[0];
+      
+      const message = encodeURIComponent(
+        `*Nuevo Pedido Raw Paw*\n` +
+        `ID: ${newOrderNumber}\n\n` +
+        `*Productos:*\n${itemsList}\n\n` +
+        `*Total:* $${total.toLocaleString("es-MX")}\n` +
+        `*Pago:* ${paymentMethod === "efectivo" ? "Efectivo por cobrar" : "Tarjeta"}\n\n` +
+        `*Cliente:* ${petInfo} - Fam. ${familyName}\n` +
+        `*Tel:* ${formData.phone}\n` +
+        `*Dirección:* ${formData.address}\n` +
+        (formData.notes ? `*Referencias:* ${formData.notes}\n` : "") +
+        (formData.deliveryWindow ? `*Ventana horaria:* ${formData.deliveryWindow}\n` : "") +
+        `\n*Entrega:* 24-48h`
+      );
+      
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
       
       setOrderComplete(true);
       clearCart();
@@ -157,11 +149,6 @@ export default function Checkout() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: "Copiado al portapapeles" });
   };
 
   if (items.length === 0 && !orderComplete) {
@@ -183,62 +170,24 @@ export default function Checkout() {
             </p>
             <p className="text-2xl font-mono font-bold text-primary mb-6">{orderNumber}</p>
             
-            {paymentMethod === "whatsapp" && (
-              <Card className="mb-6 text-left">
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Tu pedido ha sido enviado por WhatsApp. Te contactaremos para confirmar el pago y entrega.
-                  </p>
-                  <Button asChild className="w-full gap-2" variant="outline">
-                    <a href="https://wa.me/5212223334455" target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="h-4 w-4" />
-                      Abrir WhatsApp
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+            <Card className="mb-6 text-left">
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  {paymentMethod === "efectivo" 
+                    ? "Tu pedido ha sido enviado por WhatsApp. Te contactaremos para coordinar la entrega y cobro."
+                    : "Tu pedido ha sido registrado. Te contactaremos para confirmar."
+                  }
+                </p>
+                <Button asChild className="w-full gap-2">
+                  <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4" />
+                    Abrir WhatsApp
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
 
-            {paymentMethod === "transfer" && (
-              <Card className="mb-6 text-left">
-                <CardHeader>
-                  <CardTitle className="text-lg">Datos para transferencia</CardTitle>
-                  <CardDescription>Realiza tu pago y envíanos el comprobante</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Banco:</span>
-                    <span className="font-medium">{bankInfo.bank}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">CLABE:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm">{bankInfo.clabe}</span>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(bankInfo.clabe)}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Beneficiario:</span>
-                    <span className="font-medium">{bankInfo.beneficiary}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Monto:</span>
-                    <span className="font-bold text-primary">${total.toLocaleString("es-MX")}</span>
-                  </div>
-                  <Separator />
-                  <Button asChild className="w-full gap-2">
-                    <a href={`https://wa.me/5212223334455?text=${encodeURIComponent(`Hola, ya realicé la transferencia para mi pedido ${orderNumber}. Adjunto comprobante.`)}`} target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="h-4 w-4" />
-                      Enviar comprobante por WhatsApp
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link to="/">Volver al inicio</Link>
             </Button>
           </div>
@@ -259,6 +208,18 @@ export default function Checkout() {
           </Button>
 
           <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+          {!isConfirmed && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Necesitas verificar tu cobertura antes de continuar.{" "}
+                <Link to="/cobertura" className="underline font-medium">
+                  Verificar ahora
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="grid gap-8 lg:grid-cols-3">
@@ -286,7 +247,7 @@ export default function Checkout() {
                         <Input
                           id="phone"
                           type="tel"
-                          placeholder="221 123 4567"
+                          placeholder="221 360 6464"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                           required
@@ -303,15 +264,25 @@ export default function Checkout() {
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Notas de entrega (opcional)</Label>
-                      <Textarea
-                        id="notes"
-                        placeholder="Instrucciones especiales, referencias, etc."
-                        value={formData.notes}
-                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        rows={2}
-                      />
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="notes">Referencias (opcional)</Label>
+                        <Input
+                          id="notes"
+                          placeholder="Casa azul, junto al parque..."
+                          value={formData.notes}
+                          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
+                        <Input
+                          id="deliveryWindow"
+                          placeholder="Ej: 10am-2pm"
+                          value={formData.deliveryWindow}
+                          onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -356,33 +327,6 @@ export default function Checkout() {
                         </div>
                       ))}
                     </RadioGroup>
-
-                    {paymentMethod === "transfer" && (
-                      <Card className="mt-4 bg-muted/50">
-                        <CardContent className="pt-4 space-y-2 text-sm">
-                          <p className="font-medium">Datos para transferencia:</p>
-                          <div className="grid gap-1">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Banco:</span>
-                              <span>{bankInfo.bank}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-muted-foreground">CLABE:</span>
-                              <div className="flex items-center gap-1">
-                                <span className="font-mono">{bankInfo.clabe}</span>
-                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(bankInfo.clabe)}>
-                                  <Copy className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Beneficiario:</span>
-                              <span>{bankInfo.beneficiary}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -413,7 +357,9 @@ export default function Checkout() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Envío</span>
                       <span>
-                        {deliveryFee === 0 ? (
+                        {!isConfirmed ? (
+                          <span className="text-muted-foreground">Verifica cobertura</span>
+                        ) : deliveryFee === 0 ? (
                           <span className="text-green-600">Gratis</span>
                         ) : (
                           `$${deliveryFee.toLocaleString("es-MX")}`
@@ -428,11 +374,11 @@ export default function Checkout() {
                       <span className="text-primary">${total.toLocaleString("es-MX")}</span>
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full gap-2" 
+                    <Button
+                      type="submit"
                       size="lg"
-                      disabled={isSubmitting}
+                      className="w-full gap-2"
+                      disabled={isSubmitting || !isConfirmed}
                     >
                       {isSubmitting ? (
                         <>
@@ -441,11 +387,15 @@ export default function Checkout() {
                         </>
                       ) : (
                         <>
-                          Confirmar pedido
-                          {paymentMethod === "whatsapp" && <ExternalLink className="h-4 w-4" />}
+                          <MessageCircle className="h-4 w-4" />
+                          Confirmar por WhatsApp
                         </>
                       )}
                     </Button>
+                    
+                    <p className="text-xs text-center text-muted-foreground">
+                      Al confirmar, te redirigiremos a WhatsApp para finalizar tu pedido
+                    </p>
                   </CardContent>
                 </Card>
               </div>
