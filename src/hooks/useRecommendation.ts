@@ -2,13 +2,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export interface AIRecommendation {
+  petName?: string;
   breed: string;
   weight: number;
   age: string;
-  currentDiet: string;
+  activity?: string;
+  currentDiet?: string;
   goal: string;
-  recommendedPlan: string;
-  gramsPerDay: number;
+  recommendedPlan?: string;
+  recommendedProtein?: string;
+  recommendedPresentation?: string;
+  gramsPerDay?: number;
+  dailyGrams?: number;
+  monthlyGrams?: number;
+  packagesPerMonth?: number;
+  isPuppy?: boolean;
+  product?: any;
   message: string;
   createdAt: string;
 }

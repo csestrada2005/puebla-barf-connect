@@ -16,6 +16,9 @@ import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import MiCuenta from "./pages/MiCuenta";
+import Terminos from "./pages/Terminos";
+import Privacidad from "./pages/Privacidad";
+import GuiasBarf from "./pages/GuiasBarf";
 import NotFound from "./pages/NotFound";
 import { PromoPopup } from "./components/PromoPopup";
 
@@ -50,6 +53,9 @@ const App = () => (
                 <MiCuenta />
               </ProtectedRoute>
             } />
+            <Route path="/terminos" element={<Terminos />} />
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/guias-barf" element={<GuiasBarf />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
