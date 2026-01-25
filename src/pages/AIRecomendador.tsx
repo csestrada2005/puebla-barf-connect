@@ -187,11 +187,11 @@ export default function AIRecomendador() {
     }, 400);
   };
 
-  // Generate zone options from coverage zones
+  // Generate zone options from coverage zones - formatted like other quick replies
   const zoneOptions = coverageZones?.map(zone => ({
     value: zone.id,
-    label: zone.zone_name,
-    emoji: zone.delivery_fee === 0 ? "🚚" : "📦",
+    label: `${zone.zone_name}${zone.delivery_fee === 0 ? " • Gratis" : ` • $${zone.delivery_fee}`}`,
+    emoji: zone.delivery_fee === 0 ? "🚚" : "📍",
   })) || [];
 
   const handleZoneSelect = (value: string, label: string) => {

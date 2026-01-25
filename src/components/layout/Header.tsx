@@ -86,14 +86,17 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <div className="flex items-center gap-3 mb-8">
+              <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 mb-8">
                 <img 
                   src={isotipoWalking} 
                   alt="Raw Paw" 
                   className="h-12 w-auto"
                 />
-                <span className="text-xl font-bold">Raw Paw</span>
-              </div>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-xl font-bold">Raw Paw</span>
+                  <span className="text-[10px] text-muted-foreground tracking-wide">la nueva forma de cuidarlos</span>
+                </div>
+              </Link>
               <nav className="flex flex-col gap-2">
                 <Link
                   to="/"

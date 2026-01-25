@@ -36,12 +36,12 @@ export function QuickReplies({ options, onSelect, columns = 2, disabled }: Quick
         >
           <Button
             variant="outline"
-            className="w-full h-auto py-4 px-4 flex flex-col gap-1.5 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all rounded-xl"
+            className="w-full h-auto py-4 px-3 flex flex-col gap-1.5 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all rounded-xl text-center"
             onClick={() => onSelect(option.value, option.label)}
             disabled={disabled}
           >
             {option.emoji && <span className="text-2xl">{option.emoji}</span>}
-            <span className="text-sm font-medium">{option.label}</span>
+            <span className="text-sm font-medium leading-tight">{option.label}</span>
           </Button>
         </motion.div>
       ))}
