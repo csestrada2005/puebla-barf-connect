@@ -10,6 +10,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import heroDog from "@/assets/brand/hero-dog.jpeg";
+import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
+import dogsLineup from "@/assets/brand/dogs-lineup.jpeg";
 
 const benefits = [
   { 
@@ -19,30 +22,40 @@ const benefits = [
   },
   { 
     icon: Zap, 
-    title: "Más energía", 
-    description: "Proteínas de **alta calidad** que mantienen a tu perro activo y feliz." 
+    title: "Más energía y fuerza", 
+    description: "Proteínas de **alta calidad** que incrementan la masa muscular." 
   },
   { 
     icon: Leaf, 
     title: "Pelaje brillante", 
-    description: "Ácidos grasos esenciales para un **pelaje suave** y piel sana." 
+    description: "Menos caída de pelo y **piel sana** gracias a los ácidos grasos naturales." 
   },
   { 
     icon: Shield, 
     title: "Sistema inmune fuerte", 
-    description: "Nutrientes que **fortalecen** las defensas naturales de tu mascota." 
+    description: "Nutrientes que **fortalecen** las defensas y aumentan la longevidad." 
   },
   { 
     icon: Smile, 
-    title: "Dientes y aliento", 
-    description: "Dieta natural que mejora la **salud bucal** y reduce el mal aliento." 
+    title: "Salud bucal", 
+    description: "Mejora la dentadura y **elimina el mal aliento** de forma natural." 
   },
   { 
     icon: Wind, 
     title: "Heces pequeñas", 
-    description: "Mejor absorción significa **menos residuos** y heces más firmes." 
+    description: "Mejor absorción significa **menos residuos** y menos idas al baño." 
   },
 ];
+
+const ingredients = {
+  composition: [
+    { percentage: "60%", name: "Huesos carnosos", emoji: "🦴" },
+    { percentage: "20%", name: "Carne con grasa", emoji: "🥩" },
+    { percentage: "10%", name: "Vísceras", emoji: "🫀" },
+    { percentage: "10%", name: "Vegetales", emoji: "🥕" },
+  ],
+  list: ["Pollo", "Res", "Sardinas", "Calabaza", "Espinaca", "Pepino", "Zanahoria", "Chía"],
+};
 
 const steps = [
   {
@@ -105,36 +118,59 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Manifiesto Emocional */}
-      <section className="relative py-24 md:py-36 overflow-hidden bg-background">
+      <section className="relative py-16 md:py-24 overflow-hidden bg-background">
         <div className="container relative">
-          <div className="max-w-4xl mx-auto text-center animate-slide-up">
-            <p className="text-primary font-medium mb-4 tracking-wide uppercase text-sm">
-              La nueva forma de cuidarlos
-            </p>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance leading-tight text-foreground">
-              No creemos en alimentar por costumbre.{" "}
-              <span className="text-primary">Creemos en nutrir con intención.</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
-              Porque ellos merecen comida real.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="gap-2 text-base">
-                <Link to="/ai">
-                  <Sparkles className="h-5 w-5" />
-                  Arma tu pedido
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2 text-base border-foreground/20 hover:bg-muted">
-                <Link to="/tienda">
-                  Ver productos
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="animate-slide-up">
+              <p className="text-primary font-medium mb-4 tracking-wide uppercase text-sm">
+                La nueva forma de cuidarlos
+              </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight text-foreground">
+                No creemos en alimentar por costumbre.{" "}
+                <span className="text-primary">Creemos en nutrir con intención.</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+                Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
+                Porque ellos merecen comida real.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="gap-2 text-base">
+                  <Link to="/ai">
+                    <Sparkles className="h-5 w-5" />
+                    Arma tu pedido
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="gap-2 text-base border-primary/30 hover:bg-primary/5">
+                  <Link to="/tienda">
+                    Ver productos
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                ⏱️ Toma menos de 3 minutos
+              </p>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              ⏱️ Toma menos de 3 minutos
+            <div className="relative animate-fade-in">
+              <img 
+                src={heroDog} 
+                alt="Perro feliz con Raw Paw" 
+                className="w-full max-w-md mx-auto rounded-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Filosofía de Marca */}
+      <section className="py-16 md:py-20 bg-primary text-primary-foreground">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              En Raw Paw <span className="opacity-80">no</span> hacemos comida para perros
+            </h2>
+            <p className="text-xl md:text-2xl opacity-90">
+              Hacemos alimento <strong>real y fresco</strong>, con ingredientes de <strong>calidad humana</strong>.
             </p>
           </div>
         </div>
@@ -148,37 +184,38 @@ export default function Home() {
               🏆 Garantía de Frescura
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              Ingredientes de consumo humano
+              Ingredientes 100% naturales
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Si tú no te lo comerías, ellos tampoco. Alta rotación de inventario para máxima frescura.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
-              <div className="text-6xl mb-4">🥩</div>
-              <h3 className="font-semibold text-lg mb-2">Proteína Premium</h3>
-              <p className="text-sm text-muted-foreground">
-                Carne fresca de res o pollo de proveedores locales certificados.
-              </p>
-            </Card>
-            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
-              <div className="text-6xl mb-4">🥕</div>
-              <h3 className="font-semibold text-lg mb-2">Verduras Frescas</h3>
-              <p className="text-sm text-muted-foreground">
-                Zanahorias, calabazas y vegetales de temporada llenos de vitaminas.
-              </p>
-            </Card>
-            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
-              <div className="text-6xl mb-4">🍎</div>
-              <h3 className="font-semibold text-lg mb-2">Frutas Naturales</h3>
-              <p className="text-sm text-muted-foreground">
-                Manzanas y frutas que aportan fibra y antioxidantes naturales.
-              </p>
-            </Card>
+          
+          {/* Composición BARF */}
+          <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
+            {ingredients.composition.map((item) => (
+              <Card key={item.name} className="text-center p-6 border-2 border-primary/10 hover:border-primary/30 transition-colors">
+                <div className="text-4xl mb-2">{item.emoji}</div>
+                <p className="text-2xl font-bold text-primary mb-1">{item.percentage}</p>
+                <p className="text-sm text-muted-foreground">{item.name}</p>
+              </Card>
+            ))}
           </div>
+
+          {/* Lista de ingredientes */}
+          <div className="bg-background rounded-2xl p-8 max-w-3xl mx-auto">
+            <h3 className="font-semibold text-lg mb-4 text-center">Nuestros ingredientes:</h3>
+            <div className="flex flex-wrap justify-center gap-3">
+              {ingredients.list.map((ingredient) => (
+                <Badge key={ingredient} variant="secondary" className="text-sm px-4 py-2">
+                  {ingredient}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
           <div className="text-center mt-10">
-            <Button asChild variant="outline" className="gap-2">
+            <Button asChild variant="outline" className="gap-2 border-primary/30">
               <Link to="/guias-barf">
                 Conoce más sobre BARF
                 <ArrowRight className="h-4 w-4" />
@@ -224,31 +261,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Benefits con imagen */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              ¿Por qué elegir Raw Paw?
-            </h2>
-            <p className="text-muted-foreground">
-              Los beneficios que notarás en tu perro
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {benefits.map((benefit) => (
-              <div key={benefit.title} className="flex gap-4 p-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center">
-                  <benefit.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{
-                    __html: benefit.description.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
-                  }} />
-                </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                ¿Por qué elegir Raw Paw?
+              </h2>
+              <p className="text-muted-foreground mb-8">
+                Los beneficios que notarás en tu perro
+              </p>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {benefits.map((benefit) => (
+                  <div key={benefit.title} className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-primary/20 flex items-center justify-center">
+                      <benefit.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">{benefit.title}</h3>
+                      <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{
+                        __html: benefit.description.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
+                      }} />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="relative">
+              <img 
+                src={benefitsDog} 
+                alt="Beneficios de la dieta BARF" 
+                className="w-full rounded-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
