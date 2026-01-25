@@ -75,6 +75,7 @@ export default function AIRecomendador() {
   const { user, isAuthenticated } = useAuth();
   
   const [step, setStep] = useState<Step>("name");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -176,61 +177,81 @@ export default function AIRecomendador() {
   };
 
   const handleNameSubmit = (name: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setPetData(prev => ({ ...prev, name }));
     addMessage(name, false);
     setTimeout(() => {
       addMessage(`¡Encantado de conocer a ${name}! 🐾 Ahora vamos a revisar sus medidas. ¿Cuánto pesa aproximadamente?`, true);
       setStep("weight");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleWeightSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     const weight = parseInt(value);
     setPetData(prev => ({ ...prev, weight }));
     addMessage(label, false);
     setTimeout(() => {
       addMessage(`Perfecto, anotado. ¿En qué etapa de vida está ${petData.name}? 🎂`, true);
       setStep("age");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleAgeSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setPetData(prev => ({ ...prev, age: value }));
     addMessage(label, false);
     setTimeout(() => {
       addMessage(`Muy bien. ¿Qué tan activo es ${petData.name}? 🏃`, true);
       setStep("activity");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleActivitySelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setPetData(prev => ({ ...prev, activity: value }));
     addMessage(label, false);
     setTimeout(() => {
       addMessage(`Ahora una pregunta importante para su nutrición. ¿Cómo describirías la condición corporal de ${petData.name}? ⚖️`, true);
       setStep("bodyCondition");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleBodyConditionSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setPetData(prev => ({ ...prev, bodyCondition: value }));
     addMessage(label, false);
     setTimeout(() => {
       addMessage(`Entendido. ¿${petData.name} tiene alguna sensibilidad digestiva o alergias alimentarias? 🤧`, true);
       setStep("sensitivity");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleSensitivitySelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setPetData(prev => ({ ...prev, sensitivity: value }));
     addMessage(label, false);
     setTimeout(() => {
       addMessage(`¡Excelente! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`, true);
       setStep("goal");
+      setIsProcessing(false);
     }, 400);
   };
 
   const handleGoalSelect = async (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     const updatedPetData: ExtendedPetData = { 
       ...petData, 
       goal: value,
@@ -327,19 +348,19 @@ export default function AIRecomendador() {
     
     switch (step) {
       case "name":
-        return <ChatInput placeholder="Nombre de tu perro..." onSubmit={handleNameSubmit} />;
+        return <ChatInput placeholder="Nombre de tu perro..." onSubmit={handleNameSubmit} disabled={isProcessing} />;
       case "weight":
-        return <QuickReplies options={weightOptions} onSelect={handleWeightSelect} columns={4} />;
+        return <QuickReplies options={weightOptions} onSelect={handleWeightSelect} columns={4} disabled={isProcessing} />;
       case "age":
-        return <QuickReplies options={ageOptions} onSelect={handleAgeSelect} columns={3} />;
+        return <QuickReplies options={ageOptions} onSelect={handleAgeSelect} columns={3} disabled={isProcessing} />;
       case "activity":
-        return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} />;
+        return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} disabled={isProcessing} />;
       case "bodyCondition":
-        return <QuickReplies options={bodyConditionOptions} onSelect={handleBodyConditionSelect} columns={3} />;
+        return <QuickReplies options={bodyConditionOptions} onSelect={handleBodyConditionSelect} columns={3} disabled={isProcessing} />;
       case "sensitivity":
-        return <QuickReplies options={sensitivityOptions} onSelect={handleSensitivitySelect} columns={3} />;
+        return <QuickReplies options={sensitivityOptions} onSelect={handleSensitivitySelect} columns={3} disabled={isProcessing} />;
       case "goal":
-        return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} />;
+        return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} disabled={isProcessing} />;
       default:
         return null;
     }
