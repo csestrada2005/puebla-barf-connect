@@ -138,9 +138,9 @@ export default function Home() {
         />
 
         <div className="container relative z-20 h-full">
-          <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg py-8 pl-4 md:pl-8">
-            {/* Logo - Grande */}
-            <div className="mb-6 md:mb-8">
+          <div className="flex flex-col py-8 px-4 md:px-8">
+            {/* Logo - Centrado y Grande */}
+            <div className="mb-6 md:mb-8 flex justify-center">
               <img 
                 src={logoWhite} 
                 alt="Raw Paw" 
@@ -148,30 +148,33 @@ export default function Home() {
               />
             </div>
 
-            {/* Título principal */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 md:mb-6">
-              Porque merecen lo mismo que tú
-            </h1>
+            {/* Contenido alineado a la izquierda */}
+            <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg">
+              {/* Título principal */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 md:mb-6">
+                Porque merecen lo mismo que tú
+              </h1>
 
-            {/* Descripción */}
-            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
-              Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
-            </p>
+              {/* Descripción */}
+              <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
+                Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
+              </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild size="lg" variant="secondary" className="gap-2 px-6">
-                <Link to="/ai">
-                  <Sparkles className="h-5 w-5" />
-                  Arma tu pedido
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                <Link to="/tienda">
-                  Ver productos
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button asChild size="lg" variant="secondary" className="gap-2 px-6">
+                  <Link to="/ai">
+                    <Sparkles className="h-5 w-5" />
+                    Arma tu pedido
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="gap-2 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                  <Link to="/tienda">
+                    Ver productos
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
