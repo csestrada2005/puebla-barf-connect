@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 
 interface ChatMessageProps {
   content: string;
@@ -18,8 +19,12 @@ export function ChatMessage({ content, isBot = true, children }: ChatMessageProp
       )}
     >
       {isBot && (
-        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-          <span className="text-xl">🐕</span>
+        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+          <img 
+            src={dogtorAvatar} 
+            alt="El Dogtor" 
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
       <div
