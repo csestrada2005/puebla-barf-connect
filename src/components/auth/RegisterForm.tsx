@@ -98,6 +98,23 @@ export function RegisterForm() {
         special_notes: formData.special_notes || undefined,
       });
 
+      // 4. Send welcome email via edge function (fire and forget)
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            petName: formData.pet_name,
+            familyName: formData.family_name,
+          }),
+        });
+      } catch (emailError) {
+        console.log('Welcome email could not be sent:', emailError);
+        // Don't block registration if email fails
+      }
+
       toast({
         title: "¡Bienvenido a Raw Paw!",
         description: `Hola familia ${formData.family_name}, ¡${formData.pet_name} está listo para comer sano!`,
