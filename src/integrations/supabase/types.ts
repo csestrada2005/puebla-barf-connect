@@ -68,6 +68,60 @@ export type Database = {
         }
         Relationships: []
       }
+      dog_profiles: {
+        Row: {
+          activity_level: string
+          age_stage: string
+          body_condition: string
+          created_at: string
+          daily_grams: number
+          goal: string
+          id: string
+          name: string
+          recommended_plan_type: string
+          recommended_protein: string
+          sensitivity: string
+          updated_at: string
+          user_id: string | null
+          weekly_kg: number
+          weight_kg: number
+        }
+        Insert: {
+          activity_level: string
+          age_stage: string
+          body_condition: string
+          created_at?: string
+          daily_grams: number
+          goal: string
+          id?: string
+          name: string
+          recommended_plan_type: string
+          recommended_protein: string
+          sensitivity: string
+          updated_at?: string
+          user_id?: string | null
+          weekly_kg: number
+          weight_kg: number
+        }
+        Update: {
+          activity_level?: string
+          age_stage?: string
+          body_condition?: string
+          created_at?: string
+          daily_grams?: number
+          goal?: string
+          id?: string
+          name?: string
+          recommended_plan_type?: string
+          recommended_protein?: string
+          sensitivity?: string
+          updated_at?: string
+          user_id?: string | null
+          weekly_kg?: number
+          weight_kg?: number
+        }
+        Relationships: []
+      }
       order_statuses: {
         Row: {
           created_at: string
