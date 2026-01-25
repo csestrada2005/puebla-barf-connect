@@ -18,7 +18,7 @@ interface RecommendationResult {
   dailyGrams: number;
   weeklyKg: number;
   monthlyKg: number;
-  planType: "standard" | "premium";
+  planType: "standard" | "mix" | "premium";
   optionA: {
     title: string;
     subtitle: string;
@@ -75,7 +75,7 @@ export function calculateRecommendation(
   const monthlyKg = (dailyGrams * 30) / 1000;
   
   // Determine plan type based on goal
-  const planType = petData.goal === "premium" ? "premium" : "standard";
+  const planType = petData.goal === "premium" ? "premium" : petData.goal === "mix" ? "mix" : "standard";
   
   // Get products by type
   const pollo500 = products.find(p => p.protein_line === "pollo" && p.presentation === "500g");
@@ -87,35 +87,45 @@ export function calculateRecommendation(
   const twoWeekGrams = dailyGrams * 14;
   const oneWeekGrams = dailyGrams * 7;
   
-  // Option A: Premium - 2 weeks supply with 1kg packages (better value)
+  // Option A: 2 weeks supply with 1kg packages (better value)
   const optionAProducts: ProductOption[] = [];
   let optionATotalPrice = 0;
   
   if (planType === "premium" && res1kg) {
-    const resPackages = Math.ceil(twoWeekGrams / 2 / 1000); // Half res, half pollo
+    // Premium: Only Res
+    const packages = Math.ceil(twoWeekGrams / 1000);
+    optionAProducts.push({
+      id: res1kg.id,
+      name: res1kg.name,
+      price: Number(res1kg.price),
+      quantity: packages,
+      presentation: "1kg",
+    });
+    optionATotalPrice = Number(res1kg.price) * packages;
+  } else if (planType === "mix" && res1kg && pollo1kg) {
+    // Mix: Half Res, half Pollo
+    const resPackages = Math.ceil(twoWeekGrams / 2 / 1000);
     const polloPackages = Math.ceil(twoWeekGrams / 2 / 1000);
     
-    if (res1kg) {
-      optionAProducts.push({
-        id: res1kg.id,
-        name: res1kg.name,
-        price: Number(res1kg.price),
-        quantity: resPackages,
-        presentation: "1kg",
-      });
-      optionATotalPrice += Number(res1kg.price) * resPackages;
-    }
-    if (pollo1kg) {
-      optionAProducts.push({
-        id: pollo1kg.id,
-        name: pollo1kg.name,
-        price: Number(pollo1kg.price),
-        quantity: polloPackages,
-        presentation: "1kg",
-      });
-      optionATotalPrice += Number(pollo1kg.price) * polloPackages;
-    }
+    optionAProducts.push({
+      id: res1kg.id,
+      name: res1kg.name,
+      price: Number(res1kg.price),
+      quantity: resPackages,
+      presentation: "1kg",
+    });
+    optionATotalPrice += Number(res1kg.price) * resPackages;
+    
+    optionAProducts.push({
+      id: pollo1kg.id,
+      name: pollo1kg.name,
+      price: Number(pollo1kg.price),
+      quantity: polloPackages,
+      presentation: "1kg",
+    });
+    optionATotalPrice += Number(pollo1kg.price) * polloPackages;
   } else if (pollo1kg) {
+    // Standard: Only Pollo
     const packages = Math.ceil(twoWeekGrams / 1000);
     optionAProducts.push({
       id: pollo1kg.id,
@@ -127,11 +137,45 @@ export function calculateRecommendation(
     optionATotalPrice = Number(pollo1kg.price) * packages;
   }
   
-  // Option B: Budget - 1 week supply with 500g packages (lower initial investment)
+  // Option B: 1 week supply with 500g packages (lower initial investment)
   const optionBProducts: ProductOption[] = [];
   let optionBTotalPrice = 0;
   
-  if (pollo500) {
+  if (planType === "premium" && res500) {
+    // Premium: Only Res
+    const packages = Math.ceil(oneWeekGrams / 500);
+    optionBProducts.push({
+      id: res500.id,
+      name: res500.name,
+      price: Number(res500.price),
+      quantity: packages,
+      presentation: "500g",
+    });
+    optionBTotalPrice = Number(res500.price) * packages;
+  } else if (planType === "mix" && res500 && pollo500) {
+    // Mix: Half Res, half Pollo
+    const resPackages = Math.ceil(oneWeekGrams / 2 / 500);
+    const polloPackages = Math.ceil(oneWeekGrams / 2 / 500);
+    
+    optionBProducts.push({
+      id: res500.id,
+      name: res500.name,
+      price: Number(res500.price),
+      quantity: resPackages,
+      presentation: "500g",
+    });
+    optionBTotalPrice += Number(res500.price) * resPackages;
+    
+    optionBProducts.push({
+      id: pollo500.id,
+      name: pollo500.name,
+      price: Number(pollo500.price),
+      quantity: polloPackages,
+      presentation: "500g",
+    });
+    optionBTotalPrice += Number(pollo500.price) * polloPackages;
+  } else if (pollo500) {
+    // Standard: Only Pollo
     const packages = Math.ceil(oneWeekGrams / 500);
     optionBProducts.push({
       id: pollo500.id,
