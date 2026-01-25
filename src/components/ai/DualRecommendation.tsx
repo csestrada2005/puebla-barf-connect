@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface ProductOption {
   id: string;
+  slug: string;
   name: string;
   price: number;
   quantity: number;
@@ -30,7 +31,7 @@ interface DualRecommendationProps {
   optionA: RecommendationOption;
   optionB: RecommendationOption;
   onSelectOption: (option: "A" | "B", products: ProductOption[]) => void;
-  onViewProduct: (productId: string) => void;
+  onViewProduct: (productSlug: string) => void;
   onRestart: () => void;
 }
 
@@ -129,20 +130,20 @@ export function DualRecommendation({
             
             <div className="space-y-2 mb-4">
               {optionA.products.map((product, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-dashed last:border-0">
-                  <span>{product.quantity}x {product.name}</span>
-                  <div className="flex items-center gap-2">
+                <div key={idx} className="flex flex-col gap-2 py-3 border-b border-dashed last:border-0">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-medium">{product.quantity}x {product.name}</span>
                     <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-7 px-2 text-xs"
-                      onClick={() => onViewProduct(product.id)}
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full gap-2"
+                    onClick={() => onViewProduct(product.slug)}
+                  >
+                    <Eye className="h-4 w-4" />
+                    Ver Producto
+                  </Button>
                 </div>
               ))}
             </div>
@@ -181,20 +182,20 @@ export function DualRecommendation({
             
             <div className="space-y-2 mb-4">
               {optionB.products.map((product, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-dashed last:border-0">
-                  <span>{product.quantity}x {product.name}</span>
-                  <div className="flex items-center gap-2">
+                <div key={idx} className="flex flex-col gap-2 py-3 border-b border-dashed last:border-0">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-medium">{product.quantity}x {product.name}</span>
                     <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-7 px-2 text-xs"
-                      onClick={() => onViewProduct(product.id)}
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full gap-2"
+                    onClick={() => onViewProduct(product.slug)}
+                  >
+                    <Eye className="h-4 w-4" />
+                    Ver Producto
+                  </Button>
                 </div>
               ))}
             </div>

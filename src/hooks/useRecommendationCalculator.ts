@@ -8,6 +8,7 @@ interface PetData {
 
 interface ProductOption {
   id: string;
+  slug: string;
   name: string;
   price: number;
   quantity: number;
@@ -39,6 +40,7 @@ interface RecommendationResult {
 
 interface Product {
   id: string;
+  slug: string;
   name: string;
   price: number;
   protein_line?: string | null;
@@ -96,6 +98,7 @@ export function calculateRecommendation(
     const packages = Math.ceil(twoWeekGrams / 1000);
     optionAProducts.push({
       id: res1kg.id,
+      slug: res1kg.slug,
       name: res1kg.name,
       price: Number(res1kg.price),
       quantity: packages,
@@ -109,6 +112,7 @@ export function calculateRecommendation(
     
     optionAProducts.push({
       id: res1kg.id,
+      slug: res1kg.slug,
       name: res1kg.name,
       price: Number(res1kg.price),
       quantity: resPackages,
@@ -118,6 +122,7 @@ export function calculateRecommendation(
     
     optionAProducts.push({
       id: pollo1kg.id,
+      slug: pollo1kg.slug,
       name: pollo1kg.name,
       price: Number(pollo1kg.price),
       quantity: polloPackages,
@@ -129,6 +134,7 @@ export function calculateRecommendation(
     const packages = Math.ceil(twoWeekGrams / 1000);
     optionAProducts.push({
       id: pollo1kg.id,
+      slug: pollo1kg.slug,
       name: pollo1kg.name,
       price: Number(pollo1kg.price),
       quantity: packages,
@@ -146,6 +152,7 @@ export function calculateRecommendation(
     const packages = Math.ceil(oneWeekGrams / 500);
     optionBProducts.push({
       id: res500.id,
+      slug: res500.slug,
       name: res500.name,
       price: Number(res500.price),
       quantity: packages,
@@ -159,6 +166,7 @@ export function calculateRecommendation(
     
     optionBProducts.push({
       id: res500.id,
+      slug: res500.slug,
       name: res500.name,
       price: Number(res500.price),
       quantity: resPackages,
@@ -168,6 +176,7 @@ export function calculateRecommendation(
     
     optionBProducts.push({
       id: pollo500.id,
+      slug: pollo500.slug,
       name: pollo500.name,
       price: Number(pollo500.price),
       quantity: polloPackages,
@@ -179,6 +188,7 @@ export function calculateRecommendation(
     const packages = Math.ceil(oneWeekGrams / 500);
     optionBProducts.push({
       id: pollo500.id,
+      slug: pollo500.slug,
       name: pollo500.name,
       price: Number(pollo500.price),
       quantity: packages,
