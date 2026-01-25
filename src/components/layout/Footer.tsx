@@ -2,28 +2,20 @@ import { Link } from "react-router-dom";
 import { MessageCircle, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
-
 const WHATSAPP_NUMBER = "5212213606464";
-
 export function Footer() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}`;
-
-  return (
-    <footer className="border-t border-border bg-primary text-primary-foreground">
+  return <footer className="border-t border-border bg-primary text-primary-foreground">
       <div className="container py-12">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img 
-                src={isotipoFluffy} 
-                alt="Raw Paw" 
-                className="h-14 w-auto brightness-0 invert"
-              />
+              <img src={isotipoFluffy} alt="Raw Paw" className="h-14 w-auto brightness-0 invert" />
               <span className="text-xl font-bold">Raw Paw</span>
             </div>
             <p className="text-sm opacity-80">
-              Alimentación BARF premium para perros en Puebla. Comida real, fresca y balanceada.
+              Comida real, fresca y balanceada.
             </p>
           </div>
 
@@ -87,6 +79,5 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 }
