@@ -165,16 +165,16 @@ export default function Home() {
       </section>
 
       {/* Filosofía de Marca */}
-      <section className="py-16 md:py-20 bg-primary text-primary-foreground">
+      <section className="py-16 md:py-20 bg-secondary text-secondary-foreground">
         <div className="container">
           <div className="max-w-4xl mx-auto text-center">
             <img 
               src={isotipoTall} 
               alt="Raw Paw" 
-              className="h-24 w-auto mx-auto mb-6 brightness-0 invert opacity-90"
+              className="h-24 w-auto mx-auto mb-6"
             />
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              En Raw Paw <span className="opacity-80">no</span> hacemos comida para perros
+              En Raw Paw <span className="opacity-70">no</span> hacemos comida para perros
             </h2>
             <p className="text-xl md:text-2xl opacity-90">
               Hacemos alimento <strong>real y fresco</strong>, con ingredientes de <strong>calidad humana</strong>.
