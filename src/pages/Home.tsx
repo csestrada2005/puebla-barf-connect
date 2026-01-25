@@ -123,13 +123,6 @@ export default function Home() {
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
       <section className="relative py-6 md:py-10 overflow-hidden bg-primary min-h-[420px] md:min-h-[480px]">
-        {/* Pelota - posición fija en la esquina superior izquierda */}
-        <img 
-          src={heroBall} 
-          alt="Pelota" 
-          className="absolute top-4 md:top-8 left-4 md:left-12 w-12 sm:w-16 md:w-20 lg:w-24 object-contain z-10 pointer-events-none"
-        />
-        
         {/* Perro lamiendo - posición fija a la derecha */}
         <img 
           src={heroDogLicking} 
@@ -160,21 +153,13 @@ export default function Home() {
                 Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
               </p>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" variant="secondary" className="gap-2 px-6">
-                  <Link to="/ai">
-                    <Sparkles className="h-5 w-5" />
-                    Arma tu pedido
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="gap-2 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                  <Link to="/tienda">
-                    Ver productos
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
+              {/* CTA */}
+              <Button asChild size="lg" variant="secondary" className="gap-2 px-8">
+                <Link to="/ai">
+                  <Sparkles className="h-5 w-5" />
+                  ¡Empezar ahora!
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
