@@ -73,9 +73,9 @@ export default function AIRecomendador() {
   });
   const [result, setResult] = useState<ReturnType<typeof calculateRecommendation> | null>(null);
 
-  // Restore state from sessionStorage on mount
+  // Restore state from localStorage on mount
   useEffect(() => {
-    const savedState = sessionStorage.getItem("ai-recommender-state");
+    const savedState = localStorage.getItem("ai-recommender-state");
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
@@ -83,8 +83,6 @@ export default function AIRecomendador() {
         setMessages(parsed.messages);
         setPetData(parsed.petData);
         setResult(parsed.result);
-        // Clear the saved state after restoring
-        sessionStorage.removeItem("ai-recommender-state");
       } catch (e) {
         console.error("Failed to restore AI state:", e);
       }
@@ -102,6 +100,14 @@ export default function AIRecomendador() {
       return data || [];
     },
   });
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (step !== "name" || messages.length > 1) {
+      const stateToSave = { step, messages, petData, result };
+      localStorage.setItem("ai-recommender-state", JSON.stringify(stateToSave));
+    }
+  }, [step, messages, petData, result]);
 
   const addMessage = (content: string, isBot: boolean) => {
     setMessages(prev => [...prev, { id: Date.now().toString(), content, isBot }]);
@@ -130,17 +136,11 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, age: value }));
     addMessage(label, false);
     
-    if (value === "adult") {
-      setTimeout(() => {
-        addMessage(`¿Qué tan activo es ${petData.name}? 🏃`, true);
-        setStep("activity");
-      }, 400);
-    } else {
-      setTimeout(() => {
-        addMessage("¿Qué tipo de plan prefieres para tu peludo? 💚", true);
-        setStep("goal");
-      }, 400);
-    }
+    // Always ask for activity level regardless of age
+    setTimeout(() => {
+      addMessage(`¿Qué tan activo es ${petData.name}? 🏃`, true);
+      setStep("activity");
+    }, 400);
   };
 
   const handleActivitySelect = (value: string, label: string) => {
@@ -206,21 +206,15 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
-  const handleViewProduct = (productId: string) => {
-    // Save current state to sessionStorage before navigating
-    const stateToSave = {
-      step,
-      messages,
-      petData,
-      result,
-    };
-    sessionStorage.setItem("ai-recommender-state", JSON.stringify(stateToSave));
-    
-    // Navigate to product page
-    navigate(`/producto/${productId}`);
+  const handleViewProduct = (productSlug: string) => {
+    // Navigate to product page using slug
+    navigate(`/producto/${productSlug}`);
   };
 
   const handleRestart = () => {
+    // Clear saved state
+    localStorage.removeItem("ai-recommender-state");
+    
     setMessages([{
       id: "welcome",
       content: "¡Hola! 👋 Soy el Dogtor. Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?",
