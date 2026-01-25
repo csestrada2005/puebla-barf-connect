@@ -6,6 +6,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
 import { useAuthContext } from "@/components/auth";
 import { cn } from "@/lib/utils";
+import logoWhite from "@/assets/brand/logo-white.png";
+import isotipoWalking from "@/assets/brand/isotipo-walking.png";
 
 const navLinks = [
   { href: "/tienda", label: "Tienda" },
@@ -34,10 +36,12 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                <span className="text-xl">🐾</span>
-              </div>
+            <div className="flex items-center gap-3 mb-8">
+              <img 
+                src={isotipoWalking} 
+                alt="Raw Paw" 
+                className="h-12 w-auto"
+              />
               <span className="text-xl font-bold">Raw Paw</span>
             </div>
             <nav className="flex flex-col gap-2">
@@ -92,9 +96,11 @@ export function Header() {
 
         {/* Center: Logo - Sin sombras ni biselados, plano */}
         <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-            <span className="text-xl">🐾</span>
-          </div>
+          <img 
+            src={isotipoWalking} 
+            alt="Raw Paw" 
+            className="h-10 w-auto"
+          />
           <div className="hidden sm:flex flex-col items-start leading-none">
             <span className="text-xl font-bold text-foreground">Raw Paw</span>
             <span className="text-[10px] text-muted-foreground tracking-wide">la nueva forma de cuidarlos</span>
