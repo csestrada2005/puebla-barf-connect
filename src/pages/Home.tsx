@@ -16,6 +16,7 @@ import dogsLineup from "@/assets/brand/dogs-lineup.jpeg";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
+import logoWhite from "@/assets/brand/logo-white.png";
 
 const benefits = [
   { 
@@ -120,23 +121,52 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* Hero - Manifiesto Emocional */}
-      <section className="relative py-16 md:py-24 overflow-hidden bg-background">
+      {/* Hero - Logo Centrado con Perros */}
+      <section className="relative py-12 md:py-20 overflow-hidden bg-background">
         <div className="container relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="animate-slide-up">
-              <p className="text-primary font-medium mb-4 tracking-wide uppercase text-sm">
-                La nueva forma de cuidarlos
-              </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight text-foreground">
-                No creemos en alimentar por costumbre.{" "}
-                <span className="text-primary">Creemos en nutrir con intención.</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+          <div className="flex flex-col items-center text-center">
+            {/* Logo y Tagline */}
+            <div className="relative w-full max-w-4xl mx-auto">
+              <div className="flex items-center justify-center gap-4 md:gap-8">
+                {/* Perro izquierdo - visible en md+ */}
+                <div className="hidden md:block flex-1">
+                  <img 
+                    src={heroDog} 
+                    alt="Perro feliz" 
+                    className="w-full max-w-xs ml-auto object-cover grayscale"
+                  />
+                </div>
+                
+                {/* Logo central */}
+                <div className="flex-shrink-0 px-4">
+                  <img 
+                    src={logoWhite} 
+                    alt="Raw Paw" 
+                    className="h-20 md:h-28 lg:h-36 w-auto mx-auto"
+                  />
+                  <p className="text-primary font-medium mt-2 text-lg md:text-xl tracking-wide">
+                    la nueva forma de cuidarlos
+                  </p>
+                </div>
+                
+                {/* Perro derecho - visible en md+ */}
+                <div className="hidden md:block flex-1">
+                  <img 
+                    src={dogsLineup} 
+                    alt="Perros Raw Paw" 
+                    className="w-full max-w-xs mr-auto object-cover grayscale"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Descripción y CTAs */}
+            <div className="mt-8 md:mt-12 max-w-2xl mx-auto animate-slide-up">
+              <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
                 Porque ellos merecen comida real.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="gap-2 text-base">
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5" />
@@ -154,13 +184,18 @@ export default function Home() {
                 ⏱️ Toma menos de 3 minutos
               </p>
             </div>
-            <div className="relative animate-fade-in">
-              <img 
-                src={heroDog} 
-                alt="Perro feliz con Raw Paw" 
-                className="w-full max-w-md mx-auto rounded-2xl"
-              />
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Manifiesto - Conexión Emocional */}
+      <section className="py-12 md:py-16 bg-muted/30">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl md:text-4xl font-bold text-foreground leading-tight">
+              No creemos en alimentar por costumbre.{" "}
+              <span className="text-primary">Creemos en nutrir con intención.</span>
+            </h2>
           </div>
         </div>
       </section>
