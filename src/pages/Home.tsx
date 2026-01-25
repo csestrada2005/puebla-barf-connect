@@ -122,29 +122,29 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-16 md:py-20 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
-        {/* Perro con plato - posición fija en la esquina inferior izquierda */}
+      <section className="relative py-12 md:py-16 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
+        {/* Perro con plato - posición fija en la izquierda, grande */}
         <img 
           src={heroDogBowl} 
           alt="Perro con plato" 
-          className="absolute bottom-0 left-0 w-40 sm:w-52 md:w-64 lg:w-80 object-contain z-10 pointer-events-none"
+          className="absolute bottom-0 left-0 w-64 sm:w-80 md:w-[420px] lg:w-[520px] object-contain z-10 pointer-events-none"
         />
         
         {/* Pelota - posición fija en la esquina superior derecha */}
         <img 
           src={heroBall} 
           alt="Pelota" 
-          className="absolute top-8 md:top-12 right-4 md:right-8 w-16 sm:w-20 md:w-24 lg:w-32 object-contain z-10 pointer-events-none"
+          className="absolute top-6 md:top-10 right-4 md:right-12 w-14 sm:w-18 md:w-24 lg:w-28 object-contain z-10 pointer-events-none"
         />
 
-        <div className="container relative z-20 h-full flex items-center justify-center">
-          <div className="flex flex-col items-center text-center max-w-2xl mx-auto py-8">
-            {/* Logo central */}
+        <div className="container relative z-20 h-full">
+          <div className="flex flex-col items-end text-right ml-auto max-w-md lg:max-w-lg py-8 pr-4 md:pr-8">
+            {/* Logo */}
             <div className="mb-6 md:mb-8">
               <img 
                 src={logoWhite} 
                 alt="Raw Paw" 
-                className="h-16 sm:h-20 md:h-28 lg:h-36 w-auto mx-auto brightness-0 invert"
+                className="h-14 sm:h-18 md:h-24 lg:h-32 w-auto brightness-0 invert"
               />
             </div>
 
@@ -154,12 +154,12 @@ export default function Home() {
             </h1>
 
             {/* Descripción */}
-            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-lg mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
               Alimentación BARF natural, fresca y balanceada para perros en Puebla.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild size="lg" variant="secondary" className="gap-2 px-6">
                 <Link to="/ai">
                   <Sparkles className="h-5 w-5" />
