@@ -164,18 +164,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Manifiesto - Conexión Emocional */}
-      <section className="py-12 md:py-16 bg-muted/30">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl md:text-4xl font-bold text-foreground leading-tight">
-              No creemos en alimentar por costumbre.{" "}
-              <span className="text-primary">Creemos en nutrir con intención.</span>
-            </h2>
-          </div>
-        </div>
-      </section>
-
       {/* Filosofía de Marca */}
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container">
@@ -191,55 +179,6 @@ export default function Home() {
             <p className="text-xl md:text-2xl opacity-90">
               Hacemos alimento <strong>real y fresco</strong>, con ingredientes de <strong>calidad humana</strong>.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Ingredientes Desglosados */}
-      <section className="py-16 md:py-24 bg-card">
-        <div className="container">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="mb-4 border-primary/30 text-primary">
-              🏆 Garantía de Frescura
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              Ingredientes 100% naturales
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Si tú no te lo comerías, ellos tampoco. Alta rotación de inventario para máxima frescura.
-            </p>
-          </div>
-          
-          {/* Composición BARF */}
-          <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
-            {ingredients.composition.map((item) => (
-              <Card key={item.name} className="text-center p-6 border-2 border-primary/10 hover:border-primary/30 transition-colors">
-                <div className="text-4xl mb-2">{item.emoji}</div>
-                <p className="text-2xl font-bold text-primary mb-1">{item.percentage}</p>
-                <p className="text-sm text-muted-foreground">{item.name}</p>
-              </Card>
-            ))}
-          </div>
-
-          {/* Lista de ingredientes */}
-          <div className="bg-background rounded-2xl p-8 max-w-3xl mx-auto">
-            <h3 className="font-semibold text-lg mb-4 text-center">Nuestros ingredientes:</h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {ingredients.list.map((ingredient) => (
-                <Badge key={ingredient} variant="secondary" className="text-sm px-4 py-2">
-                  {ingredient}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center mt-10">
-            <Button asChild variant="outline" className="gap-2 border-primary/30">
-              <Link to="/guias-barf">
-                Conoce más sobre BARF
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </section>
