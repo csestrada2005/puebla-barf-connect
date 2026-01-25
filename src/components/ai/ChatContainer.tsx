@@ -5,14 +5,17 @@ import { Sparkles } from "lucide-react";
 interface ChatContainerProps {
   children: ReactNode;
   inputSection: ReactNode;
+  scrollToEnd?: boolean;
 }
 
-export function ChatContainer({ children, inputSection }: ChatContainerProps) {
+export function ChatContainer({ children, inputSection, scrollToEnd = true }: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [children]);
+    if (scrollToEnd) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [children, scrollToEnd]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)]">

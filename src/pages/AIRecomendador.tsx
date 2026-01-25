@@ -368,7 +368,7 @@ export default function AIRecomendador() {
 
   return (
     <Layout hideFooter>
-      <ChatContainer inputSection={renderInputSection()}>
+      <ChatContainer inputSection={renderInputSection()} scrollToEnd={step !== "result"}>
         {messages.map((msg) => (
           <ChatMessage key={msg.id} content={msg.content} isBot={msg.isBot} />
         ))}
