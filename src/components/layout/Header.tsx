@@ -1,17 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import logoRawPaw from "@/assets/brand/logo-rawpaw.png";
-import isotipoWalking from "@/assets/brand/isotipo-walking.png";
 
 const navLinks = [
   { href: "/tienda", label: "Tienda" },
   { href: "/suscripcion", label: "Suscripción" },
   { href: "/ai", label: "Recomendador AI" },
+  { href: "/guias-barf", label: "Guía BARF" },
   { href: "/cobertura", label: "Cobertura" },
   { href: "/faq", label: "FAQ" },
 ];
@@ -20,6 +21,7 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { items } = useCart();
+  const { isAuthenticated, loading } = useAuth();
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -66,12 +68,21 @@ export function Header() {
             </Button>
           </Link>
 
-          {/* Register CTA */}
-          <Button asChild size="sm" className="hidden sm:flex">
-            <Link to="/registro">
-              Regístrate
-            </Link>
-          </Button>
+          {/* Auth CTA */}
+          {!loading && (
+            <Button asChild size="sm" className="hidden sm:flex gap-2">
+              {isAuthenticated ? (
+                <Link to="/mi-cuenta">
+                  <User className="h-4 w-4" />
+                  Mi cuenta
+                </Link>
+              ) : (
+                <Link to="/registro">
+                  Regístrate
+                </Link>
+              )}
+            </Button>
+          )}
 
           {/* Mobile Hamburger Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -118,20 +129,35 @@ export function Header() {
                   </Link>
                 ))}
                 <div className="border-t border-border my-4" />
-                <Link
-                  to="/registro"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground text-center"
-                >
-                  Regístrate
-                </Link>
-                <Link
-                  to="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted text-center"
-                >
-                  Iniciar Sesión
-                </Link>
+                {!loading && (
+                  isAuthenticated ? (
+                    <Link
+                      to="/mi-cuenta"
+                      onClick={() => setIsOpen(false)}
+                      className="px-4 py-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground text-center flex items-center justify-center gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Mi cuenta
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        to="/registro"
+                        onClick={() => setIsOpen(false)}
+                        className="px-4 py-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground text-center"
+                      >
+                        Regístrate
+                      </Link>
+                      <Link
+                        to="/login"
+                        onClick={() => setIsOpen(false)}
+                        className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted text-center"
+                      >
+                        Iniciar Sesión
+                      </Link>
+                    </>
+                  )
+                )}
               </nav>
             </SheetContent>
           </Sheet>
