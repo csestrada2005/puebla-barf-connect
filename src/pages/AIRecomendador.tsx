@@ -45,8 +45,9 @@ const activityOptions = [
 ];
 
 const goalOptions = [
-  { value: "standard", label: "Standard", emoji: "🌿" },
-  { value: "premium", label: "Premium", emoji: "✨" },
+  { value: "standard", label: "Standard (Pollo)", emoji: "🌿" },
+  { value: "mix", label: "Mix (Pollo + Res)", emoji: "🔄" },
+  { value: "premium", label: "Premium (Res)", emoji: "✨" },
 ];
 
 export default function AIRecomendador() {
@@ -71,6 +72,24 @@ export default function AIRecomendador() {
     goal: "standard",
   });
   const [result, setResult] = useState<ReturnType<typeof calculateRecommendation> | null>(null);
+
+  // Restore state from sessionStorage on mount
+  useEffect(() => {
+    const savedState = sessionStorage.getItem("ai-recommender-state");
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        setStep(parsed.step);
+        setMessages(parsed.messages);
+        setPetData(parsed.petData);
+        setResult(parsed.result);
+        // Clear the saved state after restoring
+        sessionStorage.removeItem("ai-recommender-state");
+      } catch (e) {
+        console.error("Failed to restore AI state:", e);
+      }
+    }
+  }, []);
 
   const { data: products } = useQuery({
     queryKey: ["products-for-recommendation"],
@@ -187,6 +206,20 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
+  const handleViewProduct = (productId: string) => {
+    // Save current state to sessionStorage before navigating
+    const stateToSave = {
+      step,
+      messages,
+      petData,
+      result,
+    };
+    sessionStorage.setItem("ai-recommender-state", JSON.stringify(stateToSave));
+    
+    // Navigate to product page
+    navigate(`/producto/${productId}`);
+  };
+
   const handleRestart = () => {
     setMessages([{
       id: "welcome",
@@ -214,7 +247,7 @@ export default function AIRecomendador() {
       case "activity":
         return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} />;
       case "goal":
-        return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={2} />;
+        return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} />;
       default:
         return null;
     }
@@ -237,6 +270,7 @@ export default function AIRecomendador() {
             optionA={result.optionA}
             optionB={result.optionB}
             onSelectOption={handleSelectOption}
+            onViewProduct={handleViewProduct}
             onRestart={handleRestart}
           />
         )}

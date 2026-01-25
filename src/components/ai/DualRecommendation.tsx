@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf } from "lucide-react";
+import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,10 +26,11 @@ interface DualRecommendationProps {
   dailyGrams: number;
   weeklyKg: number;
   durationDays: number;
-  planType: "standard" | "premium";
+  planType: "standard" | "mix" | "premium";
   optionA: RecommendationOption;
   optionB: RecommendationOption;
   onSelectOption: (option: "A" | "B", products: ProductOption[]) => void;
+  onViewProduct: (productId: string) => void;
   onRestart: () => void;
 }
 
@@ -42,8 +43,16 @@ export function DualRecommendation({
   optionA,
   optionB,
   onSelectOption,
+  onViewProduct,
   onRestart,
 }: DualRecommendationProps) {
+  const getPlanLabel = () => {
+    switch (planType) {
+      case "premium": return "✨ Plan Premium (Res)";
+      case "mix": return "🔄 Plan Mix (Pollo + Res)";
+      default: return "🌿 Plan Standard (Pollo)";
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -56,8 +65,8 @@ export function DualRecommendation({
           <p className="text-xl font-bold text-primary mb-2">
             🩺 ¡Diagnóstico listo para {petName}!
           </p>
-          <Badge variant={planType === "premium" ? "default" : "secondary"} className="text-sm">
-            {planType === "premium" ? "✨ Plan Premium" : "🌿 Plan Standard"}
+          <Badge variant={planType === "premium" ? "default" : planType === "mix" ? "outline" : "secondary"} className="text-sm">
+            {getPlanLabel()}
           </Badge>
         </div>
         
@@ -120,9 +129,20 @@ export function DualRecommendation({
             
             <div className="space-y-2 mb-4">
               {optionA.products.map((product, idx) => (
-                <div key={idx} className="flex justify-between text-sm py-1 border-b border-dashed last:border-0">
+                <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-dashed last:border-0">
                   <span>{product.quantity}x {product.name}</span>
-                  <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs"
+                      onClick={() => onViewProduct(product.id)}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Ver
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -161,9 +181,20 @@ export function DualRecommendation({
             
             <div className="space-y-2 mb-4">
               {optionB.products.map((product, idx) => (
-                <div key={idx} className="flex justify-between text-sm py-1 border-b border-dashed last:border-0">
+                <div key={idx} className="flex justify-between items-center text-sm py-2 border-b border-dashed last:border-0">
                   <span>{product.quantity}x {product.name}</span>
-                  <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs"
+                      onClick={() => onViewProduct(product.id)}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Ver
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
