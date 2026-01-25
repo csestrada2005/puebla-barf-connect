@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, Truck, Lightbulb, ChevronDown, Target, Stethoscope } from "lucide-react";
+import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,18 +86,9 @@ export function DualRecommendation({
           <Stethoscope className="h-5 w-5 text-primary" />
           <span className="font-bold text-primary">Receta para {petName}</span>
         </div>
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-muted-foreground" />
-            <span className="font-semibold">{dailyGrams}g/día</span>
-          </div>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-muted-foreground" />
-            <Badge variant="secondary" className="text-xs font-medium">
-              {getPlanBadge()}
-            </Badge>
-          </div>
+        <div className="flex items-center gap-2 text-sm">
+          <Scale className="h-4 w-4 text-muted-foreground" />
+          <span className="font-semibold">{dailyGrams}g/día</span>
         </div>
       </div>
 
@@ -119,12 +110,8 @@ export function DualRecommendation({
           </ToggleGroupItem>
           <ToggleGroupItem
             value="A"
-            className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-primary transition-all relative"
+            className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-primary transition-all"
           >
-            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium">
-              <Sparkles className="h-3 w-3 inline mr-0.5" />
-              Top
-            </span>
             <span className="text-base font-semibold">📦📦 Quincenal</span>
             <span className="text-xs text-muted-foreground">Mejor Valor</span>
           </ToggleGroupItem>
@@ -178,13 +165,6 @@ export function DualRecommendation({
                 ))}
               </div>
 
-              {/* Delivery Badge - Inline */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                <Truck className="h-4 w-4" />
-                <span>
-                  {deliveryFee === 0 ? "Envío GRATIS 🎉" : `Envío: $${deliveryFee} MXN`}
-                </span>
-              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -207,7 +187,7 @@ export function DualRecommendation({
         onClick={() => navigate("/suscripcion")}
       >
         <Repeat className="h-4 w-4" />
-        O suscríbete y ahorra
+        Suscríbete y ahorra
       </Button>
 
       {/* Collapsible Details Section */}
@@ -219,44 +199,6 @@ export function DualRecommendation({
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 pt-4">
-          {/* Why we recommend this */}
-          {reasoning && (
-            <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Lightbulb className="h-4 w-4 text-amber-600" />
-                  <h4 className="font-bold text-sm text-amber-800 dark:text-amber-200">¿Por qué esto?</h4>
-                </div>
-                <ul className="space-y-1.5 text-xs">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>{reasoning.planReason}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>{reasoning.proteinReason}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>{reasoning.dailyGramsReason}</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Delivery Info */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl text-sm">
-            <Truck className="h-5 w-5 text-primary flex-shrink-0" />
-            <div>
-              <p className="font-medium">Entrega</p>
-              <p className="text-xs text-muted-foreground">
-                {deliveryFee === 0 ? "Envío gratuito en tu zona" : `Costo de envío: $${deliveryFee} MXN`}
-                {zoneName && ` • ${zoneName}`}
-              </p>
-            </div>
-          </div>
-
           {/* Why BARF */}
           <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-xl text-sm">
             <Leaf className="h-5 w-5 text-primary flex-shrink-0" />
