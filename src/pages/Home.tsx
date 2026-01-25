@@ -154,9 +154,8 @@ export default function Home() {
               </p>
 
               {/* CTA */}
-              <Button asChild size="lg" variant="secondary" className="gap-2 px-8">
+              <Button asChild size="lg" variant="secondary" className="px-8">
                 <Link to="/ai">
-                  <Sparkles className="h-5 w-5" />
                   ¡Empezar ahora!
                 </Link>
               </Button>
