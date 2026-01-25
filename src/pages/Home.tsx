@@ -10,13 +10,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import heroDog from "@/assets/brand/hero-dog.jpeg";
 import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
-import dogsLineup from "@/assets/brand/dogs-lineup.jpeg";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
-import logoWhite from "@/assets/brand/logo-white.png";
+import logoGreen from "@/assets/brand/logo-green.png";
+import dogPeeking from "@/assets/brand/dog-peeking.png";
+import dogLicking from "@/assets/brand/dog-licking.png";
 
 const benefits = [
   { 
@@ -122,46 +122,37 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-12 md:py-20 overflow-hidden bg-background">
-        <div className="container relative">
-          <div className="flex flex-col items-center text-center">
-            {/* Logo y Tagline */}
-            <div className="relative w-full max-w-4xl mx-auto">
-              <div className="flex items-center justify-center gap-4 md:gap-8">
-                {/* Perro izquierdo - visible en md+ */}
-                <div className="hidden md:block flex-1">
-                  <img 
-                    src={heroDog} 
-                    alt="Perro feliz" 
-                    className="w-full max-w-xs ml-auto object-cover grayscale"
-                  />
-                </div>
-                
-                {/* Logo central */}
-                <div className="flex-shrink-0 px-4">
-                  <img 
-                    src={logoWhite} 
-                    alt="Raw Paw" 
-                    className="h-20 md:h-28 lg:h-36 w-auto mx-auto"
-                  />
-                  <p className="text-primary font-medium mt-2 text-lg md:text-xl tracking-wide">
-                    la nueva forma de cuidarlos
-                  </p>
-                </div>
-                
-                {/* Perro derecho - visible en md+ */}
-                <div className="hidden md:block flex-1">
-                  <img 
-                    src={dogsLineup} 
-                    alt="Perros Raw Paw" 
-                    className="w-full max-w-xs mr-auto object-cover grayscale"
-                  />
-                </div>
-              </div>
+      <section className="relative py-16 md:py-24 overflow-hidden bg-background min-h-[500px] md:min-h-[600px]">
+        {/* Perro izquierdo (lamiendo) - posición fija en la esquina inferior izquierda */}
+        <img 
+          src={dogLicking} 
+          alt="Perro" 
+          className="absolute bottom-0 left-0 w-32 sm:w-40 md:w-52 lg:w-64 object-contain z-10 pointer-events-none"
+        />
+        
+        {/* Perro derecho (asomándose) - posición fija en el borde derecho */}
+        <img 
+          src={dogPeeking} 
+          alt="Perro curioso" 
+          className="absolute top-1/2 -translate-y-1/2 right-0 w-24 sm:w-32 md:w-40 lg:w-48 object-contain z-10 pointer-events-none"
+        />
+
+        <div className="container relative z-20">
+          <div className="flex flex-col items-center text-center px-8 sm:px-16 md:px-24">
+            {/* Logo central */}
+            <div className="mb-6 md:mb-8">
+              <img 
+                src={logoGreen} 
+                alt="Raw Paw" 
+                className="h-16 sm:h-20 md:h-28 lg:h-36 w-auto mx-auto"
+              />
+              <p className="text-primary font-medium mt-3 text-lg md:text-xl tracking-wide">
+                la nueva forma de cuidarlos
+              </p>
             </div>
 
             {/* Descripción y CTAs */}
-            <div className="mt-8 md:mt-12 max-w-2xl mx-auto animate-slide-up">
+            <div className="max-w-2xl mx-auto animate-slide-up">
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
                 Porque ellos merecen comida real.
