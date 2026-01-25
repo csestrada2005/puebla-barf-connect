@@ -8,14 +8,15 @@ interface ChatInputProps {
   placeholder: string;
   onSubmit: (value: string) => void;
   type?: "text" | "number";
+  disabled?: boolean;
 }
 
-export function ChatInput({ placeholder, onSubmit, type = "text" }: ChatInputProps) {
+export function ChatInput({ placeholder, onSubmit, type = "text", disabled }: ChatInputProps) {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value.trim()) {
+    if (value.trim() && !disabled) {
       onSubmit(value.trim());
       setValue("");
     }
@@ -25,20 +26,25 @@ export function ChatInput({ placeholder, onSubmit, type = "text" }: ChatInputPro
     <motion.form
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
       onSubmit={handleSubmit}
-      className="flex gap-2 mt-4"
+      className="flex gap-3 w-full"
     >
       <Input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="flex-1"
+        className="flex-1 h-12 text-base rounded-xl"
         autoFocus
+        disabled={disabled}
       />
-      <Button type="submit" size="icon" disabled={!value.trim()}>
-        <Send className="h-4 w-4" />
+      <Button 
+        type="submit" 
+        size="icon" 
+        disabled={!value.trim() || disabled}
+        className="h-12 w-12 rounded-xl"
+      >
+        <Send className="h-5 w-5" />
       </Button>
     </motion.form>
   );
