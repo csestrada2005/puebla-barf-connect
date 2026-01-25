@@ -80,6 +80,7 @@ export default function AIRecomendador() {
     dailyGrams: number;
     packagesPerMonth: number;
     product: any;
+    productName: string;
   } | null>(null);
 
   const { data: products } = useQuery({
@@ -107,7 +108,7 @@ export default function AIRecomendador() {
   };
 
   const startChat = () => {
-    addMessage("¡Hola! 👋 ¿Cómo se llama tu perro?", true);
+    addMessage("¡Hola! 👋 Soy el Dogtor. Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?", true);
     setStep("name");
   };
 
@@ -115,7 +116,7 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, name }));
     addMessage(name, false);
     setTimeout(() => {
-      addMessage(`¡${name}! 🐕 ¿Cuánto pesa?`, true);
+      addMessage(`¡Es un placer conocer a ${name}! Un gusto. Vamos a chequear sus medidas 📏. ¿Cuánto pesa?`, true);
       setStep("weight");
     }, 300);
   };
@@ -125,7 +126,7 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, weight }));
     addMessage(label, false);
     setTimeout(() => {
-      addMessage("¿Qué edad tiene?", true);
+      addMessage(`Entendido. ¿Y en qué etapa de vida está ${petData.name}? 🎂`, true);
       setStep("age");
     }, 300);
   };
@@ -187,6 +188,7 @@ export default function AIRecomendador() {
       dailyGrams,
       packagesPerMonth,
       product: recommendedProduct,
+      productName: recommendedProduct?.name || "BARF Premium",
     });
     
     addMessage(`¡Perfecto! Aquí está el plan ideal para ${petData.name} 🎉`, true);
@@ -312,6 +314,7 @@ export default function AIRecomendador() {
                       petName={petData.name}
                       dailyGrams={result.dailyGrams}
                       packagesPerMonth={result.packagesPerMonth}
+                      productName={result.productName}
                       product={result.product}
                       onAddToCart={handleAddToCart}
                       onRestart={handleRestart}
