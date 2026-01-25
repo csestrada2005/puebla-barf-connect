@@ -78,7 +78,7 @@ export default function AIRecomendador() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu peludo. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu perrito. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }
   ]);
