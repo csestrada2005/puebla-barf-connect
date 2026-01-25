@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout";
@@ -19,7 +19,7 @@ import {
   Dumbbell,
   AlertCircle
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 const benefitIcons: Record<string, React.ReactNode> = {
   "Mejora digestión y aliento": <Sparkles className="h-5 w-5" />,
@@ -31,29 +31,14 @@ const benefitIcons: Record<string, React.ReactNode> = {
 
 export default function Producto() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const { toast } = useToast();
   const [selectedLine, setSelectedLine] = useState<string | null>(null);
   const [selectedPresentation, setSelectedPresentation] = useState<string | null>(null);
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ["product", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!slug,
-  });
-
-  // Fetch all products to show variants
-  const { data: allProducts } = useQuery({
+  // Fetch all products first to enable smooth switching
+  const { data: allProducts, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["products-variants"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,15 +51,21 @@ export default function Producto() {
       if (error) throw error;
       return data;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
+  // Find product from cached products list
+  const product = useMemo(() => {
+    return allProducts?.find(p => p.slug === slug);
+  }, [allProducts, slug]);
+
   // Set initial selections based on current product
-  useState(() => {
+  useEffect(() => {
     if (product) {
       setSelectedLine(product.protein_line);
       setSelectedPresentation(product.presentation);
     }
-  });
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -98,6 +89,15 @@ export default function Producto() {
       (p) => p.protein_line === line && p.presentation === presentation
     );
   };
+  
+  // Handle smooth variant navigation
+  const handleVariantChange = (variant: typeof product) => {
+    if (variant) {
+      navigate(`/producto/${variant.slug}`, { replace: true });
+    }
+  };
+
+  const isLoading = isLoadingProducts;
 
   if (isLoading) {
     return (
@@ -202,12 +202,8 @@ export default function Producto() {
                       <Button
                         key={line}
                         variant={currentLine === line ? "default" : "outline"}
-                        className="flex-1"
-                        onClick={() => {
-                          if (variant) {
-                            window.location.href = `/producto/${variant.slug}`;
-                          }
-                        }}
+                        className="flex-1 transition-all"
+                        onClick={() => handleVariantChange(variant)}
                         disabled={!variant}
                       >
                         {line === "pollo" ? "🐔 Pollo" : "🥩 Res"}
@@ -227,12 +223,8 @@ export default function Producto() {
                       <Button
                         key={presentation}
                         variant={currentPresentation === presentation ? "default" : "outline"}
-                        className="flex-1"
-                        onClick={() => {
-                          if (variant) {
-                            window.location.href = `/producto/${variant.slug}`;
-                          }
-                        }}
+                        className="flex-1 transition-all"
+                        onClick={() => handleVariantChange(variant)}
                         disabled={!variant}
                       >
                         {presentation}
