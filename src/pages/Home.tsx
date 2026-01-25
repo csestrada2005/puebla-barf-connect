@@ -13,6 +13,9 @@ import { useToast } from "@/hooks/use-toast";
 import heroDog from "@/assets/brand/hero-dog.jpeg";
 import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
 import dogsLineup from "@/assets/brand/dogs-lineup.jpeg";
+import isotipoTall from "@/assets/brand/isotipo-tall.png";
+import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
+import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 
 const benefits = [
   { 
@@ -165,7 +168,12 @@ export default function Home() {
       {/* Filosofía de Marca */}
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
+            <img 
+              src={isotipoTall} 
+              alt="Raw Paw" 
+              className="h-24 w-auto mx-auto mb-6 brightness-0 invert opacity-90"
+            />
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
               En Raw Paw <span className="opacity-80">no</span> hacemos comida para perros
             </h2>
@@ -229,6 +237,11 @@ export default function Home() {
       <section className="py-16 md:py-24">
         <div className="container">
           <div className="text-center mb-12">
+            <img 
+              src={isotipoBowl} 
+              alt="Raw Paw" 
+              className="h-20 w-auto mx-auto mb-4"
+            />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Así de fácil funciona
             </h2>
@@ -383,7 +396,11 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-muted/50">
         <div className="container">
           <div className="max-w-xl mx-auto text-center">
-            <Mail className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <img 
+              src={isotipoFluffy} 
+              alt="Raw Paw" 
+              className="h-20 w-auto mx-auto mb-4"
+            />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Recibe ofertas exclusivas
             </h2>
