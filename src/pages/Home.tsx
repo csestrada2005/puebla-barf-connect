@@ -138,8 +138,8 @@ export default function Home() {
         />
 
         <div className="container relative z-20 h-full">
-          <div className="flex flex-col items-center text-center py-8 px-4">
-            {/* Logo - Centrado y Grande */}
+          <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg py-8 pl-4 md:pl-8">
+            {/* Logo - Grande */}
             <div className="mb-6 md:mb-8">
               <img 
                 src={logoWhite} 
@@ -154,7 +154,7 @@ export default function Home() {
             </h1>
 
             {/* Descripción */}
-            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl">
+            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
               Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
             </p>
 
