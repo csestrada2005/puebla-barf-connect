@@ -1,8 +1,11 @@
-import { motion } from "framer-motion";
-import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye, Repeat, Truck, Lightbulb } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, Truck, Lightbulb, ChevronDown, Target, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNavigate } from "react-router-dom";
 
 interface ProductOption {
@@ -62,252 +65,218 @@ export function DualRecommendation({
   onRestart,
 }: DualRecommendationProps) {
   const navigate = useNavigate();
+  const [selectedFrequency, setSelectedFrequency] = useState<"A" | "B">("A");
+  const [detailsOpen, setDetailsOpen] = useState(false);
   
-  const getPlanLabel = () => {
-    switch (planType) {
-      case "premium": return "✨ Plan Premium";
-      default: return "🌿 Plan Standard";
-    }
+  const currentOption = selectedFrequency === "A" ? optionA : optionB;
+  
+  const getPlanBadge = () => {
+    return planType === "premium" ? "✨ Premium" : "🌿 Standard";
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full space-y-6"
+      className="w-full space-y-4"
     >
-      {/* Header Card */}
-      <Card className="border-primary border-2 overflow-hidden">
-        <div className="bg-primary/10 p-5 text-center">
-          <p className="text-xl font-bold text-primary mb-2">
-            🩺 ¡Diagnóstico listo para {petName}!
-          </p>
-          <Badge variant={planType === "premium" ? "default" : "secondary"} className="text-sm">
-            {getPlanLabel()}
-          </Badge>
+      {/* Compact Prescription Header - Medical Ticket Style */}
+      <div className="border-dashed border-2 border-primary rounded-xl p-4 bg-primary/5">
+        <div className="flex items-center gap-2 mb-3">
+          <Stethoscope className="h-5 w-5 text-primary" />
+          <span className="font-bold text-primary">Receta para {petName}</span>
         </div>
-        
-        <CardContent className="p-5">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="text-center p-3 bg-muted rounded-xl">
-              <Scale className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <p className="text-2xl font-bold text-primary">{dailyGrams}g</p>
-              <p className="text-xs text-muted-foreground">por día</p>
-            </div>
-            <div className="text-center p-3 bg-muted rounded-xl">
-              <Package className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <p className="text-2xl font-bold text-primary">{weeklyKg.toFixed(1)}kg</p>
-              <p className="text-xs text-muted-foreground">por semana</p>
-            </div>
-            <div className="text-center p-3 bg-muted rounded-xl">
-              <Calendar className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <p className="text-2xl font-bold text-primary">{durationDays}</p>
-              <p className="text-xs text-muted-foreground">días aprox.</p>
-            </div>
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Scale className="h-4 w-4 text-muted-foreground" />
+            <span className="font-semibold">{dailyGrams}g/día</span>
           </div>
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            <Badge variant="secondary" className="text-xs font-medium">
+              {getPlanBadge()}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Frequency Toggle - Central Feature */}
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground text-center">¿Con qué frecuencia quieres recibir?</p>
+        <ToggleGroup
+          type="single"
+          value={selectedFrequency}
+          onValueChange={(value) => value && setSelectedFrequency(value as "A" | "B")}
+          className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl"
+        >
+          <ToggleGroupItem
+            value="B"
+            className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all"
+          >
+            <span className="text-base font-semibold">📦 Semanal</span>
+            <span className="text-xs text-muted-foreground">Para empezar</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="A"
+            className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-primary transition-all relative"
+          >
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+              <Sparkles className="h-3 w-3 inline mr-0.5" />
+              Top
+            </span>
+            <span className="text-base font-semibold">📦📦 Quincenal</span>
+            <span className="text-xs text-muted-foreground">Mejor Valor</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {/* Dynamic Product Card with Animation */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedFrequency}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Card className={`border-2 ${selectedFrequency === "A" ? 'border-primary' : 'border-muted'}`}>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center mb-3">
+                <div>
+                  <h3 className="font-bold">{currentOption.title}</h3>
+                  <p className="text-xs text-muted-foreground">{currentOption.subtitle}</p>
+                </div>
+                {selectedFrequency === "A" && (
+                  <Badge className="bg-primary/10 text-primary border-0">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Recomendado
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Product List - Compact */}
+              <div className="space-y-2 mb-4">
+                {currentOption.products.map((product, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-2 border-b border-dashed last:border-0 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-muted text-muted-foreground text-xs font-bold px-2 py-0.5 rounded">
+                        {product.quantity}x
+                      </span>
+                      <span className="font-medium">{product.name}</span>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs gap-1"
+                      onClick={() => onViewProduct(product.slug)}
+                    >
+                      <Eye className="h-3 w-3" />
+                      Ver
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Delivery Badge - Inline */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                <Truck className="h-4 w-4" />
+                <span>
+                  {deliveryFee === 0 ? "Envío GRATIS 🎉" : `Envío: $${deliveryFee} MXN`}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Sticky/Prominent CTA */}
+      <Button 
+        onClick={() => onSelectOption(selectedFrequency, currentOption.products)} 
+        className="w-full gap-2 h-14 text-base font-bold shadow-lg" 
+        size="lg"
+      >
+        <ShoppingCart className="h-5 w-5" />
+        Agregar Plan ({currentOption.durationDays} días) — ${currentOption.totalPrice.toLocaleString("es-MX")}
+      </Button>
+
+      {/* Subscription Quick CTA */}
+      <Button 
+        variant="outline" 
+        className="w-full gap-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
+        onClick={() => navigate("/suscripcion")}
+      >
+        <Repeat className="h-4 w-4" />
+        O suscríbete y ahorra
+      </Button>
+
+      {/* Collapsible Details Section */}
+      <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full gap-2 text-muted-foreground">
+            <ChevronDown className={`h-4 w-4 transition-transform ${detailsOpen ? 'rotate-180' : ''}`} />
+            Ver detalles y beneficios
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-4 pt-4">
+          {/* Why we recommend this */}
+          {reasoning && (
+            <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb className="h-4 w-4 text-amber-600" />
+                  <h4 className="font-bold text-sm text-amber-800 dark:text-amber-200">¿Por qué esto?</h4>
+                </div>
+                <ul className="space-y-1.5 text-xs">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-600 font-bold">•</span>
+                    <span>{reasoning.planReason}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-600 font-bold">•</span>
+                    <span>{reasoning.proteinReason}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-600 font-bold">•</span>
+                    <span>{reasoning.dailyGramsReason}</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Delivery Info */}
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-xl text-sm">
+          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl text-sm">
             <Truck className="h-5 w-5 text-primary flex-shrink-0" />
             <div>
-              <p className="font-medium text-foreground">
-                {deliveryFee === 0 ? "🎉 ¡Envío GRATIS!" : `Envío: $${deliveryFee} MXN`}
+              <p className="font-medium">Entrega</p>
+              <p className="text-xs text-muted-foreground">
+                {deliveryFee === 0 ? "Envío gratuito en tu zona" : `Costo de envío: $${deliveryFee} MXN`}
+                {zoneName && ` • ${zoneName}`}
               </p>
-              {zoneName && (
-                <p className="text-muted-foreground text-xs">Entrega en {zoneName}</p>
-              )}
             </div>
           </div>
 
           {/* Why BARF */}
-          <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-xl text-sm mt-4">
-            <Leaf className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-xl text-sm">
+            <Leaf className="h-5 w-5 text-primary flex-shrink-0" />
             <div>
-              <p className="font-medium text-foreground">¿Por qué BARF?</p>
-              <p className="text-muted-foreground">Alimentación natural que mejora digestión, pelaje brillante y más energía para {petName}.</p>
+              <p className="font-medium">¿Por qué BARF?</p>
+              <p className="text-xs text-muted-foreground">
+                Alimentación natural que mejora digestión, pelaje brillante y más energía para {petName}.
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Reasoning Card - Why we recommend this */}
-      {reasoning && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="h-5 w-5 text-amber-600" />
-                <h3 className="font-bold text-lg text-amber-800 dark:text-amber-200">¿Por qué te recomendamos esto?</h3>
-              </div>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">•</span>
-                  <span className="text-foreground">{reasoning.planReason}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">•</span>
-                  <span className="text-foreground">{reasoning.proteinReason}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold">•</span>
-                  <span className="text-foreground">{reasoning.dailyGramsReason}</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Option A - Recommended */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className={`border-2 ${optionA.isRecommended ? 'border-primary shadow-lg' : 'border-muted'}`}>
-          {optionA.isRecommended && (
-            <div className="bg-primary text-primary-foreground px-4 py-2 text-center text-sm font-medium">
-              <Sparkles className="h-4 w-4 inline mr-2" />
-              {optionA.badge || "Recomendado"}
-            </div>
-          )}
-          <CardContent className="p-5">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-bold text-lg">{optionA.title}</h3>
-                <p className="text-sm text-muted-foreground">{optionA.subtitle}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-primary">
-                  ${optionA.totalPrice.toLocaleString("es-MX")}
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-2 mb-4">
-              {optionA.products.map((product, idx) => (
-                <div key={idx} className="flex flex-col gap-2 py-3 border-b border-dashed last:border-0">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium">{product.quantity}x {product.name}</span>
-                    <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full gap-2"
-                    onClick={() => onViewProduct(product.slug)}
-                  >
-                    <Eye className="h-4 w-4" />
-                    Ver Producto
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <Button 
-              onClick={() => onSelectOption("A", optionA.products)} 
-              className="w-full gap-2" 
-              size="lg"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Elegir Opción A
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Option B - Alternative */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Card className="border border-muted">
-          <CardContent className="p-5">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-bold text-lg">{optionB.title}</h3>
-                <p className="text-sm text-muted-foreground">{optionB.subtitle}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">
-                  ${optionB.totalPrice.toLocaleString("es-MX")}
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-2 mb-4">
-              {optionB.products.map((product, idx) => (
-                <div key={idx} className="flex flex-col gap-2 py-3 border-b border-dashed last:border-0">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium">{product.quantity}x {product.name}</span>
-                    <span className="text-muted-foreground">${(product.price * product.quantity).toLocaleString("es-MX")}</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full gap-2"
-                    onClick={() => onViewProduct(product.slug)}
-                  >
-                    <Eye className="h-4 w-4" />
-                    Ver Producto
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <Button 
-              variant="outline"
-              onClick={() => onSelectOption("B", optionB.products)} 
-              className="w-full gap-2" 
-              size="lg"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Elegir Opción B
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Subscription CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="border-dashed border-2 border-primary/50 bg-primary/5">
-          <CardContent className="p-5 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Repeat className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-lg">¿Quieres que llegue cada mes?</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Suscríbete y olvídate de hacer pedidos. Sin compromiso, cancela cuando quieras.
-            </p>
-            <Button 
-              variant="outline" 
-              className="w-full gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-              onClick={() => navigate("/suscripcion")}
-            >
-              <Repeat className="h-4 w-4" />
-              Ver planes de suscripción
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Restart */}
-      <div className="text-center">
-        <Button variant="ghost" onClick={onRestart} className="gap-2">
+      <div className="text-center pt-2">
+        <Button variant="ghost" size="sm" onClick={onRestart} className="gap-2 text-muted-foreground">
           <RotateCcw className="h-4 w-4" />
           Nueva consulta
         </Button>
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-[10px] text-muted-foreground mt-1">
           ⚠️ Consulta a tu veterinario para casos especiales
         </p>
       </div>
