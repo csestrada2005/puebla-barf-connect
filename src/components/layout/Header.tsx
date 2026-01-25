@@ -1,12 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogIn, Sparkles } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
-import { useAuthContext } from "@/components/auth";
 import { cn } from "@/lib/utils";
-import logoWhite from "@/assets/brand/logo-white.png";
+import logoGreen from "@/assets/brand/logo-green.png";
 import isotipoWalking from "@/assets/brand/isotipo-walking.png";
 
 const navLinks = [
@@ -21,81 +20,13 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { items } = useCart();
-  const { isAuthenticated, loading } = useAuthContext();
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
-        {/* Left: Hamburger Menu */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Menú</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-72">
-            <div className="flex items-center gap-3 mb-8">
-              <img 
-                src={isotipoWalking} 
-                alt="Raw Paw" 
-                className="h-12 w-auto"
-              />
-              <span className="text-xl font-bold">Raw Paw</span>
-            </div>
-            <nav className="flex flex-col gap-2">
-              <Link
-                to="/"
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                  location.pathname === "/"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                )}
-              >
-                Inicio
-              </Link>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                    location.pathname === link.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-muted"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="border-t border-border my-4" />
-              <Link
-                to={isAuthenticated ? "/mi-cuenta" : "/login"}
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted flex items-center gap-2"
-              >
-                {isAuthenticated ? (
-                  <>
-                    <User className="h-4 w-4" />
-                    Mi Cuenta
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="h-4 w-4" />
-                    Iniciar Sesión
-                  </>
-                )}
-              </Link>
-            </nav>
-          </SheetContent>
-        </Sheet>
-
-        {/* Center: Logo - Sin sombras ni biselados, plano */}
-        <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+        {/* Left: Logo */}
+        <Link to="/" className="flex items-center gap-2">
           <img 
             src={isotipoWalking} 
             alt="Raw Paw" 
@@ -107,7 +38,25 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Right: Cart & CTA */}
+        {/* Center: Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                location.pathname === link.href
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Right: Cart, Register & Mobile Menu */}
         <div className="flex items-center gap-2">
           {/* Cart */}
           <Link to="/carrito">
@@ -121,13 +70,76 @@ export function Header() {
             </Button>
           </Link>
 
-          {/* Sticky CTA */}
-          <Button asChild size="sm" className="gap-1.5 hidden sm:flex">
-            <Link to="/ai">
-              <Sparkles className="h-4 w-4" />
-              Empieza
+          {/* Register CTA */}
+          <Button asChild size="sm" className="hidden sm:flex">
+            <Link to="/registro">
+              Regístrate
             </Link>
           </Button>
+
+          {/* Mobile Hamburger Menu */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Menú</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <div className="flex items-center gap-3 mb-8">
+                <img 
+                  src={isotipoWalking} 
+                  alt="Raw Paw" 
+                  className="h-12 w-auto"
+                />
+                <span className="text-xl font-bold">Raw Paw</span>
+              </div>
+              <nav className="flex flex-col gap-2">
+                <Link
+                  to="/"
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                    location.pathname === "/"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-muted"
+                  )}
+                >
+                  Inicio
+                </Link>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      location.pathname === link.href
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <div className="border-t border-border my-4" />
+                <Link
+                  to="/registro"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground text-center"
+                >
+                  Regístrate
+                </Link>
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted text-center"
+                >
+                  Iniciar Sesión
+                </Link>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
