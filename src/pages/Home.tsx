@@ -104,26 +104,29 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-background" />
+      {/* Hero - Manifiesto Emocional */}
+      <section className="relative py-24 md:py-36 overflow-hidden bg-background">
         <div className="container relative">
-          <div className="max-w-3xl mx-auto text-center animate-slide-up">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance leading-tight">
-              Comida real para perros.{" "}
-              <span className="text-primary">Entrega rápida en Puebla.</span>
+          <div className="max-w-4xl mx-auto text-center animate-slide-up">
+            <p className="text-primary font-medium mb-4 tracking-wide uppercase text-sm">
+              La nueva forma de cuidarlos
+            </p>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance leading-tight text-foreground">
+              No creemos en alimentar por costumbre.{" "}
+              <span className="text-primary">Creemos en nutrir con intención.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Alimentación BARF natural, fresca y balanceada. Tu perro merece lo mejor.
+              Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
+              Porque ellos merecen comida real.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="gap-2 text-base">
                 <Link to="/ai">
                   <Sparkles className="h-5 w-5" />
-                  Empieza aquí
+                  Arma tu pedido
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2 text-base">
+              <Button asChild variant="outline" size="lg" className="gap-2 text-base border-foreground/20 hover:bg-muted">
                 <Link to="/tienda">
                   Ver productos
                   <ArrowRight className="h-5 w-5" />
@@ -133,6 +136,54 @@ export default function Home() {
             <p className="mt-4 text-sm text-muted-foreground">
               ⏱️ Toma menos de 3 minutos
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Ingredientes Desglosados */}
+      <section className="py-16 md:py-24 bg-card">
+        <div className="container">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="mb-4 border-primary/30 text-primary">
+              🏆 Garantía de Frescura
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Ingredientes de consumo humano
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Si tú no te lo comerías, ellos tampoco. Alta rotación de inventario para máxima frescura.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
+              <div className="text-6xl mb-4">🥩</div>
+              <h3 className="font-semibold text-lg mb-2">Proteína Premium</h3>
+              <p className="text-sm text-muted-foreground">
+                Carne fresca de res o pollo de proveedores locales certificados.
+              </p>
+            </Card>
+            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
+              <div className="text-6xl mb-4">🥕</div>
+              <h3 className="font-semibold text-lg mb-2">Verduras Frescas</h3>
+              <p className="text-sm text-muted-foreground">
+                Zanahorias, calabazas y vegetales de temporada llenos de vitaminas.
+              </p>
+            </Card>
+            <Card className="text-center p-6 border-2 hover:border-primary/30 transition-colors">
+              <div className="text-6xl mb-4">🍎</div>
+              <h3 className="font-semibold text-lg mb-2">Frutas Naturales</h3>
+              <p className="text-sm text-muted-foreground">
+                Manzanas y frutas que aportan fibra y antioxidantes naturales.
+              </p>
+            </Card>
+          </div>
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/guias-barf">
+                Conoce más sobre BARF
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

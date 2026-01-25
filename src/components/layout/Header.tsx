@@ -90,12 +90,15 @@ export function Header() {
           </SheetContent>
         </Sheet>
 
-        {/* Center: Logo */}
+        {/* Center: Logo - Sin sombras ni biselados, plano */}
         <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-            <span className="text-xl font-bold text-primary-foreground">🐾</span>
+            <span className="text-xl">🐾</span>
           </div>
-          <span className="text-xl font-bold text-foreground hidden sm:inline">Raw Paw</span>
+          <div className="hidden sm:flex flex-col items-start leading-none">
+            <span className="text-xl font-bold text-foreground">Raw Paw</span>
+            <span className="text-[10px] text-muted-foreground tracking-wide">la nueva forma de cuidarlos</span>
+          </div>
         </Link>
 
         {/* Right: Cart & CTA */}
