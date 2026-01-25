@@ -15,7 +15,7 @@ import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import logoWhite from "@/assets/brand/logo-white.png";
-import heroDogBowl from "@/assets/brand/hero-dog-bowl.png";
+import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
 import heroBall from "@/assets/brand/hero-ball.png";
 
 const benefits = [
@@ -123,22 +123,22 @@ export default function Home() {
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
       <section className="relative py-12 md:py-16 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
-        {/* Perro con plato - posición fija en la izquierda, grande */}
-        <img 
-          src={heroDogBowl} 
-          alt="Perro con plato" 
-          className="absolute bottom-0 left-0 w-64 sm:w-80 md:w-[420px] lg:w-[520px] object-contain z-10 pointer-events-none"
-        />
-        
-        {/* Pelota - posición fija en la esquina superior derecha */}
+        {/* Pelota - posición fija en la esquina superior izquierda */}
         <img 
           src={heroBall} 
           alt="Pelota" 
-          className="absolute top-6 md:top-10 right-4 md:right-12 w-14 sm:w-18 md:w-24 lg:w-28 object-contain z-10 pointer-events-none"
+          className="absolute top-6 md:top-10 left-4 md:left-12 w-14 sm:w-18 md:w-24 lg:w-28 object-contain z-10 pointer-events-none"
+        />
+        
+        {/* Perro lamiendo - posición fija a la derecha */}
+        <img 
+          src={heroDogLicking} 
+          alt="Perro" 
+          className="absolute bottom-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[420px] object-contain z-10 pointer-events-none"
         />
 
         <div className="container relative z-20 h-full">
-          <div className="flex flex-col items-end text-right ml-auto max-w-md lg:max-w-lg py-8 pr-4 md:pr-8">
+          <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg py-8 pl-4 md:pl-8">
             {/* Logo */}
             <div className="mb-6 md:mb-8">
               <img 
