@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { FileText } from "lucide-react";
 
 type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "result";
 
@@ -76,6 +79,7 @@ export default function AIRecomendador() {
   
   const [step, setStep] = useState<Step>("name");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isResultOpen, setIsResultOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -374,23 +378,57 @@ export default function AIRecomendador() {
         ))}
         
         {step === "result" && result && (
-          <DualRecommendation
-            petName={petData.name}
-            dailyGrams={result.dailyGrams}
-            weeklyKg={result.weeklyKg}
-            durationDays={result.optionA.durationDays}
-            planType={result.planType}
-            optionA={result.optionA}
-            optionB={result.optionB}
-            deliveryFee={petData.deliveryFee}
-            zoneName={petData.zoneName}
-            reasoning={result.reasoning}
-            onSelectOption={handleSelectOption}
-            onViewProduct={handleViewProduct}
-            onRestart={handleRestart}
-          />
+          <div className="w-full px-4 py-6 space-y-4">
+            <Button 
+              onClick={() => setIsResultOpen(true)} 
+              className="w-full gap-2 h-14 text-base font-bold shadow-lg"
+              size="lg"
+            >
+              <FileText className="h-5 w-5" />
+              📄 Ver Receta del Dogtor
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleRestart} 
+              className="w-full gap-2 text-muted-foreground"
+            >
+              Nueva consulta
+            </Button>
+          </div>
         )}
       </ChatContainer>
+
+      {/* Results Drawer */}
+      <Drawer open={isResultOpen} onOpenChange={setIsResultOpen}>
+        <DrawerContent className="h-[90vh] max-h-[90vh]">
+          <div className="overflow-y-auto px-4 pb-4">
+            {result && (
+              <DualRecommendation
+                petName={petData.name}
+                dailyGrams={result.dailyGrams}
+                weeklyKg={result.weeklyKg}
+                durationDays={result.optionA.durationDays}
+                planType={result.planType}
+                optionA={result.optionA}
+                optionB={result.optionB}
+                deliveryFee={petData.deliveryFee}
+                zoneName={petData.zoneName}
+                reasoning={result.reasoning}
+                onSelectOption={(option, products) => {
+                  handleSelectOption(option, products);
+                  setIsResultOpen(false);
+                }}
+                onViewProduct={handleViewProduct}
+                onRestart={() => {
+                  setIsResultOpen(false);
+                  handleRestart();
+                }}
+              />
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </Layout>
   );
 }
