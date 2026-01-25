@@ -15,8 +15,8 @@ import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import logoWhite from "@/assets/brand/logo-white.png";
-import dogPeeking from "@/assets/brand/dog-peeking.png";
-import dogLicking from "@/assets/brand/dog-licking.png";
+import heroDogBowl from "@/assets/brand/hero-dog-bowl.png";
+import heroBall from "@/assets/brand/hero-ball.png";
 
 const benefits = [
   { 
@@ -123,18 +123,18 @@ export default function Home() {
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
       <section className="relative py-16 md:py-20 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
-        {/* Perro izquierdo (lamiendo) - posición fija en la esquina inferior izquierda */}
+        {/* Perro con plato - posición fija en la esquina inferior izquierda */}
         <img 
-          src={dogLicking} 
-          alt="Perro" 
-          className="absolute bottom-0 left-0 w-32 sm:w-40 md:w-48 lg:w-56 object-contain z-10 pointer-events-none"
+          src={heroDogBowl} 
+          alt="Perro con plato" 
+          className="absolute bottom-0 left-0 w-40 sm:w-52 md:w-64 lg:w-80 object-contain z-10 pointer-events-none"
         />
         
-        {/* Perro derecho (asomándose) - posición fija en el borde derecho, más arriba */}
+        {/* Pelota - posición fija en la esquina superior derecha */}
         <img 
-          src={dogPeeking} 
-          alt="Perro curioso" 
-          className="absolute top-8 md:top-12 right-0 w-20 sm:w-24 md:w-32 lg:w-40 object-contain z-10 pointer-events-none"
+          src={heroBall} 
+          alt="Pelota" 
+          className="absolute top-8 md:top-12 right-4 md:right-8 w-16 sm:w-20 md:w-24 lg:w-32 object-contain z-10 pointer-events-none"
         />
 
         <div className="container relative z-20 h-full flex items-center justify-center">
