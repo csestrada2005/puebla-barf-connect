@@ -122,54 +122,56 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-12 md:py-16 overflow-hidden bg-primary min-h-[420px] md:min-h-[480px]">
+      <section className="relative py-16 md:py-20 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
         {/* Perro izquierdo (lamiendo) - posición fija en la esquina inferior izquierda */}
         <img 
           src={dogLicking} 
           alt="Perro" 
-          className="absolute bottom-0 left-0 w-40 sm:w-48 md:w-56 lg:w-72 object-contain z-10 pointer-events-none"
+          className="absolute bottom-0 left-0 w-32 sm:w-40 md:w-48 lg:w-56 object-contain z-10 pointer-events-none"
         />
         
-        {/* Perro derecho (asomándose) - posición fija en el borde derecho */}
+        {/* Perro derecho (asomándose) - posición fija en el borde derecho, más arriba */}
         <img 
           src={dogPeeking} 
           alt="Perro curioso" 
-          className="absolute top-1/2 -translate-y-1/2 right-0 w-28 sm:w-36 md:w-44 lg:w-52 object-contain z-10 pointer-events-none"
+          className="absolute top-8 md:top-12 right-0 w-20 sm:w-24 md:w-32 lg:w-40 object-contain z-10 pointer-events-none"
         />
 
-        <div className="container relative z-20">
-          <div className="flex flex-col items-center text-center px-12 sm:px-20 md:px-28">
+        <div className="container relative z-20 h-full flex items-center justify-center">
+          <div className="flex flex-col items-center text-center max-w-2xl mx-auto py-8">
             {/* Logo central */}
-            <div className="mb-4 md:mb-6">
+            <div className="mb-6 md:mb-8">
               <img 
                 src={logoWhite} 
                 alt="Raw Paw" 
-                className="h-14 sm:h-18 md:h-24 lg:h-32 w-auto mx-auto brightness-0 invert"
+                className="h-16 sm:h-20 md:h-28 lg:h-36 w-auto mx-auto brightness-0 invert"
               />
-              <p className="text-primary-foreground/90 font-medium mt-2 text-base md:text-lg tracking-wide">
-                la nueva forma de cuidarlos
-              </p>
             </div>
 
-            {/* Descripción y CTAs */}
-            <div className="max-w-xl mx-auto animate-slide-up">
-              <p className="text-base md:text-lg text-primary-foreground/80 mb-6">
-                Alimentación BARF natural, fresca y balanceada para perros en Puebla.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button asChild size="lg" variant="secondary" className="gap-2">
-                  <Link to="/ai">
-                    <Sparkles className="h-5 w-5" />
-                    Arma tu pedido
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="gap-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                  <Link to="/tienda">
-                    Ver productos
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
+            {/* Título principal */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 md:mb-6">
+              la nueva forma de cuidarlos
+            </h1>
+
+            {/* Descripción */}
+            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-lg mx-auto">
+              Alimentación BARF natural, fresca y balanceada para perros en Puebla.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button asChild size="lg" variant="secondary" className="gap-2 px-6">
+                <Link to="/ai">
+                  <Sparkles className="h-5 w-5" />
+                  Arma tu pedido
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="gap-2 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <Link to="/tienda">
+                  Ver productos
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
