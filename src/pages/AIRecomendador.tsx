@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "zone" | "result";
+type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "result";
 
 interface Message {
   id: string;
@@ -95,19 +95,6 @@ export default function AIRecomendador() {
     deliveryFee: 0,
   });
   const [result, setResult] = useState<RecommendationResult | null>(null);
-
-  // Fetch coverage zones for delivery question
-  const { data: coverageZones } = useQuery({
-    queryKey: ["coverage-zones-ai"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("coverage_zones")
-        .select("id, zone_name, delivery_fee")
-        .eq("is_active", true)
-        .order("zone_name");
-      return (data || []) as CoverageZone[];
-    },
-  });
 
   // Restore state from localStorage on mount
   useEffect(() => {
@@ -243,36 +230,16 @@ export default function AIRecomendador() {
     }, 400);
   };
 
-  const handleGoalSelect = (value: string, label: string) => {
-    setPetData(prev => ({ ...prev, goal: value }));
-    addMessage(label, false);
-    setTimeout(() => {
-      addMessage("¡Casi listo! ¿En qué zona de Puebla te encuentras? 📍 Esto nos ayuda a calcular tu envío.", true);
-      setStep("zone");
-    }, 400);
-  };
-
-  // Generate zone options from coverage zones
-  const zoneOptions = coverageZones?.map(zone => ({
-    value: zone.id,
-    label: `${zone.zone_name}${zone.delivery_fee === 0 ? " • Gratis" : ` • $${zone.delivery_fee}`}`,
-    emoji: zone.delivery_fee === 0 ? "🚚" : "📍",
-  })) || [];
-
-  const handleZoneSelect = async (value: string, label: string) => {
-    const selectedZone = coverageZones?.find(z => z.id === value);
+  const handleGoalSelect = async (value: string, label: string) => {
     const updatedPetData: ExtendedPetData = { 
       ...petData, 
-      zoneId: value, 
-      zoneName: selectedZone?.zone_name || label,
-      deliveryFee: selectedZone?.delivery_fee || 0,
+      goal: value,
+      zoneId: "",
+      zoneName: "",
+      deliveryFee: 0,
     };
     setPetData(updatedPetData);
-    
-    const deliveryText = selectedZone?.delivery_fee === 0 
-      ? "¡Genial! Envío GRATIS en tu zona 🎉" 
-      : `Envío a tu zona: $${selectedZone?.delivery_fee} MXN`;
-    addMessage(`${selectedZone?.zone_name || label} - ${deliveryText}`, false);
+    addMessage(label, false);
     
     setTimeout(async () => {
       if (products && products.length > 0) {
@@ -373,8 +340,6 @@ export default function AIRecomendador() {
         return <QuickReplies options={sensitivityOptions} onSelect={handleSensitivitySelect} columns={3} />;
       case "goal":
         return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} />;
-      case "zone":
-        return <QuickReplies options={zoneOptions} onSelect={handleZoneSelect} columns={2} />;
       default:
         return null;
     }
