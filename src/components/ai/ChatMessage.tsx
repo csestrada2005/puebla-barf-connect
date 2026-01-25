@@ -14,12 +14,12 @@ export function ChatMessage({ content, isBot = true, children }: ChatMessageProp
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "flex gap-3 max-w-[85%]",
-        isBot ? "self-start" : "self-end flex-row-reverse"
+        "flex gap-3",
+        isBot ? "justify-start" : "justify-end"
       )}
     >
       {isBot && (
-        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20">
           <img 
             src={dogtorAvatar} 
             alt="El Dogtor" 
@@ -29,13 +29,13 @@ export function ChatMessage({ content, isBot = true, children }: ChatMessageProp
       )}
       <div
         className={cn(
-          "rounded-2xl px-4 py-3",
+          "rounded-2xl px-5 py-3 max-w-[80%]",
           isBot
             ? "bg-muted text-foreground rounded-tl-sm"
             : "bg-primary text-primary-foreground rounded-tr-sm"
         )}
       >
-        <p className="text-sm leading-relaxed">{content}</p>
+        <p className="text-base leading-relaxed">{content}</p>
         {children}
       </div>
     </motion.div>
