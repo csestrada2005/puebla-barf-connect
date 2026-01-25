@@ -14,7 +14,7 @@ import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
-import logoGreen from "@/assets/brand/logo-green.png";
+import logoWhite from "@/assets/brand/logo-white.png";
 import dogPeeking from "@/assets/brand/dog-peeking.png";
 import dogLicking from "@/assets/brand/dog-licking.png";
 
@@ -122,58 +122,54 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-16 md:py-24 overflow-hidden bg-background min-h-[500px] md:min-h-[600px]">
+      <section className="relative py-12 md:py-16 overflow-hidden bg-primary min-h-[420px] md:min-h-[480px]">
         {/* Perro izquierdo (lamiendo) - posición fija en la esquina inferior izquierda */}
         <img 
           src={dogLicking} 
           alt="Perro" 
-          className="absolute bottom-0 left-0 w-32 sm:w-40 md:w-52 lg:w-64 object-contain z-10 pointer-events-none"
+          className="absolute bottom-0 left-0 w-40 sm:w-48 md:w-56 lg:w-72 object-contain z-10 pointer-events-none"
         />
         
         {/* Perro derecho (asomándose) - posición fija en el borde derecho */}
         <img 
           src={dogPeeking} 
           alt="Perro curioso" 
-          className="absolute top-1/2 -translate-y-1/2 right-0 w-24 sm:w-32 md:w-40 lg:w-48 object-contain z-10 pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 right-0 w-28 sm:w-36 md:w-44 lg:w-52 object-contain z-10 pointer-events-none"
         />
 
         <div className="container relative z-20">
-          <div className="flex flex-col items-center text-center px-8 sm:px-16 md:px-24">
+          <div className="flex flex-col items-center text-center px-12 sm:px-20 md:px-28">
             {/* Logo central */}
-            <div className="mb-6 md:mb-8">
+            <div className="mb-4 md:mb-6">
               <img 
-                src={logoGreen} 
+                src={logoWhite} 
                 alt="Raw Paw" 
-                className="h-16 sm:h-20 md:h-28 lg:h-36 w-auto mx-auto"
+                className="h-14 sm:h-18 md:h-24 lg:h-32 w-auto mx-auto brightness-0 invert"
               />
-              <p className="text-primary font-medium mt-3 text-lg md:text-xl tracking-wide">
+              <p className="text-primary-foreground/90 font-medium mt-2 text-base md:text-lg tracking-wide">
                 la nueva forma de cuidarlos
               </p>
             </div>
 
             {/* Descripción y CTAs */}
-            <div className="max-w-2xl mx-auto animate-slide-up">
-              <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                Alimentación BARF natural, fresca y balanceada para perros en Puebla. 
-                Porque ellos merecen comida real.
+            <div className="max-w-xl mx-auto animate-slide-up">
+              <p className="text-base md:text-lg text-primary-foreground/80 mb-6">
+                Alimentación BARF natural, fresca y balanceada para perros en Puebla.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="gap-2 text-base">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild size="lg" variant="secondary" className="gap-2">
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5" />
                     Arma tu pedido
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="gap-2 text-base border-primary/30 hover:bg-primary/5">
+                <Button asChild variant="outline" size="lg" className="gap-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
                   <Link to="/tienda">
                     Ver productos
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </Button>
               </div>
-              <p className="mt-4 text-sm text-muted-foreground">
-                ⏱️ Toma menos de 3 minutos
-              </p>
             </div>
           </div>
         </div>
