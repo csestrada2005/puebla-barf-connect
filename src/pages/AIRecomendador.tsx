@@ -9,12 +9,18 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-type Step = "name" | "weight" | "age" | "activity" | "goal" | "result";
+type Step = "name" | "weight" | "age" | "activity" | "goal" | "zone" | "result";
 
 interface Message {
   id: string;
   content: string;
   isBot: boolean;
+}
+
+interface CoverageZone {
+  id: string;
+  zone_name: string;
+  delivery_fee: number | null;
 }
 
 interface PetData {
@@ -23,6 +29,9 @@ interface PetData {
   age: string;
   activity: string;
   goal: string;
+  zoneId: string;
+  zoneName: string;
+  deliveryFee: number;
 }
 
 const weightOptions = [
@@ -70,8 +79,24 @@ export default function AIRecomendador() {
     age: "",
     activity: "normal",
     goal: "standard",
+    zoneId: "",
+    zoneName: "",
+    deliveryFee: 0,
   });
   const [result, setResult] = useState<ReturnType<typeof calculateRecommendation> | null>(null);
+
+  // Fetch coverage zones for delivery question
+  const { data: coverageZones } = useQuery({
+    queryKey: ["coverage-zones-ai"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("coverage_zones")
+        .select("id, zone_name, delivery_fee")
+        .eq("is_active", true)
+        .order("zone_name");
+      return (data || []) as CoverageZone[];
+    },
+  });
 
   // Restore state from localStorage on mount
   useEffect(() => {
@@ -153,9 +178,36 @@ export default function AIRecomendador() {
   };
 
   const handleGoalSelect = (value: string, label: string) => {
-    const updatedPetData = { ...petData, goal: value };
-    setPetData(updatedPetData);
+    setPetData(prev => ({ ...prev, goal: value }));
     addMessage(label, false);
+    
+    setTimeout(() => {
+      addMessage("¡Casi listo! ¿En qué zona de Puebla te encuentras? 📍", true);
+      setStep("zone");
+    }, 400);
+  };
+
+  // Generate zone options from coverage zones
+  const zoneOptions = coverageZones?.map(zone => ({
+    value: zone.id,
+    label: zone.zone_name,
+    emoji: zone.delivery_fee === 0 ? "🚚" : "📦",
+  })) || [];
+
+  const handleZoneSelect = (value: string, label: string) => {
+    const selectedZone = coverageZones?.find(z => z.id === value);
+    const updatedPetData = { 
+      ...petData, 
+      zoneId: value, 
+      zoneName: label,
+      deliveryFee: selectedZone?.delivery_fee || 0,
+    };
+    setPetData(updatedPetData);
+    
+    const deliveryText = selectedZone?.delivery_fee === 0 
+      ? "¡Genial! Envío GRATIS en tu zona 🎉" 
+      : `Envío a tu zona: $${selectedZone?.delivery_fee} MXN`;
+    addMessage(`${label} - ${deliveryText}`, false);
     
     setTimeout(() => {
       if (products && products.length > 0) {
@@ -172,8 +224,8 @@ export default function AIRecomendador() {
           goal: updatedPetData.goal,
           dailyGrams: recommendation.dailyGrams,
           monthlyGrams: recommendation.monthlyKg * 1000,
-          packagesPerMonth: Math.ceil(recommendation.monthlyKg / 1), // Assuming 1kg packs
-          recommendedProtein: value === "premium" ? "res" : "pollo",
+          packagesPerMonth: Math.ceil(recommendation.monthlyKg / 1),
+          recommendedProtein: updatedPetData.goal === "premium" ? "res" : "pollo",
           recommendedPresentation: "1kg",
           product: recommendation.optionA.products[0],
           isPuppy: updatedPetData.age === "puppy",
@@ -220,7 +272,7 @@ export default function AIRecomendador() {
       content: "¡Hola! 👋 Soy el Dogtor. Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }]);
-    setPetData({ name: "", weight: 0, age: "", activity: "normal", goal: "standard" });
+    setPetData({ name: "", weight: 0, age: "", activity: "normal", goal: "standard", zoneId: "", zoneName: "", deliveryFee: 0 });
     setResult(null);
     setStep("name");
   };
@@ -242,6 +294,8 @@ export default function AIRecomendador() {
         return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} />;
       case "goal":
         return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} />;
+      case "zone":
+        return <QuickReplies options={zoneOptions} onSelect={handleZoneSelect} columns={2} />;
       default:
         return null;
     }
@@ -263,6 +317,8 @@ export default function AIRecomendador() {
             planType={result.planType}
             optionA={result.optionA}
             optionB={result.optionB}
+            deliveryFee={petData.deliveryFee}
+            zoneName={petData.zoneName}
             onSelectOption={handleSelectOption}
             onViewProduct={handleViewProduct}
             onRestart={handleRestart}

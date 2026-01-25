@@ -258,9 +258,9 @@ export default function Suscripcion() {
           </div>
 
           {/* Summary & Benefits */}
-          <div className="space-y-6">
-            {/* Price Card */}
-            <Card className="border-primary border-2 sticky top-24">
+          <div className="space-y-6 lg:self-start">
+            {/* Price Card - Fixed position on scroll */}
+            <Card className="border-primary border-2 lg:sticky lg:top-24">
               <CardHeader>
                 <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>

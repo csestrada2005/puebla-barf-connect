@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye } from "lucide-react";
+import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye, Repeat, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface ProductOption {
   id: string;
@@ -30,6 +31,8 @@ interface DualRecommendationProps {
   planType: "standard" | "mix" | "premium";
   optionA: RecommendationOption;
   optionB: RecommendationOption;
+  deliveryFee?: number;
+  zoneName?: string;
   onSelectOption: (option: "A" | "B", products: ProductOption[]) => void;
   onViewProduct: (productSlug: string) => void;
   onRestart: () => void;
@@ -43,10 +46,13 @@ export function DualRecommendation({
   planType,
   optionA,
   optionB,
+  deliveryFee = 0,
+  zoneName,
   onSelectOption,
   onViewProduct,
   onRestart,
 }: DualRecommendationProps) {
+  const navigate = useNavigate();
   const getPlanLabel = () => {
     switch (planType) {
       case "premium": return "✨ Plan Premium (Res)";
@@ -88,6 +94,19 @@ export function DualRecommendation({
               <Calendar className="h-5 w-5 mx-auto mb-1 text-primary" />
               <p className="text-2xl font-bold text-primary">{durationDays}</p>
               <p className="text-xs text-muted-foreground">días aprox.</p>
+            </div>
+          </div>
+
+          {/* Delivery Info */}
+          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-xl text-sm">
+            <Truck className="h-5 w-5 text-primary flex-shrink-0" />
+            <div>
+              <p className="font-medium text-foreground">
+                {deliveryFee === 0 ? "🎉 ¡Envío GRATIS!" : `Envío: $${deliveryFee} MXN`}
+              </p>
+              {zoneName && (
+                <p className="text-muted-foreground text-xs">Entrega en {zoneName}</p>
+              )}
             </div>
           </div>
 
@@ -208,6 +227,33 @@ export function DualRecommendation({
             >
               <ShoppingCart className="h-5 w-5" />
               Elegir Opción B
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Subscription CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card className="border-dashed border-2 border-primary/50 bg-primary/5">
+          <CardContent className="p-5 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Repeat className="h-5 w-5 text-primary" />
+              <h3 className="font-bold text-lg">¿Quieres que llegue cada mes?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Suscríbete y olvídate de hacer pedidos. Sin compromiso, cancela cuando quieras.
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              onClick={() => navigate("/suscripcion")}
+            >
+              <Repeat className="h-4 w-4" />
+              Ver planes de suscripción
             </Button>
           </CardContent>
         </Card>
