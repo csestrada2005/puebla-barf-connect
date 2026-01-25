@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/utils";
-import logoGreen from "@/assets/brand/logo-green.png";
+import logoRawPaw from "@/assets/brand/logo-rawpaw.png";
 import isotipoWalking from "@/assets/brand/isotipo-walking.png";
 
 const navLinks = [
@@ -26,16 +26,12 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center">
           <img 
-            src={isotipoWalking} 
+            src={logoRawPaw} 
             alt="Raw Paw" 
-            className="h-10 w-auto"
+            className="h-8 w-auto"
           />
-          <div className="hidden sm:flex flex-col items-start leading-none">
-            <span className="text-xl font-bold text-foreground">Raw Paw</span>
-            <span className="text-[10px] text-muted-foreground tracking-wide">la nueva forma de cuidarlos</span>
-          </div>
         </Link>
 
         {/* Center: Desktop Navigation */}
@@ -86,16 +82,12 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 mb-8">
+              <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center mb-8">
                 <img 
-                  src={isotipoWalking} 
+                  src={logoRawPaw} 
                   alt="Raw Paw" 
-                  className="h-12 w-auto"
+                  className="h-10 w-auto"
                 />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-xl font-bold">Raw Paw</span>
-                  <span className="text-[10px] text-muted-foreground tracking-wide">la nueva forma de cuidarlos</span>
-                </div>
               </Link>
               <nav className="flex flex-col gap-2">
                 <Link
