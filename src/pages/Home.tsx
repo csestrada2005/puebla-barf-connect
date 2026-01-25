@@ -138,24 +138,24 @@ export default function Home() {
         />
 
         <div className="container relative z-20 h-full">
-          <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg py-8 pl-4 md:pl-8">
-            {/* Logo */}
+          <div className="flex flex-col items-center text-center py-8 px-4">
+            {/* Logo - Centrado y Grande */}
             <div className="mb-6 md:mb-8">
               <img 
                 src={logoWhite} 
                 alt="Raw Paw" 
-                className="h-14 sm:h-18 md:h-24 lg:h-32 w-auto brightness-0 invert"
+                className="h-24 sm:h-32 md:h-40 lg:h-52 w-auto brightness-0 invert"
               />
             </div>
 
             {/* Título principal */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 md:mb-6">
-              la nueva forma de cuidarlos
+              Porque merecen lo mismo que tú
             </h1>
 
             {/* Descripción */}
-            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
-              Alimentación BARF natural, fresca y balanceada para perros en Puebla.
+            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl">
+              Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
             </p>
 
             {/* CTAs */}
