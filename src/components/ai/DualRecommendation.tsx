@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye, Repeat, Truck } from "lucide-react";
+import { ShoppingCart, RotateCcw, Package, Calendar, Scale, Sparkles, Leaf, Eye, Repeat, Truck, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,13 @@ interface RecommendationOption {
   totalPrice: number;
   badge?: string;
   isRecommended?: boolean;
+  durationDays: number;
+}
+
+interface RecommendationReasoning {
+  planReason: string;
+  proteinReason: string;
+  dailyGramsReason: string;
 }
 
 interface DualRecommendationProps {
@@ -28,11 +35,12 @@ interface DualRecommendationProps {
   dailyGrams: number;
   weeklyKg: number;
   durationDays: number;
-  planType: "standard" | "mix" | "premium";
+  planType: "standard" | "premium";
   optionA: RecommendationOption;
   optionB: RecommendationOption;
   deliveryFee?: number;
   zoneName?: string;
+  reasoning?: RecommendationReasoning;
   onSelectOption: (option: "A" | "B", products: ProductOption[]) => void;
   onViewProduct: (productSlug: string) => void;
   onRestart: () => void;
@@ -48,18 +56,20 @@ export function DualRecommendation({
   optionB,
   deliveryFee = 0,
   zoneName,
+  reasoning,
   onSelectOption,
   onViewProduct,
   onRestart,
 }: DualRecommendationProps) {
   const navigate = useNavigate();
+  
   const getPlanLabel = () => {
     switch (planType) {
-      case "premium": return "✨ Plan Premium (Res)";
-      case "mix": return "🔄 Plan Mix (Pollo + Res)";
-      default: return "🌿 Plan Standard (Pollo)";
+      case "premium": return "✨ Plan Premium";
+      default: return "🌿 Plan Standard";
     }
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,7 +82,7 @@ export function DualRecommendation({
           <p className="text-xl font-bold text-primary mb-2">
             🩺 ¡Diagnóstico listo para {petName}!
           </p>
-          <Badge variant={planType === "premium" ? "default" : planType === "mix" ? "outline" : "secondary"} className="text-sm">
+          <Badge variant={planType === "premium" ? "default" : "secondary"} className="text-sm">
             {getPlanLabel()}
           </Badge>
         </div>
@@ -111,7 +121,7 @@ export function DualRecommendation({
           </div>
 
           {/* Why BARF */}
-          <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-xl text-sm">
+          <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-xl text-sm mt-4">
             <Leaf className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-foreground">¿Por qué BARF?</p>
@@ -120,6 +130,38 @@ export function DualRecommendation({
           </div>
         </CardContent>
       </Card>
+
+      {/* Reasoning Card - Why we recommend this */}
+      {reasoning && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/20">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="h-5 w-5 text-amber-600" />
+                <h3 className="font-bold text-lg text-amber-800 dark:text-amber-200">¿Por qué te recomendamos esto?</h3>
+              </div>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-600 font-bold">•</span>
+                  <span className="text-foreground">{reasoning.planReason}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-600 font-bold">•</span>
+                  <span className="text-foreground">{reasoning.proteinReason}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-600 font-bold">•</span>
+                  <span className="text-foreground">{reasoning.dailyGramsReason}</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Option A - Recommended */}
       <motion.div

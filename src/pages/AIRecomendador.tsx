@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation } from "@/components/ai";
 import { useRecommendation } from "@/hooks/useRecommendation";
-import { calculateRecommendation } from "@/hooks/useRecommendationCalculator";
+import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-type Step = "name" | "weight" | "age" | "activity" | "goal" | "zone" | "result";
+type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "zone" | "result";
 
 interface Message {
   id: string;
@@ -23,12 +24,7 @@ interface CoverageZone {
   delivery_fee: number | null;
 }
 
-interface PetData {
-  name: string;
-  weight: number;
-  age: string;
-  activity: string;
-  goal: string;
+interface ExtendedPetData extends PetData {
   zoneId: string;
   zoneName: string;
   deliveryFee: number;
@@ -53,10 +49,22 @@ const activityOptions = [
   { value: "high", label: "Muy activo", emoji: "⚡" },
 ];
 
+const bodyConditionOptions = [
+  { value: "underweight", label: "Flaco", emoji: "🦴" },
+  { value: "ideal", label: "Ideal", emoji: "✨" },
+  { value: "overweight", label: "Pasadito", emoji: "🐷" },
+];
+
+const sensitivityOptions = [
+  { value: "high", label: "Sí, tiene alergias", emoji: "🚨" },
+  { value: "medium", label: "A veces", emoji: "🤔" },
+  { value: "low", label: "No, come de todo", emoji: "💪" },
+];
+
 const goalOptions = [
-  { value: "standard", label: "Standard (Pollo)", emoji: "🌿" },
-  { value: "mix", label: "Mix (Pollo + Res)", emoji: "🔄" },
-  { value: "premium", label: "Premium (Res)", emoji: "✨" },
+  { value: "trial", label: "Quiero probar", emoji: "🧪" },
+  { value: "routine", label: "Establecer rutina", emoji: "📅" },
+  { value: "variety", label: "Busco variedad", emoji: "🎨" },
 ];
 
 export default function AIRecomendador() {
@@ -64,26 +72,29 @@ export default function AIRecomendador() {
   const { toast } = useToast();
   const { setRecommendation } = useRecommendation();
   const { addItem } = useCart();
+  const { user, isAuthenticated } = useAuth();
   
   const [step, setStep] = useState<Step>("name");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor. Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu peludo. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }
   ]);
-  const [petData, setPetData] = useState<PetData>({
+  const [petData, setPetData] = useState<ExtendedPetData>({
     name: "",
     weight: 0,
     age: "",
     activity: "normal",
-    goal: "standard",
+    bodyCondition: "ideal",
+    sensitivity: "low",
+    goal: "routine",
     zoneId: "",
     zoneName: "",
     deliveryFee: 0,
   });
-  const [result, setResult] = useState<ReturnType<typeof calculateRecommendation> | null>(null);
+  const [result, setResult] = useState<RecommendationResult | null>(null);
 
   // Fetch coverage zones for delivery question
   const { data: coverageZones } = useQuery({
@@ -134,6 +145,45 @@ export default function AIRecomendador() {
     }
   }, [step, messages, petData, result]);
 
+  // Save dog profile to database when result is ready
+  const saveDogProfile = async (data: ExtendedPetData, recommendation: RecommendationResult) => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      // Map internal values to database values
+      const ageStageMap: Record<string, string> = {
+        puppy: "puppy",
+        adult: "adult", 
+        senior: "senior"
+      };
+      
+      const proteinMap: Record<string, string> = {
+        chicken: "chicken",
+        beef: "beef",
+        mix: "mix"
+      };
+
+      await supabase.from("dog_profiles").upsert({
+        user_id: user.id,
+        name: data.name,
+        age_stage: ageStageMap[data.age] || "adult",
+        weight_kg: data.weight,
+        activity_level: data.activity,
+        body_condition: data.bodyCondition,
+        sensitivity: data.sensitivity,
+        goal: data.goal,
+        daily_grams: recommendation.dailyGrams,
+        weekly_kg: recommendation.weeklyKg,
+        recommended_plan_type: recommendation.planType,
+        recommended_protein: proteinMap[recommendation.recommendedProtein] || "chicken",
+      }, {
+        onConflict: "user_id"
+      });
+    } catch (error) {
+      console.error("Failed to save dog profile:", error);
+    }
+  };
+
   const addMessage = (content: string, isBot: boolean) => {
     setMessages(prev => [...prev, { id: Date.now().toString(), content, isBot }]);
   };
@@ -142,7 +192,7 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, name }));
     addMessage(name, false);
     setTimeout(() => {
-      addMessage(`¡Es un placer conocer a ${name}! Un gusto. Vamos a chequear sus medidas 📏. ¿Cuánto pesa?`, true);
+      addMessage(`¡Encantado de conocer a ${name}! 🐾 Ahora vamos a revisar sus medidas. ¿Cuánto pesa aproximadamente?`, true);
       setStep("weight");
     }, 400);
   };
@@ -152,7 +202,7 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, weight }));
     addMessage(label, false);
     setTimeout(() => {
-      addMessage(`Entendido. ¿Y en qué etapa de vida está ${petData.name}? 🎂`, true);
+      addMessage(`Perfecto, anotado. ¿En qué etapa de vida está ${petData.name}? 🎂`, true);
       setStep("age");
     }, 400);
   };
@@ -160,10 +210,8 @@ export default function AIRecomendador() {
   const handleAgeSelect = (value: string, label: string) => {
     setPetData(prev => ({ ...prev, age: value }));
     addMessage(label, false);
-    
-    // Always ask for activity level regardless of age
     setTimeout(() => {
-      addMessage(`¿Qué tan activo es ${petData.name}? 🏃`, true);
+      addMessage(`Muy bien. ¿Qué tan activo es ${petData.name}? 🏃`, true);
       setStep("activity");
     }, 400);
   };
@@ -172,7 +220,25 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, activity: value }));
     addMessage(label, false);
     setTimeout(() => {
-      addMessage("¿Qué tipo de plan prefieres para tu peludo? 💚", true);
+      addMessage(`Ahora una pregunta importante para su nutrición. ¿Cómo describirías la condición corporal de ${petData.name}? ⚖️`, true);
+      setStep("bodyCondition");
+    }, 400);
+  };
+
+  const handleBodyConditionSelect = (value: string, label: string) => {
+    setPetData(prev => ({ ...prev, bodyCondition: value }));
+    addMessage(label, false);
+    setTimeout(() => {
+      addMessage(`Entendido. ¿${petData.name} tiene alguna sensibilidad digestiva o alergias alimentarias? 🤧`, true);
+      setStep("sensitivity");
+    }, 400);
+  };
+
+  const handleSensitivitySelect = (value: string, label: string) => {
+    setPetData(prev => ({ ...prev, sensitivity: value }));
+    addMessage(label, false);
+    setTimeout(() => {
+      addMessage(`¡Excelente! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`, true);
       setStep("goal");
     }, 400);
   };
@@ -180,26 +246,25 @@ export default function AIRecomendador() {
   const handleGoalSelect = (value: string, label: string) => {
     setPetData(prev => ({ ...prev, goal: value }));
     addMessage(label, false);
-    
     setTimeout(() => {
-      addMessage("¡Casi listo! ¿En qué zona de Puebla te encuentras? 📍", true);
+      addMessage("¡Casi listo! ¿En qué zona de Puebla te encuentras? 📍 Esto nos ayuda a calcular tu envío.", true);
       setStep("zone");
     }, 400);
   };
 
-  // Generate zone options from coverage zones - formatted like other quick replies
+  // Generate zone options from coverage zones
   const zoneOptions = coverageZones?.map(zone => ({
     value: zone.id,
     label: `${zone.zone_name}${zone.delivery_fee === 0 ? " • Gratis" : ` • $${zone.delivery_fee}`}`,
     emoji: zone.delivery_fee === 0 ? "🚚" : "📍",
   })) || [];
 
-  const handleZoneSelect = (value: string, label: string) => {
+  const handleZoneSelect = async (value: string, label: string) => {
     const selectedZone = coverageZones?.find(z => z.id === value);
-    const updatedPetData = { 
+    const updatedPetData: ExtendedPetData = { 
       ...petData, 
       zoneId: value, 
-      zoneName: label,
+      zoneName: selectedZone?.zone_name || label,
       deliveryFee: selectedZone?.delivery_fee || 0,
     };
     setPetData(updatedPetData);
@@ -207,9 +272,9 @@ export default function AIRecomendador() {
     const deliveryText = selectedZone?.delivery_fee === 0 
       ? "¡Genial! Envío GRATIS en tu zona 🎉" 
       : `Envío a tu zona: $${selectedZone?.delivery_fee} MXN`;
-    addMessage(`${label} - ${deliveryText}`, false);
+    addMessage(`${selectedZone?.zone_name || label} - ${deliveryText}`, false);
     
-    setTimeout(() => {
+    setTimeout(async () => {
       if (products && products.length > 0) {
         const recommendation = calculateRecommendation(updatedPetData, products);
         setResult(recommendation);
@@ -225,7 +290,7 @@ export default function AIRecomendador() {
           dailyGrams: recommendation.dailyGrams,
           monthlyGrams: recommendation.monthlyKg * 1000,
           packagesPerMonth: Math.ceil(recommendation.monthlyKg / 1),
-          recommendedProtein: updatedPetData.goal === "premium" ? "res" : "pollo",
+          recommendedProtein: recommendation.recommendedProtein === "chicken" ? "pollo" : recommendation.recommendedProtein === "beef" ? "res" : "mix",
           recommendedPresentation: "1kg",
           product: recommendation.optionA.products[0],
           isPuppy: updatedPetData.age === "puppy",
@@ -233,7 +298,10 @@ export default function AIRecomendador() {
           createdAt: new Date().toISOString(),
         });
         
-        addMessage(`¡Perfecto! Aquí está el plan ideal para ${updatedPetData.name} 🎉`, true);
+        // Save to database if logged in
+        await saveDogProfile(updatedPetData, recommendation);
+        
+        addMessage(`🩺 ¡Diagnóstico completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`, true);
         setStep("result");
       }
     }, 400);
@@ -259,29 +327,36 @@ export default function AIRecomendador() {
   };
 
   const handleViewProduct = (productSlug: string) => {
-    // Navigate to product page using slug
     navigate(`/producto/${productSlug}`);
   };
 
   const handleRestart = () => {
-    // Clear saved state
     localStorage.removeItem("ai-recommender-state");
     
     setMessages([{
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor. Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu peludo. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }]);
-    setPetData({ name: "", weight: 0, age: "", activity: "normal", goal: "standard", zoneId: "", zoneName: "", deliveryFee: 0 });
+    setPetData({ 
+      name: "", 
+      weight: 0, 
+      age: "", 
+      activity: "normal", 
+      bodyCondition: "ideal",
+      sensitivity: "low",
+      goal: "routine",
+      zoneId: "", 
+      zoneName: "", 
+      deliveryFee: 0 
+    });
     setResult(null);
     setStep("name");
   };
 
   // Render input section based on current step
   const renderInputSection = () => {
-    if (step === "result") {
-      return null;
-    }
+    if (step === "result") return null;
     
     switch (step) {
       case "name":
@@ -292,6 +367,10 @@ export default function AIRecomendador() {
         return <QuickReplies options={ageOptions} onSelect={handleAgeSelect} columns={3} />;
       case "activity":
         return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} />;
+      case "bodyCondition":
+        return <QuickReplies options={bodyConditionOptions} onSelect={handleBodyConditionSelect} columns={3} />;
+      case "sensitivity":
+        return <QuickReplies options={sensitivityOptions} onSelect={handleSensitivitySelect} columns={3} />;
       case "goal":
         return <QuickReplies options={goalOptions} onSelect={handleGoalSelect} columns={3} />;
       case "zone":
@@ -319,6 +398,7 @@ export default function AIRecomendador() {
             optionB={result.optionB}
             deliveryFee={petData.deliveryFee}
             zoneName={petData.zoneName}
+            reasoning={result.reasoning}
             onSelectOption={handleSelectOption}
             onViewProduct={handleViewProduct}
             onRestart={handleRestart}
