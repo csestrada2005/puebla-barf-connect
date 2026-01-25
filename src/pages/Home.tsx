@@ -122,12 +122,12 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-12 md:py-16 overflow-hidden bg-primary min-h-[480px] md:min-h-[520px]">
+      <section className="relative py-6 md:py-10 overflow-hidden bg-primary min-h-[420px] md:min-h-[480px]">
         {/* Pelota - posición fija en la esquina superior izquierda */}
         <img 
           src={heroBall} 
           alt="Pelota" 
-          className="absolute top-6 md:top-10 left-4 md:left-12 w-14 sm:w-18 md:w-24 lg:w-28 object-contain z-10 pointer-events-none"
+          className="absolute top-4 md:top-8 left-4 md:left-12 w-12 sm:w-16 md:w-20 lg:w-24 object-contain z-10 pointer-events-none"
         />
         
         {/* Perro lamiendo - posición fija a la derecha */}
@@ -138,13 +138,13 @@ export default function Home() {
         />
 
         <div className="container relative z-20 h-full">
-          <div className="flex flex-col py-8 px-4 md:px-8">
+          <div className="flex flex-col py-4 px-4 md:px-8">
             {/* Logo - Centrado y Grande */}
-            <div className="mb-6 md:mb-8 flex justify-center">
+            <div className="mb-4 md:mb-6 flex justify-center">
               <img 
                 src={logoWhite} 
                 alt="Raw Paw" 
-                className="h-24 sm:h-32 md:h-40 lg:h-52 w-auto brightness-0 invert"
+                className="h-20 sm:h-24 md:h-32 lg:h-40 w-auto brightness-0 invert"
               />
             </div>
 
