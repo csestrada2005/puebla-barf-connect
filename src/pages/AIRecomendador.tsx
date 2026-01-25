@@ -46,25 +46,25 @@ const ageOptions = [
 const activityOptions = [
   { value: "low", label: "Tranquilo", emoji: "😴" },
   { value: "normal", label: "Normal", emoji: "🚶" },
-  { value: "high", label: "Muy activo", emoji: "⚡" },
+  { value: "high", label: "Activo", emoji: "⚡" },
 ];
 
 const bodyConditionOptions = [
   { value: "underweight", label: "Flaco", emoji: "🦴" },
   { value: "ideal", label: "Ideal", emoji: "✨" },
-  { value: "overweight", label: "Pasadito", emoji: "🐷" },
+  { value: "overweight", label: "Gordito", emoji: "🐷" },
 ];
 
 const sensitivityOptions = [
-  { value: "high", label: "Sí, tiene alergias", emoji: "🚨" },
+  { value: "high", label: "Sí", emoji: "🚨" },
   { value: "medium", label: "A veces", emoji: "🤔" },
-  { value: "low", label: "No, come de todo", emoji: "💪" },
+  { value: "low", label: "No", emoji: "💪" },
 ];
 
 const goalOptions = [
-  { value: "trial", label: "Quiero probar", emoji: "🧪" },
-  { value: "routine", label: "Establecer rutina", emoji: "📅" },
-  { value: "variety", label: "Busco variedad", emoji: "🎨" },
+  { value: "trial", label: "Probar", emoji: "🐾" },
+  { value: "routine", label: "Rutina", emoji: "📅" },
+  { value: "variety", label: "Variedad", emoji: "🎨" },
 ];
 
 export default function AIRecomendador() {
