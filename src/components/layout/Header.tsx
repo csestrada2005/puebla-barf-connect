@@ -32,10 +32,19 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-      <div className="container relative flex h-16 items-center">
-        {/* Left: Navigation Links (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-5">
-          {navLinksLeft.map((link) => (
+      <div className="container flex h-16 items-center justify-between">
+        {/* Left: Logo */}
+        <Link to="/" className="flex-shrink-0">
+          <img 
+            src={logoRawPaw} 
+            alt="Raw Paw" 
+            className="h-9 w-auto"
+          />
+        </Link>
+
+        {/* Center: Navigation Links (Desktop) */}
+        <nav className="hidden lg:flex items-center gap-6 mx-auto">
+          {allNavLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
@@ -51,34 +60,8 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Center: Logo - Absolutely positioned */}
-        <Link 
-          to="/" 
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        >
-          <img 
-            src={logoRawPaw} 
-            alt="Raw Paw" 
-            className="h-9 w-auto"
-          />
-        </Link>
-
-        {/* Right: Navigation Links (Desktop) + Icons */}
-        <div className="hidden lg:flex items-center gap-5 ml-auto">
-          {navLinksRight.map((link) => (
-            <Link
-              key={link.href}
-              to={link.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === link.href
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+        {/* Right: Icons + Auth (Desktop) */}
+        <div className="hidden lg:flex items-center gap-3">
 
           {/* Cart */}
           <Link to="/carrito">
@@ -109,8 +92,8 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile: Cart + Hamburger */}
-        <div className="flex items-center gap-2 lg:hidden">
+        {/* Mobile: Logo + Cart + Hamburger */}
+        <div className="flex items-center gap-2 lg:hidden ml-auto">
 
           {/* Cart */}
           <Link to="/carrito">
