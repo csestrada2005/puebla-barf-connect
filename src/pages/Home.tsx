@@ -16,6 +16,7 @@ import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
+import heroLogoTagline from "@/assets/brand/hero-logo-tagline.png";
 
 const benefits = [
   { 
@@ -116,16 +117,14 @@ export default function Home() {
                 <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
-                No adivines.
-                <br />
-                <span className="text-secondary">El Dogtor calcula</span>
-                <br />
-                la dieta perfecta. 🩺
-              </h1>
+              <img 
+                src={heroLogoTagline} 
+                alt="Raw Paw - La nueva forma de cuidarlos" 
+                className="w-64 sm:w-80 md:w-96 mb-6"
+              />
 
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-md">
-                Nutrición natural personalizada para la edad, peso y alergias de tu perro en 60 segundos.
+                Donde la frescura nutre, la calidad se siente y la alegría permanece.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -166,26 +165,6 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right: Dogtor Avatar */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="hidden lg:flex justify-center items-center"
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-secondary/30 rounded-full blur-3xl scale-110" />
-                <img 
-                  src={dogtorAvatar} 
-                  alt="El Dogtor - Tu asistente de nutrición" 
-                  className="relative w-64 h-64 xl:w-80 xl:h-80 object-contain drop-shadow-2xl"
-                />
-                {/* Speech bubble */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-2xl px-4 py-2 shadow-lg">
-                  <p className="text-sm font-medium text-foreground">¡Hola! Soy el Dogtor 🩺</p>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </div>
       </section>
