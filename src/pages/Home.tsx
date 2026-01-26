@@ -67,7 +67,7 @@ export default function Home() {
         <img 
           src={heroDogLicking} 
           alt="Perro feliz" 
-          className="absolute bottom-0 right-0 w-36 sm:w-48 md:w-64 lg:w-[320px] object-contain z-10 pointer-events-none opacity-90"
+          className="absolute bottom-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[420px] object-contain z-10 pointer-events-none opacity-90"
         />
 
         <div className="container relative z-20 py-8 md:py-12">
