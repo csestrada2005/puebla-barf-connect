@@ -8,11 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Dog, MapPin, Package, LogOut, Save } from "lucide-react";
+import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default function MiCuenta() {
   const { user, signOut } = useAuthContext();
@@ -21,6 +24,39 @@ export default function MiCuenta() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<ProfileFormData>>({});
+
+  // Fetch user's active subscription
+  const { data: subscription } = useQuery({
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user?.id)
+        .eq("status", "active")
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch user's dog profiles
+  const { data: dogProfiles } = useQuery({
+    queryKey: ["my-dogs", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("dog_profiles")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
 
   // Fetch user orders
   const { data: orders } = useQuery({
@@ -77,6 +113,15 @@ export default function MiCuenta() {
     navigate("/");
   };
 
+  const getPlanLabel = (planType: string) => {
+    switch (planType) {
+      case "monthly": return "Mensual";
+      case "semestral": return "Semestral";
+      case "annual": return "Anual";
+      default: return planType;
+    }
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -104,17 +149,140 @@ export default function MiCuenta() {
             </Button>
           </div>
 
-          <Tabs defaultValue="perfil" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="suscripcion" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="suscripcion" className="gap-2">
+                <Package className="h-4 w-4" />
+                Mi Suscripción
+              </TabsTrigger>
               <TabsTrigger value="perfil" className="gap-2">
                 <User className="h-4 w-4" />
                 Mi Perfil
               </TabsTrigger>
               <TabsTrigger value="pedidos" className="gap-2">
-                <Package className="h-4 w-4" />
+                <Truck className="h-4 w-4" />
                 Mis Pedidos
               </TabsTrigger>
             </TabsList>
+
+            {/* Subscription Tab */}
+            <TabsContent value="suscripcion" className="space-y-6">
+              {/* Active Subscription */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary" />
+                    Mi Suscripción Actual
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {subscription ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-lg">Plan {getPlanLabel(subscription.plan_type)}</span>
+                            <Badge className="bg-primary/10 text-primary border-0">
+                              {subscription.status === "active" ? "Activo" : subscription.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {subscription.protein_line} • {subscription.presentation}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to="/suscripcion">Modificar</Link>
+                        </Button>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3 p-3 border rounded-lg">
+                          <Truck className="h-8 w-8 text-secondary" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Próxima Entrega</p>
+                            <p className="font-semibold">
+                              {subscription.next_delivery_date 
+                                ? format(new Date(subscription.next_delivery_date), "EEEE d 'de' MMMM", { locale: es })
+                                : "Por confirmar"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 border rounded-lg">
+                          <Calendar className="h-8 w-8 text-secondary" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Próxima Facturación</p>
+                            <p className="font-semibold">
+                              {subscription.next_billing_date 
+                                ? format(new Date(subscription.next_billing_date), "d 'de' MMMM yyyy", { locale: es })
+                                : "Por confirmar"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <p className="text-muted-foreground mb-4">Aún no tienes una suscripción activa</p>
+                      <Button asChild className="gap-2">
+                        <Link to="/ai">
+                          <Sparkles className="h-4 w-4" />
+                          Obtener mi Plan Personalizado
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Dog Profiles */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Dog className="h-5 w-5 text-primary" />
+                    Mis Perros
+                  </CardTitle>
+                  <CardDescription>
+                    Perfiles nutricionales calculados por El Dogtor
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {dogProfiles && dogProfiles.length > 0 ? (
+                    <div className="space-y-3">
+                      {dogProfiles.map((dog: any) => (
+                        <div key={dog.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-secondary/50 flex items-center justify-center">
+                              🐕
+                            </div>
+                            <div>
+                              <p className="font-medium">{dog.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {dog.weight_kg}kg • {dog.age_stage === "puppy" ? "Cachorro" : dog.age_stage === "senior" ? "Senior" : "Adulto"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-primary">{dog.daily_grams}g/día</p>
+                            <p className="text-xs text-muted-foreground">
+                              {dog.recommended_protein === "chicken" ? "Pollo" : dog.recommended_protein === "beef" ? "Res" : "Mix"}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground">
+                      <Dog className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                      <p>No hay perfiles guardados</p>
+                      <Button variant="link" asChild className="mt-2">
+                        <Link to="/ai">Crear perfil con El Dogtor →</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="perfil" className="space-y-6">
               {/* Pet Info */}

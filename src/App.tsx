@@ -20,6 +20,7 @@ import Terminos from "./pages/Terminos";
 import Privacidad from "./pages/Privacidad";
 import GuiasBarf from "./pages/GuiasBarf";
 import Nosotros from "./pages/Nosotros";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { PromoPopup } from "./components/PromoPopup";
 
@@ -52,6 +53,11 @@ const App = () => (
             <Route path="/mi-cuenta" element={
               <ProtectedRoute>
                 <MiCuenta />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             } />
             <Route path="/terminos" element={<Terminos />} />

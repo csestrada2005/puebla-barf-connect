@@ -68,6 +68,50 @@ export type Database = {
         }
         Relationships: []
       }
+      deliveries: {
+        Row: {
+          amount_kg: number | null
+          contents_summary: string | null
+          created_at: string
+          delivery_date: string
+          id: string
+          status: string | null
+          subscription_id: string
+          tracking_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_kg?: number | null
+          contents_summary?: string | null
+          created_at?: string
+          delivery_date: string
+          id?: string
+          status?: string | null
+          subscription_id: string
+          tracking_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_kg?: number | null
+          contents_summary?: string | null
+          created_at?: string
+          delivery_date?: string
+          id?: string
+          status?: string | null
+          subscription_id?: string
+          tracking_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dog_profiles: {
         Row: {
           activity_level: string
@@ -311,47 +355,59 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acquisition_channel: string | null
           address: string
           colonia: string | null
           created_at: string
           email: string
           family_name: string
           id: string
+          is_admin: boolean | null
           is_coverage_verified: boolean | null
+          main_breed: string | null
           pet_name: string
           phone: string
           postal_code: string
           references_notes: string | null
+          special_needs: string | null
           special_notes: string | null
           updated_at: string
         }
         Insert: {
+          acquisition_channel?: string | null
           address: string
           colonia?: string | null
           created_at?: string
           email: string
           family_name: string
           id: string
+          is_admin?: boolean | null
           is_coverage_verified?: boolean | null
+          main_breed?: string | null
           pet_name: string
           phone: string
           postal_code: string
           references_notes?: string | null
+          special_needs?: string | null
           special_notes?: string | null
           updated_at?: string
         }
         Update: {
+          acquisition_channel?: string | null
           address?: string
           colonia?: string | null
           created_at?: string
           email?: string
           family_name?: string
           id?: string
+          is_admin?: boolean | null
           is_coverage_verified?: boolean | null
+          main_breed?: string | null
           pet_name?: string
           phone?: string
           postal_code?: string
           references_notes?: string | null
+          special_needs?: string | null
           special_notes?: string | null
           updated_at?: string
         }
@@ -360,48 +416,60 @@ export type Database = {
       subscriptions: {
         Row: {
           created_at: string
+          discount_percent: number | null
           frequency: string
           id: string
+          next_billing_date: string | null
           next_delivery_date: string | null
           payment_method: string | null
           plan_type: string
           points: number | null
           presentation: string
+          price_per_kg: number | null
           product_id: string | null
           protein_line: string
           status: string | null
           updated_at: string
           user_id: string
+          weekly_amount_kg: number | null
         }
         Insert: {
           created_at?: string
+          discount_percent?: number | null
           frequency: string
           id?: string
+          next_billing_date?: string | null
           next_delivery_date?: string | null
           payment_method?: string | null
           plan_type: string
           points?: number | null
           presentation: string
+          price_per_kg?: number | null
           product_id?: string | null
           protein_line: string
           status?: string | null
           updated_at?: string
           user_id: string
+          weekly_amount_kg?: number | null
         }
         Update: {
           created_at?: string
+          discount_percent?: number | null
           frequency?: string
           id?: string
+          next_billing_date?: string | null
           next_delivery_date?: string | null
           payment_method?: string | null
           plan_type?: string
           points?: number | null
           presentation?: string
+          price_per_kg?: number | null
           product_id?: string | null
           protein_line?: string
           status?: string | null
           updated_at?: string
           user_id?: string
+          weekly_amount_kg?: number | null
         }
         Relationships: [
           {
