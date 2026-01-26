@@ -77,9 +77,9 @@ export default function Home() {
           className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90"
         />
 
-        <div className="container relative z-20 py-6">
-          <div className="flex flex-col items-start justify-center text-left">
-            <motion.div 
+        <div className="container relative z-20 h-full flex items-end pb-8 sm:pb-12 md:pb-16">
+          <div className="flex flex-col items-start justify-end text-left">
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
