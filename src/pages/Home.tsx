@@ -62,24 +62,23 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Full viewport */}
-      <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
+      <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Decorative dog */}
         <img 
           src={heroDogLicking} 
           alt="Perro feliz" 
-          className="absolute bottom-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[420px] object-contain z-10 pointer-events-none opacity-90"
+          className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90"
         />
 
-        <div className="container relative z-20 py-8 md:py-12">
-          <div className="grid lg:grid-cols-2 gap-6 items-center">
-            {/* Left: Content */}
+        <div className="container relative z-20 py-6">
+          <div className="flex flex-col items-center justify-center text-center">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center max-w-xl mx-auto lg:mx-0"
+              className="max-w-2xl"
             >
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-4">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-3">
                 <Sparkles className="h-4 w-4 text-secondary" />
                 <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
               </div>
@@ -87,19 +86,19 @@ export default function Home() {
               <img 
                 src={heroLogoTagline} 
                 alt="Raw Paw - La nueva forma de cuidarlos" 
-                className="w-56 sm:w-72 md:w-80 mb-4 mx-auto"
+                className="w-48 sm:w-64 md:w-72 mb-3 mx-auto"
               />
 
-              <div className="mb-6 max-w-lg text-center mx-auto">
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight">
+              <div className="mb-4 max-w-lg mx-auto">
+                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
                   Donde la{" "}
                   <span className="text-secondary">Frescura</span>{" "}
                   nutre,
                 </p>
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight mt-1">
+                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
                   la calidad se siente
                 </p>
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight mt-1">
+                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
                   y la{" "}
                   <span className="text-secondary">Nutrición</span>{" "}
                   permanece.
@@ -132,7 +131,7 @@ export default function Home() {
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-6 text-primary-foreground/70 text-sm justify-center">
+              <div className="flex items-center gap-6 mt-4 text-primary-foreground/70 text-sm justify-center">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-secondary" />
                   <span>100% Natural</span>
@@ -143,7 +142,6 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-
           </div>
         </div>
       </section>

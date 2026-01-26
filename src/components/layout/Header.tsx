@@ -32,9 +32,9 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container relative flex h-16 items-center">
         {/* Left: Navigation Links (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-5 flex-1">
+        <nav className="hidden lg:flex items-center gap-5">
           {navLinksLeft.map((link) => (
             <Link
               key={link.href}
@@ -51,8 +51,11 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Center: Logo */}
-        <Link to="/" className="flex items-center justify-center">
+        {/* Center: Logo - Absolutely positioned */}
+        <Link 
+          to="/" 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
           <img 
             src={logoRawPaw} 
             alt="Raw Paw" 
@@ -61,7 +64,7 @@ export function Header() {
         </Link>
 
         {/* Right: Navigation Links (Desktop) + Icons */}
-        <div className="hidden lg:flex items-center gap-5 flex-1 justify-end">
+        <div className="hidden lg:flex items-center gap-5 ml-auto">
           {navLinksRight.map((link) => (
             <Link
               key={link.href}
