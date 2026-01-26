@@ -6,17 +6,17 @@ const benefits = [
   {
     icon: Leaf,
     title: "Digestión saludable",
-    description: "Alimentos naturales que tu perro digiere fácilmente, sin aditivos.",
+    description: "Alimentos naturales que tu perro digiere fácilmente.",
   },
   {
     icon: Zap,
     title: "Más energía y fuerza",
-    description: "Proteínas de alta calidad que incrementan la masa muscular.",
+    description: "Proteínas de alta calidad.",
   },
   {
     icon: Sparkles,
     title: "Pelaje brillante",
-    description: "Menos caída de pelo y piel sana gracias a los ácidos grasos.",
+    description: "Menos caída de pelo y piel sana.",
   },
   {
     icon: ShieldCheck,
@@ -31,7 +31,7 @@ const benefits = [
   {
     icon: Scale,
     title: "Heces pequeñas",
-    description: "Mejor absorción significa menos residuos y limpieza fácil.",
+    description: "Mejor absorción significa menos residuos y menos idas al baño.",
   },
 ];
 
