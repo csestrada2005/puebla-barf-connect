@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation } from "@/components/ai";
+import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers } from "@/components/ai";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
 import { useCart } from "@/hooks/useCart";
@@ -11,7 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { FileText } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Package, ShoppingCart } from "lucide-react";
 
 type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "result";
 
@@ -318,6 +319,59 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
+  const handleSelectSubscription = async (planType: "monthly" | "semestral" | "annual") => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Inicia sesión para suscribirte",
+        description: "Necesitas una cuenta para crear tu suscripción.",
+      });
+      navigate("/registro");
+      return;
+    }
+
+    try {
+      // Calculate billing and delivery dates
+      const billingWeeks = planType === "monthly" ? 4 : planType === "semestral" ? 24 : 52;
+      const nextBillingDate = new Date();
+      nextBillingDate.setDate(nextBillingDate.getDate() + (billingWeeks * 7));
+      
+      const nextDeliveryDate = new Date();
+      nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 3); // 3 days from now
+
+      const { error } = await supabase.from("subscriptions").upsert({
+        user_id: user.id,
+        plan_type: planType,
+        status: "active",
+        protein_line: result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix",
+        presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
+        weekly_amount_kg: result?.weeklyKg || 0,
+        frequency: "weekly",
+        next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
+        next_billing_date: nextBillingDate.toISOString().split("T")[0],
+        price_per_kg: 150,
+        discount_percent: planType === "monthly" ? 0 : planType === "semestral" ? 5 : 10,
+      }, {
+        onConflict: "user_id"
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "¡Suscripción creada! 🎉",
+        description: `Tu plan ${planType} está activo. Primera entrega en 3 días.`,
+      });
+
+      setIsResultOpen(false);
+      navigate("/mi-cuenta");
+    } catch (error: any) {
+      toast({
+        title: "Error al crear suscripción",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleViewProduct = (productSlug: string) => {
     navigate(`/producto/${productSlug}`);
   };
@@ -370,6 +424,8 @@ export default function AIRecomendador() {
     }
   };
 
+  const [resultTab, setResultTab] = useState<"subscription" | "oneoff">("subscription");
+
   return (
     <Layout hideFooter>
       <ChatContainer inputSection={renderInputSection()} scrollToEnd={step !== "result"}>
@@ -399,32 +455,63 @@ export default function AIRecomendador() {
         )}
       </ChatContainer>
 
-      {/* Results Drawer */}
+      {/* Results Drawer with Tabs */}
       <Drawer open={isResultOpen} onOpenChange={setIsResultOpen}>
         <DrawerContent className="h-[90vh] max-h-[90vh]">
           <div className="overflow-y-auto px-4 pb-4">
             {result && (
-              <DualRecommendation
-                petName={petData.name}
-                dailyGrams={result.dailyGrams}
-                weeklyKg={result.weeklyKg}
-                durationDays={result.optionA.durationDays}
-                planType={result.planType}
-                optionA={result.optionA}
-                optionB={result.optionB}
-                deliveryFee={petData.deliveryFee}
-                zoneName={petData.zoneName}
-                reasoning={result.reasoning}
-                onSelectOption={(option, products) => {
-                  handleSelectOption(option, products);
-                  setIsResultOpen(false);
-                }}
-                onViewProduct={handleViewProduct}
-                onRestart={() => {
-                  setIsResultOpen(false);
-                  handleRestart();
-                }}
-              />
+              <Tabs value={resultTab} onValueChange={(v) => setResultTab(v as "subscription" | "oneoff")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="subscription" className="gap-2">
+                    <Package className="h-4 w-4" />
+                    Suscripción
+                  </TabsTrigger>
+                  <TabsTrigger value="oneoff" className="gap-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    Compra Única
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="subscription">
+                  <SubscriptionTiers
+                    petName={petData.name}
+                    dailyGrams={result.dailyGrams}
+                    weeklyKg={result.weeklyKg}
+                    pricePerKg={150}
+                    onSelectPlan={(planType) => {
+                      handleSelectSubscription(planType);
+                    }}
+                    onRestart={() => {
+                      setIsResultOpen(false);
+                      handleRestart();
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="oneoff">
+                  <DualRecommendation
+                    petName={petData.name}
+                    dailyGrams={result.dailyGrams}
+                    weeklyKg={result.weeklyKg}
+                    durationDays={result.optionA.durationDays}
+                    planType={result.planType}
+                    optionA={result.optionA}
+                    optionB={result.optionB}
+                    deliveryFee={petData.deliveryFee}
+                    zoneName={petData.zoneName}
+                    reasoning={result.reasoning}
+                    onSelectOption={(option, products) => {
+                      handleSelectOption(option, products);
+                      setIsResultOpen(false);
+                    }}
+                    onViewProduct={handleViewProduct}
+                    onRestart={() => {
+                      setIsResultOpen(false);
+                      handleRestart();
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             )}
           </div>
         </DrawerContent>

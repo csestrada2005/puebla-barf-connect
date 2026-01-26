@@ -14,6 +14,10 @@ export interface Profile {
   references_notes: string | null;
   special_notes: string | null;
   is_coverage_verified: boolean;
+  is_admin: boolean | null;
+  acquisition_channel: string | null;
+  special_needs: string | null;
+  main_breed: string | null;
   created_at: string;
   updated_at: string;
 }
