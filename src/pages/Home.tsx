@@ -90,11 +90,21 @@ export default function Home() {
                 className="w-56 sm:w-72 md:w-80 mb-4 mx-auto"
               />
 
-              <p className="text-xl md:text-2xl lg:text-3xl text-primary-foreground/90 mb-6 max-w-lg text-center mx-auto leading-relaxed font-light tracking-wide">
-                Donde la frescura nutre,<br className="hidden sm:block" />
-                la calidad se siente<br className="hidden sm:block" />
-                y la alegría permanece.
-              </p>
+              <div className="mb-6 max-w-lg text-center mx-auto">
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight">
+                  Donde la{" "}
+                  <span className="text-secondary">Frescura</span>{" "}
+                  nutre,
+                </p>
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight mt-1">
+                  la calidad se siente
+                </p>
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-primary-foreground font-bold leading-tight tracking-tight mt-1">
+                  y la{" "}
+                  <span className="text-secondary">Nutrición</span>{" "}
+                  permanece.
+                </p>
+              </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 
