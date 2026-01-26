@@ -83,7 +83,7 @@ export default function AIRecomendador() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu perrito. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor, tu experto en nutrición canina 🐾. Vamos a encontrar el plan perfecto para tu perrito. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }
   ]);
@@ -293,7 +293,7 @@ export default function AIRecomendador() {
         // Save to database if logged in
         await saveDogProfile(updatedPetData, recommendation);
         
-        addMessage(`🩺 ¡Diagnóstico completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`, true);
+        addMessage(`🧬 ¡Análisis completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`, true);
         setStep("result");
       }
     }, 400);
@@ -327,7 +327,7 @@ export default function AIRecomendador() {
     
     setMessages([{
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor 🩺. Vamos a encontrar la dieta perfecta para tu peludo. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor, tu experto en nutrición canina 🐾. Vamos a encontrar el plan perfecto para tu perrito. ¿Cómo se llama tu mejor amigo?",
       isBot: true,
     }]);
     setPetData({ 
@@ -385,7 +385,7 @@ export default function AIRecomendador() {
               size="lg"
             >
               <FileText className="h-5 w-5" />
-              📄 Ver Receta del Dogtor
+              📄 Ver Plan Personalizado
             </Button>
             <Button 
               variant="ghost" 

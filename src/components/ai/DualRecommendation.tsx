@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, Stethoscope } from "lucide-react";
+import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -80,15 +80,15 @@ export function DualRecommendation({
       animate={{ opacity: 1, y: 0 }}
       className="w-full space-y-4"
     >
-      {/* Compact Prescription Header - Medical Ticket Style */}
+      {/* Compact Header - Nutrition Ticket Style */}
       <div className="border-dashed border-2 border-primary rounded-xl p-4 bg-primary/5">
         <div className="flex items-center gap-2 mb-3">
-          <Stethoscope className="h-5 w-5 text-primary" />
-          <span className="font-bold text-primary">Receta para {petName}</span>
+          <FlaskConical className="h-5 w-5 text-primary" />
+          <span className="font-bold text-primary">Fórmula Ideal para {petName}</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <Scale className="h-4 w-4 text-muted-foreground" />
-          <span className="font-semibold">{dailyGrams}g/día</span>
+          <span className="font-semibold">Ración diaria: {dailyGrams}g</span>
         </div>
       </div>
 

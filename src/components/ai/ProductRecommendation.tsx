@@ -36,10 +36,10 @@ export function ProductRecommendation({
       <Card className="border-primary border-2 overflow-hidden">
         <div className="bg-primary/10 p-4 text-center">
           <p className="text-lg font-bold text-primary mb-1">
-            🩺 ¡Diagnóstico listo!
+            🧬 ¡Análisis listo!
           </p>
           <p className="text-sm text-muted-foreground">
-            Para <span className="font-semibold text-foreground">{petName}</span> receto nuestro plan{" "}
+            Para <span className="font-semibold text-foreground">{petName}</span> recomiendo nuestro plan{" "}
             <span className="font-semibold text-primary">{productName || product?.name}</span>
           </p>
         </div>
@@ -49,7 +49,7 @@ export function ProductRecommendation({
               {dailyGrams}g / día
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Dosis diaria ideal
+              Ración diaria calculada
             </p>
           </div>
           
@@ -69,7 +69,7 @@ export function ProductRecommendation({
               
               <Button onClick={onAddToCart} className="w-full gap-2" size="lg">
                 <ShoppingCart className="h-4 w-4" />
-                🛒 Agregar Receta al Carrito
+                🛒 Agregar Plan al Carrito
               </Button>
             </>
           )}
