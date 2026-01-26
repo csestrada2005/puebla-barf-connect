@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Heart, Zap, Leaf, Shield, Smile, Wind, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { BenefitsSection } from "@/components/home/BenefitsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/layout";
@@ -10,46 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
 import heroLogoTagline from "@/assets/brand/hero-logo-tagline.png";
-
-const benefits = [
-  { 
-    icon: Heart, 
-    title: "Digestión saludable", 
-    description: "Alimentos naturales que tu perro digiere **fácilmente**, sin aditivos artificiales." 
-  },
-  { 
-    icon: Zap, 
-    title: "Más energía y fuerza", 
-    description: "Proteínas de **alta calidad** que incrementan la masa muscular." 
-  },
-  { 
-    icon: Leaf, 
-    title: "Pelaje brillante", 
-    description: "Menos caída de pelo y **piel sana** gracias a los ácidos grasos naturales." 
-  },
-  { 
-    icon: Shield, 
-    title: "Sistema inmune fuerte", 
-    description: "Nutrientes que **fortalecen** las defensas y aumentan la longevidad." 
-  },
-  { 
-    icon: Smile, 
-    title: "Salud bucal", 
-    description: "Mejora la dentadura y **elimina el mal aliento** de forma natural." 
-  },
-  { 
-    icon: Wind, 
-    title: "Heces pequeñas", 
-    description: "Mejor absorción significa **menos residuos** y menos idas al baño." 
-  },
-];
 
 const howItWorks = [
   {
@@ -245,55 +212,7 @@ export default function Home() {
       </section>
 
       {/* Benefits */}
-      <section className="py-16 md:py-24 bg-muted/30">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                ¿Por qué elegir Raw Paw?
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Los beneficios que notarás en tu perro
-              </p>
-              <div className="grid sm:grid-cols-2 gap-6">
-                {benefits.map((benefit) => (
-                  <motion.div 
-                    key={benefit.title} 
-                    className="flex gap-4"
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <benefit.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">{benefit.title}</h3>
-                      <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{
-                        __html: benefit.description.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
-                      }} />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <motion.div 
-              className="relative"
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <img 
-                src={benefitsDog} 
-                alt="Beneficios de la dieta BARF" 
-                className="w-full rounded-3xl shadow-xl"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <BenefitsSection />
 
       {/* Testimonials */}
       {testimonials && testimonials.length > 0 && (
