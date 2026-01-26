@@ -2,20 +2,25 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers } from "@/components/ai";
+import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Package, ShoppingCart } from "lucide-react";
 
+// ==================== TYPE DEFINITIONS ====================
+
 type Step =
   | "initial"
+  | "guest_greeting"
+  | "smart_menu"
   | "name"
   | "weight"
   | "age"
@@ -26,24 +31,22 @@ type Step =
   | "result"
   | "profile_entry"
   | "edit_menu"
+  | "cancel_reason"
   | "profile_name"
   | "profile_birthday"
   | "profile_weight"
   | "profile_activity"
   | "profile_bodyCondition"
   | "profile_allergies"
-  | "profile_done";
+  | "profile_done"
+  | "guest_save_prompt";
+
+type InteractionMode = "guest" | "logged_in" | "editing";
 
 interface Message {
   id: string;
   content: string;
   isBot: boolean;
-}
-
-interface CoverageZone {
-  id: string;
-  zone_name: string;
-  delivery_fee: number | null;
 }
 
 type DogProfileRow = {
@@ -67,7 +70,7 @@ type Allergy = "chicken" | "beef" | "none";
 
 interface ProfileDraft {
   name: string;
-  birthday: string | null; // YYYY-MM-DD
+  birthday: string | null;
   weightKg: number;
   activity: "low" | "normal" | "high";
   bodyCondition: "underweight" | "ideal" | "overweight";
@@ -79,6 +82,8 @@ interface ExtendedPetData extends PetData {
   zoneName: string;
   deliveryFee: number;
 }
+
+// ==================== STATIC OPTIONS ====================
 
 const weightOptions = [
   { value: "3", label: "0-5 kg", emoji: "🐕" },
@@ -123,30 +128,98 @@ const allergyOptions = [
   { value: "none", label: "Ninguna", emoji: "✅" },
 ];
 
-const initialOptions = [
-  { value: "new_plan", label: "Obtener Plan Nutricional", emoji: "🥗" },
-  { value: "profile", label: "Crear/Editar Perfil", emoji: "🐕" },
+const cancelReasonOptions = [
+  { value: "expensive", label: "Muy caro", emoji: "💰" },
+  { value: "not_needed", label: "Ya no lo necesito", emoji: "🚫" },
+  { value: "delivery_issues", label: "Problemas entrega", emoji: "📦" },
+  { value: "diet_change", label: "Cambio dieta", emoji: "🥗" },
+  { value: "deceased", label: "Ya no está 🕊️", emoji: "🤍" },
+  { value: "other", label: "Otro", emoji: "💬" },
 ];
+
+// ==================== HELPER FUNCTIONS ====================
+
+function parseBirthdayInput(input: string): string | null {
+  const iso = /^\d{4}-\d{2}-\d{2}$/;
+  if (iso.test(input)) return input;
+
+  const dmy = input.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmy) {
+    const day = Number(dmy[1]);
+    const month = Number(dmy[2]);
+    const year = Number(dmy[3]);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    const padded = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const date = new Date(padded + "T00:00:00");
+    if (Number.isNaN(date.getTime())) return null;
+    return padded;
+  }
+
+  return null;
+}
+
+function parseWeightKg(input: string): number | null {
+  const normalized = input.replace(",", ".");
+  const n = Number(normalized);
+  if (!Number.isFinite(n)) return null;
+  return Math.round(n * 10) / 10;
+}
+
+function getAgeStageFromBirthday(birthdayIso: string): "puppy" | "adult" | "senior" {
+  const birth = new Date(birthdayIso + "T00:00:00");
+  if (Number.isNaN(birth.getTime())) return "adult";
+
+  const today = new Date();
+  const months =
+    (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
+
+  if (months < 12) return "puppy";
+  if (months >= 84) return "senior";
+  return "adult";
+}
+
+function computeDailyGrams(params: {
+  weightKg: number;
+  ageStage: "puppy" | "adult" | "senior";
+  activity: "low" | "normal" | "high";
+  bodyCondition: "underweight" | "ideal" | "overweight";
+}): number {
+  const base = params.ageStage === "puppy" ? 6 : params.ageStage === "senior" ? 2.0 : 2.5;
+  const activityAdj = params.activity === "high" ? 0.5 : params.activity === "low" ? -0.5 : 0;
+  const conditionAdj =
+    params.bodyCondition === "underweight" ? 0.5 : params.bodyCondition === "overweight" ? -0.5 : 0;
+  const finalPercent = base + activityAdj + conditionAdj;
+  const grams = params.weightKg * (finalPercent / 100) * 1000;
+  return Math.max(1, Math.round(grams));
+}
+
+// Typing delay for more human-like responses
+const TYPING_DELAY = 800;
+const SENSITIVE_TYPING_DELAY = 1500;
+
+// ==================== MAIN COMPONENT ====================
 
 export default function AIRecomendador() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const { setRecommendation } = useRecommendation();
   const { addItem } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const consumedIntentRef = useRef(false);
+  const initializedRef = useRef(false);
+
+  // ==================== STATE ====================
   
   const [step, setStep] = useState<Step>("initial");
+  const [interactionMode, setInteractionMode] = useState<InteractionMode>("guest");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor. ¿En qué te puedo ayudar hoy? 🐾",
-      isBot: true,
-    }
-  ]);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [loginDialogContext, setLoginDialogContext] = useState<"edit" | "save_profile">("edit");
+  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [petData, setPetData] = useState<ExtendedPetData>({
     name: "",
     weight: 0,
@@ -169,53 +242,14 @@ export default function AIRecomendador() {
     bodyCondition: "ideal",
     allergy: "none",
   });
+  const [selectedDog, setSelectedDog] = useState<DogProfileRow | null>(null);
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
-  const [singleFieldEdit, setSingleFieldEdit] = useState<string | null>(null); // tracks which field we're editing from menu
-  const [pendingProfileEntry, setPendingProfileEntry] = useState(false);
+  const [singleFieldEdit, setSingleFieldEdit] = useState<string | null>(null);
+  const [resultTab, setResultTab] = useState<"subscription" | "oneoff">("subscription");
 
-  // Restore state from localStorage on mount
-  // Restore state ONLY when step === "result" (plan delivered)
-  // Otherwise auto-restart to fresh state
-  useEffect(() => {
-    const intent = searchParams.get("intent");
-    if (intent === "new_profile") return; // handled by smart entry
+  // ==================== DATA QUERIES ====================
 
-    const savedState = localStorage.getItem("ai-recommender-state");
-    if (savedState) {
-      try {
-        const parsed = JSON.parse(savedState);
-        
-        // Only restore if step was "result" (user finished and got their plan)
-        if (parsed.step === "result") {
-          setStep("result");
-          setMessages(parsed.messages || []);
-          setPetData(parsed.petData || {
-            name: "",
-            weight: 0,
-            age: "",
-            activity: "normal",
-            bodyCondition: "ideal",
-            sensitivity: "low",
-            goal: "routine",
-            zoneId: "",
-            zoneName: "",
-            deliveryFee: 0,
-          });
-          setResult(parsed.result || null);
-          if (parsed.profileDraft) setProfileDraft(parsed.profileDraft);
-          if (parsed.editingDogId) setEditingDogId(parsed.editingDogId);
-        } else {
-          // Any other step: clear and start fresh
-          localStorage.removeItem("ai-recommender-state");
-        }
-      } catch (e) {
-        console.error("Failed to restore AI state:", e);
-        localStorage.removeItem("ai-recommender-state");
-      }
-    }
-  }, [searchParams]);
-
-  const { data: dogProfiles = [], isLoading: isDogsLoading } = useQuery({
+  const { data: dogProfiles = [], isLoading: isDogsLoading, refetch: refetchDogs } = useQuery({
     queryKey: ["my-dogs", user?.id],
     queryFn: async () => {
       if (!user?.id) return [] as DogProfileRow[];
@@ -226,6 +260,7 @@ export default function AIRecomendador() {
           "id,name,birthday,weight_kg,activity_level,body_condition,sensitivity,age_stage,status,daily_grams,weekly_kg,recommended_protein,recommended_plan_type,goal"
         )
         .eq("user_id", user.id)
+        .neq("status", "deceased") // Exclude deceased dogs
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -233,6 +268,8 @@ export default function AIRecomendador() {
     },
     enabled: !!user?.id,
   });
+
+  const activeDogs = dogProfiles.filter(d => d.status === "active");
 
   const { data: products } = useQuery({
     queryKey: ["products-for-recommendation"],
@@ -246,24 +283,153 @@ export default function AIRecomendador() {
     },
   });
 
-  // Save state to localStorage whenever it changes
+  // ==================== HELPER FUNCTIONS ====================
+
+  const addMessage = (content: string, isBot: boolean) => {
+    setMessages(prev => [...prev, { id: Date.now().toString(), content, isBot }]);
+  };
+
+  const addBotMessage = (content: string, delay = TYPING_DELAY) => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        addMessage(content, true);
+        resolve();
+      }, delay);
+    });
+  };
+
+  // ==================== INITIALIZATION LOGIC ====================
+
+  // Smart initialization based on auth state and dog profiles
   useEffect(() => {
-    if (step !== "name" || messages.length > 1) {
-      const stateToSave = { step, messages, petData, result, profileDraft, editingDogId };
+    if (authLoading) return;
+    if (initializedRef.current) return;
+
+    const intent = searchParams.get("intent");
+    
+    // Check for saved state first (only restore if step === "result")
+    const savedState = localStorage.getItem("ai-recommender-state");
+    if (savedState && intent !== "new_profile") {
+      try {
+        const parsed = JSON.parse(savedState);
+        if (parsed.step === "result") {
+          initializedRef.current = true;
+          setStep("result");
+          setMessages(parsed.messages || []);
+          setPetData(parsed.petData || petData);
+          setResult(parsed.result || null);
+          setInteractionMode(parsed.interactionMode || "guest");
+          if (parsed.profileDraft) setProfileDraft(parsed.profileDraft);
+          if (parsed.selectedDog) setSelectedDog(parsed.selectedDog);
+          return;
+        } else {
+          localStorage.removeItem("ai-recommender-state");
+        }
+      } catch (e) {
+        console.error("Failed to restore AI state:", e);
+        localStorage.removeItem("ai-recommender-state");
+      }
+    }
+
+    // Handle intent=new_profile
+    if (intent === "new_profile") {
+      if (!consumedIntentRef.current && !isDogsLoading && isAuthenticated) {
+        consumedIntentRef.current = true;
+        initializedRef.current = true;
+        setSearchParams({});
+        localStorage.removeItem("ai-recommender-state");
+        setInteractionMode("logged_in");
+
+        if (activeDogs.length === 0) {
+          startNewDogFlow();
+        } else {
+          startProfileEntry();
+        }
+      }
+      return;
+    }
+
+    // Wait for dogs loading if authenticated
+    if (isAuthenticated && isDogsLoading) return;
+
+    initializedRef.current = true;
+
+    // SMART INITIALIZATION
+    if (!isAuthenticated) {
+      // GUEST MODE
+      setInteractionMode("guest");
+      setMessages([{
+        id: "guest-greeting",
+        content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. ¿Listo para encontrar el plan perfecto para tu mejor amigo? 🐾",
+        isBot: true,
+      }]);
+      setStep("guest_greeting");
+    } else {
+      // LOGGED IN MODE
+      setInteractionMode("logged_in");
+      
+      if (activeDogs.length === 0) {
+        // No dogs yet - start new dog flow
+        setMessages([{
+          id: "welcome-new",
+          content: "¡Hola! 👋 Veo que aún no tienes perfiles de perritos. Vamos a crear el primero. 🐾",
+          isBot: true,
+        }]);
+        setTimeout(() => startNewDogFlow(), 500);
+      } else {
+        // Has dogs - show smart menu
+        startSmartMenu();
+      }
+    }
+  }, [authLoading, isAuthenticated, isDogsLoading, activeDogs.length, searchParams]);
+
+  // Save state to localStorage
+  useEffect(() => {
+    if (step !== "initial" && messages.length > 0) {
+      const stateToSave = { 
+        step, 
+        messages, 
+        petData, 
+        result, 
+        profileDraft, 
+        selectedDog,
+        interactionMode 
+      };
       localStorage.setItem("ai-recommender-state", JSON.stringify(stateToSave));
     }
-  }, [step, messages, petData, result, profileDraft, editingDogId]);
+  }, [step, messages, petData, result, profileDraft, selectedDog, interactionMode]);
+
+  // ==================== FLOW STARTERS ====================
+
+  const startSmartMenu = () => {
+    const dogNames = activeDogs.map(d => d.name);
+    const nameList = dogNames.length === 1 
+      ? dogNames[0] 
+      : dogNames.length === 2 
+        ? `${dogNames[0]} y ${dogNames[1]}`
+        : dogNames.slice(0, -1).join(", ") + ` y ${dogNames[dogNames.length - 1]}`;
+
+    setMessages([{
+      id: "smart-menu",
+      content: `¡Hola! 🐾 Veo que tienes a ${nameList}. ¿Qué necesitas hoy?`,
+      isBot: true,
+    }]);
+    setStep("smart_menu");
+  };
 
   const startProfileEntry = () => {
-    const names = dogProfiles.map((d) => d.name).filter(Boolean);
-    const list = names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} y ${names[1]}` : names.slice(0, -1).join(", ") + ` y ${names[names.length - 1]}`;
-    setMessages([
-      {
-        id: "profile-entry",
-        content: `Veo que ya tienes a ${list}. 🐶 ¿Qué quieres hacer?`,
-        isBot: true,
-      },
-    ]);
+    const names = activeDogs.map((d) => d.name).filter(Boolean);
+    const list = names.length === 1 
+      ? names[0] 
+      : names.length === 2 
+        ? `${names[0]} y ${names[1]}` 
+        : names.slice(0, -1).join(", ") + ` y ${names[names.length - 1]}`;
+    
+    setMessages([{
+      id: "profile-entry",
+      content: `Veo que ya tienes a ${list}. 🐶 ¿Qué quieres hacer?`,
+      isBot: true,
+    }]);
     setStep("profile_entry");
   };
 
@@ -287,390 +453,30 @@ export default function AIRecomendador() {
         };
 
     setEditingDogId(dogToEdit?.id ?? null);
+    setSelectedDog(dogToEdit ?? null);
     setProfileDraft(draft);
     setResult(null);
     setIsResultOpen(false);
-    setMessages([
-      {
-        id: "profile-start",
-        content: dogToEdit
-          ? `Vamos a actualizar el perfil de ${dogToEdit.name}. ✏️\n\n¿Cómo se llama el paciente? 🐾 (escribe “igual” para mantener)`
-          : "¿Cómo se llama el paciente? 🐾",
-        isBot: true,
-      },
-    ]);
+    setMessages([{
+      id: "profile-start",
+      content: dogToEdit
+        ? `Vamos a actualizar el perfil de ${dogToEdit.name}. ✏️\n\n¿Cómo se llama el paciente? 🐾 (escribe "igual" para mantener)`
+        : "¿Cómo se llama el paciente? 🐾",
+      isBot: true,
+    }]);
     setStep("profile_name");
   };
 
-  // Smart entry from /ai?intent=new_profile
-  useEffect(() => {
-    const intent = searchParams.get("intent");
-    if (intent !== "new_profile") return;
-    if (consumedIntentRef.current) return;
-
-    // consume intent exactly once
-    if (!isAuthenticated || !user) {
-      consumedIntentRef.current = true;
-      setSearchParams({});
-      return;
-    }
-
-    if (isDogsLoading) return;
-    consumedIntentRef.current = true;
-    localStorage.removeItem("ai-recommender-state");
-    setSearchParams({});
-
-    if (dogProfiles.length === 0) startNewDogFlow();
-    else startProfileEntry();
-  }, [searchParams, setSearchParams, isAuthenticated, user, isDogsLoading, dogProfiles]);
-
-  // Smart entry when user clicks "Crear/Editar" inside the chat
-  useEffect(() => {
-    if (!pendingProfileEntry) return;
-    if (isDogsLoading) return;
-
-    setPendingProfileEntry(false);
-    if (dogProfiles.length === 0) startNewDogFlow();
-    else startProfileEntry();
-  }, [pendingProfileEntry, isDogsLoading, dogProfiles]);
-
-  // Save dog profile to database when result is ready
-  const saveDogProfile = async (data: ExtendedPetData, recommendation: RecommendationResult) => {
-    if (!isAuthenticated || !user) return;
-    
-    try {
-      // Map internal values to database values
-      const ageStageMap: Record<string, string> = {
-        puppy: "puppy",
-        adult: "adult", 
-        senior: "senior"
-      };
-      
-      const proteinMap: Record<string, string> = {
-        chicken: "chicken",
-        beef: "beef",
-        mix: "mix"
-      };
-
-      await supabase.from("dog_profiles").upsert({
-        user_id: user.id,
-        name: data.name,
-        age_stage: ageStageMap[data.age] || "adult",
-        weight_kg: data.weight,
-        activity_level: data.activity,
-        body_condition: data.bodyCondition,
-        sensitivity: data.sensitivity,
-        goal: data.goal,
-        daily_grams: recommendation.dailyGrams,
-        weekly_kg: recommendation.weeklyKg,
-        recommended_plan_type: recommendation.planType,
-        recommended_protein: proteinMap[recommendation.recommendedProtein] || "chicken",
-      }, {
-        onConflict: "user_id"
-      });
-    } catch (error) {
-      console.error("Failed to save dog profile:", error);
-    }
+  const startGuestPlanFlow = () => {
+    setMessages(prev => [...prev, {
+      id: "guest-plan-start",
+      content: "¡Excelente! Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo? 🐾",
+      isBot: true,
+    }]);
+    setStep("name");
   };
 
-  const addMessage = (content: string, isBot: boolean) => {
-    setMessages(prev => [...prev, { id: Date.now().toString(), content, isBot }]);
-  };
-
-  const handleInitialSelect = (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    addMessage(label, false);
-    
-    if (value === "new_plan") {
-      setTimeout(() => {
-        addMessage("¡Excelente! Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?", true);
-        setStep("name");
-        setIsProcessing(false);
-      }, 400);
-    } else if (value === "profile") {
-      setTimeout(() => {
-        if (!isAuthenticated || !user) {
-          addMessage("Para guardar y editar perfiles necesito que inicies sesión. 🔐", true);
-          setIsProcessing(false);
-          setTimeout(() => navigate("/login"), 800);
-          return;
-        }
-
-        if (isDogsLoading) {
-          addMessage("Un segundito… estoy revisando tus perfiles. ⏳", true);
-          setPendingProfileEntry(true);
-          setIsProcessing(false);
-          return;
-        }
-
-        setIsProcessing(false);
-        if (dogProfiles.length === 0) startNewDogFlow();
-        else startProfileEntry();
-      }, 400);
-    }
-  };
-
-  const handleProfileEntrySelect = (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    addMessage(label, false);
-
-    setTimeout(() => {
-      if (value === "new") {
-        setIsProcessing(false);
-        startNewDogFlow();
-        return;
-      }
-
-      if (value.startsWith("edit:")) {
-        const id = value.replace("edit:", "");
-        const dog = dogProfiles.find((d) => d.id === id);
-        setIsProcessing(false);
-        if (dog) {
-          // Show edit menu instead of starting full flow
-          setEditingDogId(dog.id);
-          setProfileDraft({
-            name: dog.name,
-            birthday: dog.birthday,
-            weightKg: Number(dog.weight_kg),
-            activity: (dog.activity_level as any) || "normal",
-            bodyCondition: (dog.body_condition as any) || "ideal",
-            allergy: "none",
-          });
-          addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
-          setStep("edit_menu");
-        }
-        return;
-      }
-
-      setIsProcessing(false);
-    }, 250);
-  };
-
-  const handleEditMenuSelect = async (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    addMessage(label, false);
-
-    const dog = dogProfiles.find((d) => d.id === editingDogId);
-
-    setTimeout(async () => {
-      switch (value) {
-        case "edit_name":
-          setSingleFieldEdit("name");
-          addMessage(`¿Cuál es el nuevo nombre? (actual: ${profileDraft.name})`, true);
-          setStep("profile_name");
-          break;
-        case "edit_birthday":
-          setSingleFieldEdit("birthday");
-          addMessage(`¿Cuándo es su cumpleaños? 🎂 (actual: ${profileDraft.birthday || "sin fecha"})`, true);
-          setStep("profile_birthday");
-          break;
-        case "edit_weight":
-          setSingleFieldEdit("weight");
-          addMessage(`¿Cuánto pesa ahora? (actual: ${profileDraft.weightKg} kg) ⚖️`, true);
-          setStep("profile_weight");
-          break;
-        case "view_plan":
-          setSingleFieldEdit(null);
-          // Generate plan for this dog
-          if (dog && products && products.length > 0) {
-            const ageStage = dog.birthday ? getAgeStageFromBirthday(dog.birthday) : (dog.age_stage as any) || "adult";
-            const updatedPetData: ExtendedPetData = {
-              name: dog.name,
-              weight: Number(dog.weight_kg),
-              age: ageStage,
-              activity: dog.activity_level || "normal",
-              bodyCondition: dog.body_condition || "ideal",
-              sensitivity: dog.sensitivity || "low",
-              goal: dog.goal || "routine",
-              zoneId: "",
-              zoneName: "",
-              deliveryFee: 0,
-            };
-            setPetData(updatedPetData);
-            const recommendation = calculateRecommendation(updatedPetData, products);
-            setResult(recommendation);
-            addMessage(`🧬 ¡Aquí está el plan actualizado para ${dog.name}! 🎉`, true);
-            setStep("result");
-            setIsResultOpen(true);
-          }
-          break;
-        case "cancel_subscription":
-          setSingleFieldEdit(null);
-          addMessage("Te llevaré a tu cuenta para gestionar tu suscripción. 🏠", true);
-          setIsProcessing(false);
-          setTimeout(() => navigate("/mi-cuenta"), 800);
-          return;
-        default:
-          break;
-      }
-      setIsProcessing(false);
-    }, 300);
-  };
-
-  // Handler for single-field edit completion (save immediately after)
-  const handleSingleFieldEditComplete = async () => {
-    try {
-      const saved = await upsertDogProfileFromDraft(profileDraft);
-      addMessage(`¡Listo! ${saved.name} actualizado. ✅`, true);
-      setStep("edit_menu");
-    } catch (error: any) {
-      toast({
-        title: "No pude guardar",
-        description: error.message,
-        variant: "destructive",
-      });
-      setStep("edit_menu");
-    }
-  };
-
-  const handleProfileNameSubmit = async (name: string) => {
-    if (isProcessing) return;
-    const raw = name.trim();
-    const isKeep = !!editingDogId && /^igual$/i.test(raw);
-    const nextName = isKeep ? profileDraft.name : raw;
-    if (!nextName) return;
-
-    setIsProcessing(true);
-    const updatedDraft = { ...profileDraft, name: nextName };
-    setProfileDraft(updatedDraft);
-    addMessage(isKeep ? `igual (${profileDraft.name})` : nextName, false);
-
-    // If single field edit from menu, save and return to menu
-    if (singleFieldEdit === "name") {
-      try {
-        const saved = await upsertDogProfileFromDraft(updatedDraft);
-        addMessage(`¡Listo! ${saved.name} actualizado. ✅`, true);
-        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
-        setSingleFieldEdit(null);
-        setStep("edit_menu");
-      } catch (error: any) {
-        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
-        setStep("edit_menu");
-      }
-      setIsProcessing(false);
-      return;
-    }
-
-    setTimeout(() => {
-      addMessage("Para calcular su etapa, ¿cuándo es su cumpleaños? 🎂 (YYYY-MM-DD o DD/MM/AAAA)", true);
-      setStep("profile_birthday");
-      setIsProcessing(false);
-    }, 350);
-  };
-
-  const handleProfileBirthdaySubmit = async (input: string) => {
-    if (isProcessing) return;
-    const raw = input.trim();
-    const isKeep = !!editingDogId && /^igual$/i.test(raw);
-
-    const parsed = isKeep ? profileDraft.birthday : parseBirthdayInput(raw);
-    if (!parsed && !isKeep) {
-      addMessage(raw, false);
-      addMessage("No pude leer esa fecha 😅. Prueba con YYYY-MM-DD (ej: 2020-05-14) o DD/MM/AAAA.", true);
-      return;
-    }
-
-    setIsProcessing(true);
-    addMessage(isKeep ? `igual (${profileDraft.birthday || "sin fecha"})` : parsed!, false);
-    const updatedDraft = { ...profileDraft, birthday: parsed };
-    setProfileDraft(updatedDraft);
-
-    // If single field edit from menu, save and return to menu
-    if (singleFieldEdit === "birthday") {
-      try {
-        const saved = await upsertDogProfileFromDraft(updatedDraft);
-        addMessage(`¡Listo! Cumpleaños de ${saved.name} actualizado. ✅`, true);
-        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
-        setSingleFieldEdit(null);
-        setStep("edit_menu");
-      } catch (error: any) {
-        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
-        setStep("edit_menu");
-      }
-      setIsProcessing(false);
-      return;
-    }
-
-    setTimeout(() => {
-      addMessage("¿Cuánto pesa actualmente? (kg) ⚖️", true);
-      setStep("profile_weight");
-      setIsProcessing(false);
-    }, 350);
-  };
-
-  const handleProfileWeightSubmit = async (input: string) => {
-    if (isProcessing) return;
-    const raw = input.trim();
-    const isKeep = !!editingDogId && /^igual$/i.test(raw);
-    const weight = isKeep ? profileDraft.weightKg : parseWeightKg(raw);
-    if (!weight || weight <= 0) {
-      addMessage(raw, false);
-      addMessage("Dime el peso en kg (ej: 12.5).", true);
-      return;
-    }
-
-    setIsProcessing(true);
-    const updatedDraft = { ...profileDraft, weightKg: weight };
-    setProfileDraft(updatedDraft);
-    addMessage(isKeep ? `igual (${profileDraft.weightKg} kg)` : `${weight} kg`, false);
-
-    // If single field edit from menu, save and return to menu
-    if (singleFieldEdit === "weight") {
-      try {
-        const saved = await upsertDogProfileFromDraft(updatedDraft);
-        addMessage(`¡Listo! Peso de ${saved.name} actualizado. ✅`, true);
-        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
-        setSingleFieldEdit(null);
-        setStep("edit_menu");
-      } catch (error: any) {
-        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
-        setStep("edit_menu");
-      }
-      setIsProcessing(false);
-      return;
-    }
-
-    setTimeout(() => {
-      addMessage("¿Es muy activo o prefiere el sofá?", true);
-      setStep("profile_activity");
-      setIsProcessing(false);
-    }, 350);
-  };
-
-  const handleProfileActivitySelect = (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    if (value !== "keep") {
-      setProfileDraft((prev) => ({ ...prev, activity: value as any }));
-      addMessage(label, false);
-    } else {
-      addMessage(`igual (${profileDraft.activity})`, false);
-    }
-    setTimeout(() => {
-      addMessage("¿Cómo ves su cintura?", true);
-      setStep("profile_bodyCondition");
-      setIsProcessing(false);
-    }, 350);
-  };
-
-  const handleProfileBodyConditionSelect = (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    if (value !== "keep") {
-      setProfileDraft((prev) => ({ ...prev, bodyCondition: value as any }));
-      addMessage(label, false);
-    } else {
-      addMessage(`igual (${profileDraft.bodyCondition})`, false);
-    }
-    setTimeout(() => {
-      addMessage("¿Tiene alergias conocidas?", true);
-      setStep("profile_allergies");
-      setIsProcessing(false);
-    }, 350);
-  };
+  // ==================== DATABASE OPERATIONS ====================
 
   const upsertDogProfileFromDraft = async (draft: ProfileDraft) => {
     if (!isAuthenticated || !user) throw new Error("User not authenticated");
@@ -684,7 +490,6 @@ export default function AIRecomendador() {
     });
 
     const weeklyKg = Number(((dailyGrams * 7) / 1000).toFixed(2));
-
     const recommendedProtein =
       draft.allergy === "chicken" ? "beef" : draft.allergy === "beef" ? "chicken" : "mix";
 
@@ -714,7 +519,395 @@ export default function AIRecomendador() {
       .single();
 
     if (error) throw error;
+    
+    // Refetch dogs list
+    queryClient.invalidateQueries({ queryKey: ["my-dogs", user.id] });
+    
     return data as DogProfileRow;
+  };
+
+  const updateDogStatus = async (dogId: string, status: string) => {
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from("dog_profiles")
+      .update({ status })
+      .eq("id", dogId);
+
+    if (error) throw error;
+    
+    queryClient.invalidateQueries({ queryKey: ["my-dogs", user.id] });
+  };
+
+  const saveDogProfile = async (data: ExtendedPetData, recommendation: RecommendationResult) => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      const ageStageMap: Record<string, string> = {
+        puppy: "puppy",
+        adult: "adult", 
+        senior: "senior"
+      };
+      
+      const proteinMap: Record<string, string> = {
+        chicken: "chicken",
+        beef: "beef",
+        mix: "mix"
+      };
+
+      await supabase.from("dog_profiles").upsert({
+        user_id: user.id,
+        name: data.name,
+        age_stage: ageStageMap[data.age] || "adult",
+        weight_kg: data.weight,
+        activity_level: data.activity,
+        body_condition: data.bodyCondition,
+        sensitivity: data.sensitivity,
+        goal: data.goal,
+        daily_grams: recommendation.dailyGrams,
+        weekly_kg: recommendation.weeklyKg,
+        recommended_plan_type: recommendation.planType,
+        recommended_protein: proteinMap[recommendation.recommendedProtein] || "chicken",
+      }, {
+        onConflict: "user_id"
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["my-dogs", user.id] });
+    } catch (error) {
+      console.error("Failed to save dog profile:", error);
+    }
+  };
+
+  // ==================== HANDLERS: SMART MENU ====================
+
+  const handleGuestGreetingSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    setTimeout(() => {
+      if (value === "start_plan") {
+        startGuestPlanFlow();
+      }
+      setIsProcessing(false);
+    }, 400);
+  };
+
+  const handleSmartMenuSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    setTimeout(() => {
+      if (value === "new_dog") {
+        setInteractionMode("logged_in");
+        startNewDogFlow();
+      } else if (value.startsWith("view_plan:")) {
+        const dogId = value.replace("view_plan:", "");
+        const dog = activeDogs.find(d => d.id === dogId);
+        if (dog) {
+          setSelectedDog(dog);
+          // Check if dog has daily_grams calculated
+          if (dog.daily_grams && dog.daily_grams > 0) {
+            // Show plan immediately
+            showPlanForDog(dog);
+          } else {
+            // Need to calculate plan
+            addMessage(`Veo que ${dog.name} aún no tiene un plan calculado. ¿Lo hacemos ahora? 🧬`, true);
+            setStep("profile_activity"); // Jump to remaining questions
+          }
+        }
+      } else if (value.startsWith("edit:")) {
+        const dogId = value.replace("edit:", "");
+        const dog = activeDogs.find(d => d.id === dogId);
+        if (dog) {
+          setSelectedDog(dog);
+          setEditingDogId(dog.id);
+          setInteractionMode("editing");
+          setProfileDraft({
+            name: dog.name,
+            birthday: dog.birthday,
+            weightKg: Number(dog.weight_kg),
+            activity: (dog.activity_level as any) || "normal",
+            bodyCondition: (dog.body_condition as any) || "ideal",
+            allergy: "none",
+          });
+          addMessage(`¿Qué quieres hacer con ${dog.name}? 🐾`, true);
+          setStep("edit_menu");
+        }
+      }
+      setIsProcessing(false);
+    }, 400);
+  };
+
+  // ==================== HANDLERS: EDIT MENU ====================
+
+  const handleEditMenuSelect = async (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    const dog = selectedDog || activeDogs.find((d) => d.id === editingDogId);
+
+    setTimeout(async () => {
+      switch (value) {
+        case "edit_name":
+          setSingleFieldEdit("name");
+          addMessage(`¿Cuál es el nuevo nombre? (actual: ${profileDraft.name})`, true);
+          setStep("profile_name");
+          break;
+        case "edit_birthday":
+          setSingleFieldEdit("birthday");
+          addMessage(`¿Cuándo es su cumpleaños? 🎂 (actual: ${profileDraft.birthday || "sin fecha"})`, true);
+          setStep("profile_birthday");
+          break;
+        case "edit_weight":
+          setSingleFieldEdit("weight");
+          addMessage(`¿Cuánto pesa ahora? (actual: ${profileDraft.weightKg} kg) ⚖️`, true);
+          setStep("profile_weight");
+          break;
+        case "view_plan":
+          setSingleFieldEdit(null);
+          if (dog) {
+            showPlanForDog(dog);
+          }
+          break;
+        case "cancel_subscription":
+          setSingleFieldEdit(null);
+          await addBotMessage("Entiendo. ¿Puedo saber el motivo? Esto nos ayuda a mejorar. 🤍", SENSITIVE_TYPING_DELAY);
+          setStep("cancel_reason");
+          break;
+        default:
+          break;
+      }
+      setIsProcessing(false);
+    }, 300);
+  };
+
+  // ==================== HANDLERS: CANCEL FLOW (SENSITIVE) ====================
+
+  const handleCancelReasonSelect = async (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    const dog = selectedDog || activeDogs.find((d) => d.id === editingDogId);
+
+    if (value === "deceased") {
+      // CRITICAL: Sensitive case - handle with empathy
+      try {
+        if (dog) {
+          await updateDogStatus(dog.id, "deceased");
+        }
+        
+        // Long typing delay for sensitive response
+        await addBotMessage(
+          `Lo sentimos mucho. 🤍\n\nHemos pausado todo para ${dog?.name || "tu mascota"} inmediatamente. No recibirás más recordatorios sobre él/ella.\n\nCuando estés listo para cualquier cosa, aquí estaremos. 💙`,
+          SENSITIVE_TYPING_DELAY
+        );
+        
+        setStep("initial");
+        setSelectedDog(null);
+        setEditingDogId(null);
+        
+        // End flow - do not ask for more details
+        toast({
+          title: "Perfil pausado",
+          description: `${dog?.name || "El perfil"} ha sido marcado como inactivo.`,
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Other cancel reasons - redirect to account
+      await addBotMessage("Gracias por tu feedback. Te llevaré a tu cuenta para gestionar tu suscripción. 🏠", TYPING_DELAY);
+      setIsProcessing(false);
+      setTimeout(() => navigate("/mi-cuenta"), 1000);
+      return;
+    }
+
+    setIsProcessing(false);
+  };
+
+  // ==================== HANDLERS: PROFILE FLOW ====================
+
+  const handleProfileEntrySelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    setTimeout(() => {
+      if (value === "new") {
+        setIsProcessing(false);
+        startNewDogFlow();
+        return;
+      }
+
+      if (value.startsWith("edit:")) {
+        const id = value.replace("edit:", "");
+        const dog = activeDogs.find((d) => d.id === id);
+        if (dog) {
+          setEditingDogId(dog.id);
+          setSelectedDog(dog);
+          setInteractionMode("editing");
+          setProfileDraft({
+            name: dog.name,
+            birthday: dog.birthday,
+            weightKg: Number(dog.weight_kg),
+            activity: (dog.activity_level as any) || "normal",
+            bodyCondition: (dog.body_condition as any) || "ideal",
+            allergy: "none",
+          });
+          addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
+          setStep("edit_menu");
+        }
+        setIsProcessing(false);
+        return;
+      }
+
+      setIsProcessing(false);
+    }, 250);
+  };
+
+  const handleProfileNameSubmit = async (name: string) => {
+    if (isProcessing) return;
+    const raw = name.trim();
+    const isKeep = !!editingDogId && /^igual$/i.test(raw);
+    const nextName = isKeep ? profileDraft.name : raw;
+    if (!nextName) return;
+
+    setIsProcessing(true);
+    const updatedDraft = { ...profileDraft, name: nextName };
+    setProfileDraft(updatedDraft);
+    addMessage(isKeep ? `igual (${profileDraft.name})` : nextName, false);
+
+    if (singleFieldEdit === "name") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        await addBotMessage(`¡Listo! ${saved.name} actualizado. ✅`);
+        await addBotMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
+
+    await addBotMessage("Para calcular su etapa, ¿cuándo es su cumpleaños? 🎂 (YYYY-MM-DD o DD/MM/AAAA)");
+    setStep("profile_birthday");
+    setIsProcessing(false);
+  };
+
+  const handleProfileBirthdaySubmit = async (input: string) => {
+    if (isProcessing) return;
+    const raw = input.trim();
+    const isKeep = !!editingDogId && /^igual$/i.test(raw);
+
+    const parsed = isKeep ? profileDraft.birthday : parseBirthdayInput(raw);
+    if (!parsed && !isKeep) {
+      addMessage(raw, false);
+      addMessage("No pude leer esa fecha 😅. Prueba con YYYY-MM-DD (ej: 2020-05-14) o DD/MM/AAAA.", true);
+      return;
+    }
+
+    setIsProcessing(true);
+    addMessage(isKeep ? `igual (${profileDraft.birthday || "sin fecha"})` : parsed!, false);
+    const updatedDraft = { ...profileDraft, birthday: parsed };
+    setProfileDraft(updatedDraft);
+
+    if (singleFieldEdit === "birthday") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        await addBotMessage(`¡Listo! Cumpleaños de ${saved.name} actualizado. ✅`);
+        await addBotMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
+
+    await addBotMessage("¿Cuánto pesa actualmente? (kg) ⚖️");
+    setStep("profile_weight");
+    setIsProcessing(false);
+  };
+
+  const handleProfileWeightSubmit = async (input: string) => {
+    if (isProcessing) return;
+    const raw = input.trim();
+    const isKeep = !!editingDogId && /^igual$/i.test(raw);
+    const weight = isKeep ? profileDraft.weightKg : parseWeightKg(raw);
+    if (!weight || weight <= 0) {
+      addMessage(raw, false);
+      addMessage("Dime el peso en kg (ej: 12.5).", true);
+      return;
+    }
+
+    setIsProcessing(true);
+    const updatedDraft = { ...profileDraft, weightKg: weight };
+    setProfileDraft(updatedDraft);
+    addMessage(isKeep ? `igual (${profileDraft.weightKg} kg)` : `${weight} kg`, false);
+
+    if (singleFieldEdit === "weight") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        await addBotMessage(`¡Listo! Peso de ${saved.name} actualizado. ✅`);
+        await addBotMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
+
+    await addBotMessage("¿Es muy activo o prefiere el sofá?");
+    setStep("profile_activity");
+    setIsProcessing(false);
+  };
+
+  const handleProfileActivitySelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    if (value !== "keep") {
+      setProfileDraft((prev) => ({ ...prev, activity: value as any }));
+      addMessage(label, false);
+    } else {
+      addMessage(`igual (${profileDraft.activity})`, false);
+    }
+    setTimeout(async () => {
+      await addBotMessage("¿Cómo ves su cintura?");
+      setStep("profile_bodyCondition");
+      setIsProcessing(false);
+    }, 350);
+  };
+
+  const handleProfileBodyConditionSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    if (value !== "keep") {
+      setProfileDraft((prev) => ({ ...prev, bodyCondition: value as any }));
+      addMessage(label, false);
+    } else {
+      addMessage(`igual (${profileDraft.bodyCondition})`, false);
+    }
+    setTimeout(async () => {
+      await addBotMessage("¿Tiene alergias conocidas?");
+      setStep("profile_allergies");
+      setIsProcessing(false);
+    }, 350);
   };
 
   const handleProfileAllergySelect = async (value: string, label: string) => {
@@ -727,7 +920,7 @@ export default function AIRecomendador() {
 
     try {
       const saved = await upsertDogProfileFromDraft(nextDraft);
-      addMessage(`¡Listo! Perfil de ${saved.name} guardado con éxito. ✅`, true);
+      await addBotMessage(`¡Listo! Perfil de ${saved.name} guardado con éxito. ✅`);
       setEditingDogId(null);
       setStep("profile_done");
     } catch (error: any) {
@@ -747,7 +940,6 @@ export default function AIRecomendador() {
     addMessage(label, false);
 
     if (value === "view_plan") {
-      // Reuse existing plan recommendation with defaults
       const ageStage = profileDraft.birthday ? getAgeStageFromBirthday(profileDraft.birthday) : "adult";
       const updatedPetData: ExtendedPetData = {
         ...petData,
@@ -767,7 +959,7 @@ export default function AIRecomendador() {
       if (products && products.length > 0) {
         const recommendation = calculateRecommendation(updatedPetData, products);
         setResult(recommendation);
-        addMessage(`🧬 ¡Análisis completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`, true);
+        await addBotMessage(`🧬 ¡Análisis completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`);
         setStep("result");
         setIsResultOpen(true);
       } else {
@@ -791,13 +983,15 @@ export default function AIRecomendador() {
     setIsProcessing(false);
   };
 
+  // ==================== HANDLERS: GUEST PLAN FLOW ====================
+
   const handleNameSubmit = (name: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, name }));
     addMessage(name, false);
-    setTimeout(() => {
-      addMessage(`¡Encantado de conocer a ${name}! 🐾 Ahora vamos a revisar sus medidas. ¿Cuánto pesa aproximadamente?`, true);
+    setTimeout(async () => {
+      await addBotMessage(`¡Encantado de conocer a ${name}! 🐾 Ahora vamos a revisar sus medidas. ¿Cuánto pesa aproximadamente?`);
       setStep("weight");
       setIsProcessing(false);
     }, 400);
@@ -809,8 +1003,8 @@ export default function AIRecomendador() {
     const weight = parseInt(value);
     setPetData(prev => ({ ...prev, weight }));
     addMessage(label, false);
-    setTimeout(() => {
-      addMessage(`Perfecto, anotado. ¿En qué etapa de vida está ${petData.name}? 🎂`, true);
+    setTimeout(async () => {
+      await addBotMessage(`Perfecto, anotado. ¿En qué etapa de vida está ${petData.name}? 🎂`);
       setStep("age");
       setIsProcessing(false);
     }, 400);
@@ -821,8 +1015,8 @@ export default function AIRecomendador() {
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, age: value }));
     addMessage(label, false);
-    setTimeout(() => {
-      addMessage(`Muy bien. ¿Qué tan activo es ${petData.name}? 🏃`, true);
+    setTimeout(async () => {
+      await addBotMessage(`Muy bien. ¿Qué tan activo es ${petData.name}? 🏃`);
       setStep("activity");
       setIsProcessing(false);
     }, 400);
@@ -833,8 +1027,8 @@ export default function AIRecomendador() {
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, activity: value }));
     addMessage(label, false);
-    setTimeout(() => {
-      addMessage(`Ahora una pregunta importante para su nutrición. ¿Cómo describirías la condición corporal de ${petData.name}? ⚖️`, true);
+    setTimeout(async () => {
+      await addBotMessage(`Ahora una pregunta importante para su nutrición. ¿Cómo describirías la condición corporal de ${petData.name}? ⚖️`);
       setStep("bodyCondition");
       setIsProcessing(false);
     }, 400);
@@ -845,8 +1039,8 @@ export default function AIRecomendador() {
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, bodyCondition: value }));
     addMessage(label, false);
-    setTimeout(() => {
-      addMessage(`Entendido. ¿${petData.name} tiene alguna sensibilidad digestiva o alergias alimentarias? 🤧`, true);
+    setTimeout(async () => {
+      await addBotMessage(`Entendido. ¿${petData.name} tiene alguna sensibilidad digestiva o alergias alimentarias? 🤧`);
       setStep("sensitivity");
       setIsProcessing(false);
     }, 400);
@@ -857,8 +1051,8 @@ export default function AIRecomendador() {
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, sensitivity: value }));
     addMessage(label, false);
-    setTimeout(() => {
-      addMessage(`¡Excelente! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`, true);
+    setTimeout(async () => {
+      await addBotMessage(`¡Excelente! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`);
       setStep("goal");
       setIsProcessing(false);
     }, 400);
@@ -882,7 +1076,6 @@ export default function AIRecomendador() {
         const recommendation = calculateRecommendation(updatedPetData, products);
         setResult(recommendation);
         
-        // Save to recommendation store
         setRecommendation({
           petName: updatedPetData.name,
           breed: "Mestizo",
@@ -902,13 +1095,75 @@ export default function AIRecomendador() {
         });
         
         // Save to database if logged in
-        await saveDogProfile(updatedPetData, recommendation);
+        if (isAuthenticated) {
+          await saveDogProfile(updatedPetData, recommendation);
+        }
         
-        addMessage(`🧬 ¡Análisis completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`, true);
-        setStep("result");
+        await addBotMessage(`🧬 ¡Análisis completo! Aquí está el plan personalizado para ${updatedPetData.name} 🎉`);
+        
+        // GUEST MODE HOOK: Prompt to save profile
+        if (interactionMode === "guest") {
+          setStep("guest_save_prompt");
+        } else {
+          setStep("result");
+        }
       }
+      setIsProcessing(false);
+    }, TYPING_DELAY);
+  };
+
+  const handleGuestSavePromptSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    setTimeout(() => {
+      if (value === "save_yes") {
+        // Save petData to localStorage for after login
+        localStorage.setItem("pending-dog-profile", JSON.stringify(petData));
+        setLoginDialogContext("save_profile");
+        setShowLoginDialog(true);
+      }
+      setStep("result");
+      setIsProcessing(false);
     }, 400);
   };
+
+  // ==================== PLAN DISPLAY ====================
+
+  const showPlanForDog = (dog: DogProfileRow) => {
+    if (!products || products.length === 0) {
+      toast({
+        title: "No hay productos disponibles",
+        description: "No se puede generar el plan en este momento.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const ageStage = dog.birthday ? getAgeStageFromBirthday(dog.birthday) : (dog.age_stage as any) || "adult";
+    const updatedPetData: ExtendedPetData = {
+      name: dog.name,
+      weight: Number(dog.weight_kg),
+      age: ageStage,
+      activity: dog.activity_level || "normal",
+      bodyCondition: dog.body_condition || "ideal",
+      sensitivity: dog.sensitivity || "low",
+      goal: dog.goal || "routine",
+      zoneId: "",
+      zoneName: "",
+      deliveryFee: 0,
+    };
+    setPetData(updatedPetData);
+    
+    const recommendation = calculateRecommendation(updatedPetData, products);
+    setResult(recommendation);
+    addMessage(`🧬 ¡Aquí está el plan actualizado para ${dog.name}! 🎉`, true);
+    setStep("result");
+    setIsResultOpen(true);
+  };
+
+  // ==================== CART & SUBSCRIPTION ====================
 
   const handleSelectOption = (option: "A" | "B", products: Array<{id: string; name: string; price: number; quantity: number}>) => {
     products.forEach(product => {
@@ -931,22 +1186,22 @@ export default function AIRecomendador() {
 
   const handleSelectSubscription = async (planType: "monthly" | "semestral" | "annual") => {
     if (!isAuthenticated || !user) {
+      setLoginDialogContext("edit");
+      setShowLoginDialog(true);
       toast({
         title: "Inicia sesión para suscribirte",
         description: "Necesitas una cuenta para crear tu suscripción.",
       });
-      navigate("/registro");
       return;
     }
 
     try {
-      // Calculate billing and delivery dates
       const billingWeeks = planType === "monthly" ? 4 : planType === "semestral" ? 24 : 52;
       const nextBillingDate = new Date();
       nextBillingDate.setDate(nextBillingDate.getDate() + (billingWeeks * 7));
       
       const nextDeliveryDate = new Date();
-      nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 3); // 3 days from now
+      nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 3);
 
       const { error } = await supabase.from("subscriptions").upsert({
         user_id: user.id,
@@ -988,12 +1243,10 @@ export default function AIRecomendador() {
 
   const handleRestart = () => {
     localStorage.removeItem("ai-recommender-state");
+    initializedRef.current = false;
+    consumedIntentRef.current = false;
     
-    setMessages([{
-      id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor. ¿En qué te puedo ayudar hoy? 🐾",
-      isBot: true,
-    }]);
+    setMessages([]);
     setPetData({ 
       name: "", 
       weight: 0, 
@@ -1007,23 +1260,86 @@ export default function AIRecomendador() {
       deliveryFee: 0 
     });
     setResult(null);
+    setSelectedDog(null);
+    setEditingDogId(null);
+    setSingleFieldEdit(null);
     setStep("initial");
+    
+    // Re-trigger initialization
+    setTimeout(() => {
+      if (!isAuthenticated) {
+        setInteractionMode("guest");
+        setMessages([{
+          id: "guest-greeting",
+          content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. ¿Listo para encontrar el plan perfecto para tu mejor amigo? 🐾",
+          isBot: true,
+        }]);
+        setStep("guest_greeting");
+        initializedRef.current = true;
+      } else {
+        setInteractionMode("logged_in");
+        if (activeDogs.length === 0) {
+          startNewDogFlow();
+        } else {
+          startSmartMenu();
+        }
+        initializedRef.current = true;
+      }
+    }, 100);
   };
 
-  // Render input section based on current step
+  const handleLoginSuccess = () => {
+    // Check if there's a pending profile to save
+    const pendingProfile = localStorage.getItem("pending-dog-profile");
+    if (pendingProfile && loginDialogContext === "save_profile") {
+      // Profile will be saved on next render when isAuthenticated becomes true
+      toast({
+        title: "¡Perfil guardado!",
+        description: "Tu perfil ha sido guardado en tu cuenta.",
+      });
+      localStorage.removeItem("pending-dog-profile");
+    }
+    
+    // Refetch dogs
+    refetchDogs();
+    
+    // Update interaction mode
+    setInteractionMode("logged_in");
+  };
+
+  // ==================== RENDER INPUT SECTION ====================
+
   const renderInputSection = () => {
-    if (step === "result") return null;
+    if (step === "result" || step === "initial") return null;
     
     switch (step) {
-      case "initial":
-        return <QuickReplies options={initialOptions} onSelect={handleInitialSelect} columns={2} disabled={isProcessing} />;
+      case "guest_greeting":
+        return (
+          <QuickReplies
+            options={[{ value: "start_plan", label: "Empezar Plan", emoji: "🥗" }]}
+            onSelect={handleGuestGreetingSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
+      
+      case "smart_menu": {
+        const options = [
+          ...activeDogs.map((d) => ({ value: `view_plan:${d.id}`, label: `Ver Plan de ${d.name}`, emoji: "📄" })),
+          ...activeDogs.map((d) => ({ value: `edit:${d.id}`, label: `Editar ${d.name}`, emoji: "✏️" })),
+          { value: "new_dog", label: "Nuevo Perro", emoji: "➕" },
+        ];
+        return <QuickReplies options={options} onSelect={handleSmartMenuSelect} columns={2} disabled={isProcessing} />;
+      }
+
       case "profile_entry": {
         const options = [
-          ...dogProfiles.map((d) => ({ value: `edit:${d.id}`, label: `Editar ${d.name}`, emoji: "✏️" })),
+          ...activeDogs.map((d) => ({ value: `edit:${d.id}`, label: `Editar ${d.name}`, emoji: "✏️" })),
           { value: "new", label: "Agregar Nuevo", emoji: "➕" },
         ];
         return <QuickReplies options={options} onSelect={handleProfileEntrySelect} columns={2} disabled={isProcessing} />;
       }
+
       case "edit_menu": {
         const editMenuOptions = [
           { value: "edit_name", label: "Cambiar Nombre", emoji: "✏️" },
@@ -1034,6 +1350,23 @@ export default function AIRecomendador() {
         ];
         return <QuickReplies options={editMenuOptions} onSelect={handleEditMenuSelect} columns={2} disabled={isProcessing} />;
       }
+
+      case "cancel_reason":
+        return <QuickReplies options={cancelReasonOptions} onSelect={handleCancelReasonSelect} columns={2} disabled={isProcessing} />;
+
+      case "guest_save_prompt":
+        return (
+          <QuickReplies
+            options={[
+              { value: "save_yes", label: "Sí, guardar perfil", emoji: "✅" },
+              { value: "save_no", label: "No, solo ver plan", emoji: "👀" },
+            ]}
+            onSelect={handleGuestSavePromptSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
+
       case "profile_name":
         return <ChatInput placeholder="Nombre del perrito…" onSubmit={handleProfileNameSubmit} disabled={isProcessing} />;
       case "profile_birthday":
@@ -1091,7 +1424,7 @@ export default function AIRecomendador() {
     }
   };
 
-  const [resultTab, setResultTab] = useState<"subscription" | "oneoff">("subscription");
+  // ==================== MAIN RENDER ====================
 
   return (
     <Layout hideFooter>
@@ -1118,6 +1451,16 @@ export default function AIRecomendador() {
             >
               Nueva consulta
             </Button>
+          </div>
+        )}
+
+        {step === "guest_save_prompt" && result && (
+          <div className="w-full px-4 py-4">
+            <div className="bg-muted/50 rounded-lg p-4 text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                ¿Te gustaría guardar el perfil de <strong>{petData.name}</strong> para futuras compras? 🐾
+              </p>
+            </div>
           </div>
         )}
       </ChatContainer>
@@ -1183,62 +1526,19 @@ export default function AIRecomendador() {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Login Dialog for in-chat authentication */}
+      <LoginDialog
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+        title={loginDialogContext === "save_profile" ? "Guarda tu perfil" : "Inicia sesión para continuar"}
+        description={
+          loginDialogContext === "save_profile"
+            ? `Para guardar el perfil de ${petData.name}, inicia sesión o regístrate.`
+            : "Necesitas una cuenta para acceder a esta función."
+        }
+        onSuccess={handleLoginSuccess}
+      />
     </Layout>
   );
-}
-
-function parseBirthdayInput(input: string): string | null {
-  // Accept YYYY-MM-DD or DD/MM/YYYY
-  const iso = /^\d{4}-\d{2}-\d{2}$/;
-  if (iso.test(input)) return input;
-
-  const dmy = input.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (dmy) {
-    const day = Number(dmy[1]);
-    const month = Number(dmy[2]);
-    const year = Number(dmy[3]);
-    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-    const padded = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    // basic validity check
-    const date = new Date(padded + "T00:00:00");
-    if (Number.isNaN(date.getTime())) return null;
-    return padded;
-  }
-
-  return null;
-}
-
-function parseWeightKg(input: string): number | null {
-  const normalized = input.replace(",", ".");
-  const n = Number(normalized);
-  if (!Number.isFinite(n)) return null;
-  return Math.round(n * 10) / 10;
-}
-
-function getAgeStageFromBirthday(birthdayIso: string): "puppy" | "adult" | "senior" {
-  const birth = new Date(birthdayIso + "T00:00:00");
-  if (Number.isNaN(birth.getTime())) return "adult";
-
-  const today = new Date();
-  const months =
-    (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
-
-  if (months < 12) return "puppy";
-  if (months >= 84) return "senior";
-  return "adult";
-}
-
-function computeDailyGrams(params: {
-  weightKg: number;
-  ageStage: "puppy" | "adult" | "senior";
-  activity: "low" | "normal" | "high";
-  bodyCondition: "underweight" | "ideal" | "overweight";
-}): number {
-  const base = params.ageStage === "puppy" ? 6 : params.ageStage === "senior" ? 2.0 : 2.5;
-  const activityAdj = params.activity === "high" ? 0.5 : params.activity === "low" ? -0.5 : 0;
-  const conditionAdj =
-    params.bodyCondition === "underweight" ? 0.5 : params.bodyCondition === "overweight" ? -0.5 : 0;
-  const finalPercent = base + activityAdj + conditionAdj;
-  const grams = params.weightKg * (finalPercent / 100) * 1000;
-  return Math.max(1, Math.round(grams));
 }
