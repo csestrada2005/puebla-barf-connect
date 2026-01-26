@@ -18,6 +18,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        sans: ["Outfit", "system-ui", "sans-serif"],
         outfit: ["Outfit", "system-ui", "sans-serif"],
       },
       colors: {

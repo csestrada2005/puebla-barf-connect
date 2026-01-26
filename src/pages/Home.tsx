@@ -1,22 +1,21 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Heart, Zap, Leaf, Shield, Smile, Wind, Mail } from "lucide-react";
+import { ArrowRight, Sparkles, Heart, Zap, Leaf, Shield, Smile, Wind, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { TestimonialCard } from "@/components";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
-import logoWhite from "@/assets/brand/logo-white.png";
+import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
-import heroBall from "@/assets/brand/hero-ball.png";
 
 const benefits = [
   { 
@@ -51,34 +50,21 @@ const benefits = [
   },
 ];
 
-const ingredients = {
-  composition: [
-    { percentage: "60%", name: "Huesos carnosos", emoji: "🦴" },
-    { percentage: "20%", name: "Carne con grasa", emoji: "🥩" },
-    { percentage: "10%", name: "Vísceras", emoji: "🫀" },
-    { percentage: "10%", name: "Vegetales", emoji: "🥕" },
-  ],
-  list: ["Pollo", "Res", "Sardinas", "Calabaza", "Espinaca", "Pepino", "Zanahoria", "Chía"],
-};
-
-const steps = [
+const howItWorks = [
   {
-    number: 1,
+    step: 1,
     title: "Cuéntanos sobre tu perro",
-    description: "Nuestra IA te guía para encontrar el plan perfecto según raza, peso y necesidades.",
-    image: "🐕",
+    description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
   },
   {
-    number: 2,
-    title: "Confirma tu zona",
-    description: "Verifica que entregamos en tu colonia de Puebla y selecciona tu línea favorita.",
-    image: "📍",
+    step: 2,
+    title: "Recibe tu receta personalizada",
+    description: "Calculamos la porción exacta y la proteína ideal para su perfil.",
   },
   {
-    number: 3,
-    title: "Recibe en 24-48h",
-    description: "Entrega rápida a tu puerta. También puedes cotizar por WhatsApp.",
-    image: "🚚",
+    step: 3,
+    title: "Entrega en 24-48h",
+    description: "Alimento fresco directo a tu puerta en Puebla.",
   },
 ];
 
@@ -90,20 +76,6 @@ export default function Home() {
     queryKey: ["testimonials"],
     queryFn: async () => {
       const { data } = await supabase.from("testimonials").select("*").eq("is_active", true);
-      return data || [];
-    },
-  });
-
-  const { data: products } = useQuery({
-    queryKey: ["featured-products"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .eq("is_subscription", false)
-        .order("sort_order")
-        .limit(4);
       return data || [];
     },
   });
@@ -121,110 +93,179 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* Hero - Logo Centrado con Perros */}
-      <section className="relative py-6 md:py-10 overflow-hidden bg-primary min-h-[420px] md:min-h-[480px]">
-        {/* Perro lamiendo - posición fija a la derecha */}
+      {/* Hero - Dogtor First */}
+      <section className="relative py-12 md:py-20 overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90 min-h-[520px] md:min-h-[600px]">
+        {/* Decorative dog */}
         <img 
           src={heroDogLicking} 
-          alt="Perro" 
-          className="absolute bottom-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[420px] object-contain z-10 pointer-events-none"
+          alt="Perro feliz" 
+          className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90"
         />
 
-        <div className="container relative z-20 h-full">
-          <div className="flex flex-col py-4 px-4 md:px-8">
-            {/* Logo - Centrado y Grande */}
-            <div className="mb-4 md:mb-6 flex justify-center">
-              <img 
-                src={logoWhite} 
-                alt="Raw Paw" 
-                className="h-20 sm:h-24 md:h-32 lg:h-40 w-auto brightness-0 invert"
-              />
-            </div>
+        <div className="container relative z-20">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left: Content */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-left max-w-xl"
+            >
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+                <Sparkles className="h-4 w-4 text-secondary" />
+                <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
+              </div>
 
-            {/* Contenido alineado a la izquierda */}
-            <div className="flex flex-col items-start text-left max-w-md lg:max-w-lg">
-              {/* Título principal */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 md:mb-6">
-                Porque merecen lo mismo que tú
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
+                No adivines.
+                <br />
+                <span className="text-secondary">El Dogtor calcula</span>
+                <br />
+                la dieta perfecta. 🩺
               </h1>
 
-              {/* Descripción */}
-              <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8">
-                Cada receta está pensada, probada y aprobada por quienes nos importan: nuestros propios perros.
+              <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-md">
+                Nutrición natural personalizada para la edad, peso y alergias de tu perro en 60 segundos.
               </p>
 
-              {/* CTA */}
-              <Button asChild size="lg" variant="secondary" className="px-8">
-                <Link to="/ai">
-                  ¡Empezar ahora!
-                </Link>
-              </Button>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  variant="secondary" 
+                  className="text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg"
+                >
+                  <Link to="/ai">
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Iniciar Diagnóstico Gratuito
+                  </Link>
+                </Button>
+                <Button 
+                  asChild 
+                  variant="ghost" 
+                  size="lg"
+                  className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10"
+                >
+                  <Link to="/tienda">
+                    O ver catálogo completo
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Trust badges */}
+              <div className="flex items-center gap-6 mt-8 text-primary-foreground/70 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-secondary" />
+                  <span>100% Natural</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-secondary" />
+                  <span>Entrega 24-48h</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right: Dogtor Avatar */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="hidden lg:flex justify-center items-center"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-secondary/30 rounded-full blur-3xl scale-110" />
+                <img 
+                  src={dogtorAvatar} 
+                  alt="El Dogtor - Tu asistente de nutrición" 
+                  className="relative w-64 h-64 xl:w-80 xl:h-80 object-contain drop-shadow-2xl"
+                />
+                {/* Speech bubble */}
+                <div className="absolute -top-4 -right-4 bg-white rounded-2xl px-4 py-2 shadow-lg">
+                  <p className="text-sm font-medium text-foreground">¡Hola! Soy el Dogtor 🩺</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Filosofía de Marca */}
-      <section className="py-16 md:py-20 bg-secondary text-secondary-foreground">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center">
-            <img 
-              src={isotipoTall} 
-              alt="Raw Paw" 
-              className="h-24 w-auto mx-auto mb-6"
-            />
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              En Raw Paw <span className="opacity-70">no</span> hacemos comida para perros
-            </h2>
-            <p className="text-xl md:text-2xl opacity-90">
-              Hacemos alimento <strong>real y fresco</strong>, con ingredientes de <strong>calidad humana</strong>.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-16 md:py-24">
+      {/* How it works - Simplified */}
+      <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="text-center mb-12">
             <img 
               src={isotipoBowl} 
               alt="Raw Paw" 
-              className="h-20 w-auto mx-auto mb-4"
+              className="h-16 w-auto mx-auto mb-4"
             />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Así de fácil funciona
             </h2>
-            <p className="text-muted-foreground">
-              En 3 simples pasos tu perro estará comiendo mejor
+            <p className="text-muted-foreground max-w-md mx-auto">
+              En 3 pasos simples, tu perro estará comiendo mejor que nunca
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {steps.map((step) => (
-              <Card key={step.number} className="relative overflow-hidden border-2 hover:border-primary/50 transition-colors">
-                <CardContent className="pt-8 pb-6 text-center">
-                  <div className="text-6xl mb-4">{step.image}</div>
-                  <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-                    {step.number}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
-                </CardContent>
-              </Card>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {howItWorks.map((item, index) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                  <CardContent className="pt-8 pb-6 text-center">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Button asChild size="lg" className="gap-2">
+
+          <div className="text-center mt-12">
+            <Button asChild size="lg" className="rounded-2xl btn-bounce gap-2">
               <Link to="/ai">
                 <Sparkles className="h-5 w-5" />
-                Comenzar ahora
+                Empezar ahora — Es gratis
               </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Benefits con imagen */}
+      {/* Brand Philosophy */}
+      <section className="py-16 md:py-20 bg-secondary text-secondary-foreground">
+        <div className="container">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <img 
+              src={isotipoTall} 
+              alt="Raw Paw" 
+              className="h-20 w-auto mx-auto mb-6"
+            />
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              En Raw Paw <span className="opacity-60">no</span> hacemos comida para perros
+            </h2>
+            <p className="text-xl md:text-2xl opacity-90">
+              Hacemos alimento <strong>real y fresco</strong>, con ingredientes de <strong>calidad humana</strong>.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Benefits */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -237,8 +278,15 @@ export default function Home() {
               </p>
               <div className="grid sm:grid-cols-2 gap-6">
                 {benefits.map((benefit) => (
-                  <div key={benefit.title} className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-primary/20 flex items-center justify-center">
+                  <motion.div 
+                    key={benefit.title} 
+                    className="flex gap-4"
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
                       <benefit.icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -247,72 +295,26 @@ export default function Home() {
                         __html: benefit.description.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
                       }} />
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-            <div className="relative">
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
               <img 
                 src={benefitsDog} 
                 alt="Beneficios de la dieta BARF" 
-                className="w-full rounded-2xl"
+                className="w-full rounded-3xl shadow-xl"
               />
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
-
-      {/* Products Preview */}
-      {products && products.length > 0 && (
-        <section className="py-16 md:py-24">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Nuestros productos
-              </h2>
-              <p className="text-muted-foreground">
-                Líneas premium elaboradas con ingredientes frescos
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <Link key={product.id} to={`/producto/${product.slug}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
-                    <div className="aspect-square bg-gradient-to-br from-secondary/50 to-muted flex items-center justify-center relative">
-                      <span className="text-6xl group-hover:scale-110 transition-transform">
-                        {product.protein_line === "res" ? "🥩" : "🍗"}
-                      </span>
-                      <Badge 
-                        className="absolute top-3 right-3" 
-                        variant={product.protein_line === "res" ? "default" : "secondary"}
-                      >
-                        {product.protein_line === "res" ? "Premium" : "Base"}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-1 line-clamp-1">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {product.presentation === "1kg" ? "Perro mediano-grande" : "Perro pequeño"}
-                      </p>
-                      <p className="text-lg font-bold text-primary">
-                        ${Number(product.price).toLocaleString("es-MX")}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-            <div className="text-center mt-10">
-              <Button asChild variant="outline" size="lg" className="gap-2">
-                <Link to="/tienda">
-                  Ver todos los productos
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Testimonials */}
       {testimonials && testimonials.length > 0 && (
@@ -345,7 +347,13 @@ export default function Home() {
       {/* Email Capture */}
       <section className="py-16 md:py-24 bg-muted/50">
         <div className="container">
-          <div className="max-w-xl mx-auto text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-xl mx-auto text-center"
+          >
             <img 
               src={isotipoFluffy} 
               alt="Raw Paw" 
@@ -364,27 +372,27 @@ export default function Home() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="flex-1"
+                className="flex-1 rounded-xl"
               />
-              <Button type="submit">Suscribir</Button>
+              <Button type="submit" className="rounded-xl btn-bounce">Suscribir</Button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Final CTA */}
       <section className="py-20 bg-primary text-primary-foreground">
         <div className="container text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             ¿Listo para mejorar la alimentación de tu perro?
           </h2>
           <p className="mb-8 opacity-90 text-lg">
-            Empieza hoy y ve la diferencia en semanas.
+            El Dogtor está listo para ayudarte. Empieza hoy.
           </p>
-          <Button asChild size="lg" variant="secondary" className="gap-2">
+          <Button asChild size="lg" variant="secondary" className="gap-2 rounded-2xl btn-bounce text-lg px-8 py-6">
             <Link to="/ai">
               <Sparkles className="h-5 w-5" />
-              Arma tu pedido
+              Iniciar Diagnóstico Gratuito
             </Link>
           </Button>
         </div>
