@@ -371,13 +371,25 @@ export default function AIRecomendador() {
       setInteractionMode("logged_in");
       
       if (activeDogs.length === 0) {
-        // No dogs yet - start new dog flow
+        // No dogs yet - start new dog flow directly with single message
+        setEditingDogId(null);
+        setSelectedDog(null);
+        setProfileDraft({
+          name: "",
+          birthday: null,
+          weightKg: 0,
+          activity: "normal",
+          bodyCondition: "ideal",
+          allergy: "none",
+        });
+        setResult(null);
+        setIsResultOpen(false);
         setMessages([{
           id: "welcome-new",
-          content: "¡Hola! 👋 Veo que aún no tienes perfiles de perritos. Vamos a crear el primero. 🐾",
+          content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. Veo que aún no tienes perfiles de perritos.\n\n¿Cómo se llama el paciente? 🐾",
           isBot: true,
         }]);
-        setTimeout(() => startNewDogFlow(), 500);
+        setStep("profile_name");
       } else {
         // Has dogs - show smart menu
         startSmartMenu();
