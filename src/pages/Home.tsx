@@ -71,7 +71,7 @@ export default function Home() {
         />
 
         <div className="container relative z-20 py-6">
-          <div className="flex flex-col items-center justify-center text-center">
+          <div className="flex flex-col items-start justify-center text-left">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -86,10 +86,10 @@ export default function Home() {
               <img 
                 src={heroLogoTagline} 
                 alt="Raw Paw - La nueva forma de cuidarlos" 
-                className="w-48 sm:w-64 md:w-72 mb-3 mx-auto"
+                className="w-48 sm:w-64 md:w-72 mb-3"
               />
 
-              <div className="mb-4 max-w-lg mx-auto">
+              <div className="mb-4 max-w-lg">
                 <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
                   Donde la{" "}
                   <span className="text-secondary">Frescura</span>{" "}
@@ -105,7 +105,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 justify-start">
                 <Button 
                   asChild 
                   size="lg" 
@@ -131,7 +131,7 @@ export default function Home() {
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-4 text-primary-foreground/70 text-sm justify-center">
+              <div className="flex items-center gap-6 mt-4 text-primary-foreground/70 text-sm justify-start">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-secondary" />
                   <span>100% Natural</span>
