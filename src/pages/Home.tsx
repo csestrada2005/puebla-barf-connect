@@ -61,17 +61,17 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* Hero - Dogtor First */}
-      <section className="relative py-12 md:py-20 overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90 min-h-[520px] md:min-h-[600px]">
+      {/* Hero - Full viewport */}
+      <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Decorative dog */}
         <img 
           src={heroDogLicking} 
           alt="Perro feliz" 
-          className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90"
+          className="absolute bottom-0 right-0 w-36 sm:w-48 md:w-64 lg:w-[320px] object-contain z-10 pointer-events-none opacity-90"
         />
 
-        <div className="container relative z-20">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
+        <div className="container relative z-20 py-8 md:py-12">
+          <div className="grid lg:grid-cols-2 gap-6 items-center">
             {/* Left: Content */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -79,7 +79,7 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="text-left max-w-xl"
             >
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-4">
                 <Sparkles className="h-4 w-4 text-secondary" />
                 <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
               </div>
@@ -87,19 +87,19 @@ export default function Home() {
               <img 
                 src={heroLogoTagline} 
                 alt="Raw Paw - La nueva forma de cuidarlos" 
-                className="w-64 sm:w-80 md:w-96 mb-6"
+                className="w-56 sm:w-72 md:w-80 mb-4"
               />
 
-              <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-md">
+              <p className="text-base md:text-lg text-primary-foreground/80 mb-6 max-w-md">
                 Donde la frescura nutre, la calidad se siente y la alegría permanece.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   asChild 
                   size="lg" 
                   variant="secondary" 
-                  className="text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg"
+                  className="text-base px-6 py-5 rounded-2xl btn-bounce shadow-lg"
                 >
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5 mr-2" />
@@ -120,7 +120,7 @@ export default function Home() {
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-8 text-primary-foreground/70 text-sm">
+              <div className="flex items-center gap-6 mt-6 text-primary-foreground/70 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-secondary" />
                   <span>100% Natural</span>
