@@ -69,7 +69,11 @@ export default function Home() {
         <img 
           src={heroLogoCentered} 
           alt="Raw Paw - La nueva forma de cuidarlos" 
-          className="absolute left-1/2 -translate-x-1/2 top-8 sm:top-12 md:top-16 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none"
+          className={`absolute left-1/2 -translate-x-1/2 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none ${
+            !authLoading && !isAuthenticated 
+              ? "top-4 sm:top-6 md:top-10" 
+              : "top-8 sm:top-12 md:top-16"
+          }`}
         />
 
         {/* Decorative dog */}
