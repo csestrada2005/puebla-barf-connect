@@ -116,6 +116,7 @@ export type Database = {
         Row: {
           activity_level: string
           age_stage: string
+          birthday: string | null
           body_condition: string
           created_at: string
           daily_grams: number
@@ -125,6 +126,7 @@ export type Database = {
           recommended_plan_type: string
           recommended_protein: string
           sensitivity: string
+          status: string
           updated_at: string
           user_id: string | null
           weekly_kg: number
@@ -133,6 +135,7 @@ export type Database = {
         Insert: {
           activity_level: string
           age_stage: string
+          birthday?: string | null
           body_condition: string
           created_at?: string
           daily_grams: number
@@ -142,6 +145,7 @@ export type Database = {
           recommended_plan_type: string
           recommended_protein: string
           sensitivity: string
+          status?: string
           updated_at?: string
           user_id?: string | null
           weekly_kg: number
@@ -150,6 +154,7 @@ export type Database = {
         Update: {
           activity_level?: string
           age_stage?: string
+          birthday?: string | null
           body_condition?: string
           created_at?: string
           daily_grams?: number
@@ -159,6 +164,7 @@ export type Database = {
           recommended_plan_type?: string
           recommended_protein?: string
           sensitivity?: string
+          status?: string
           updated_at?: string
           user_id?: string | null
           weekly_kg?: number
@@ -418,6 +424,7 @@ export type Database = {
           created_at: string
           discount_percent: number | null
           frequency: string
+          frequency_days: number | null
           id: string
           next_billing_date: string | null
           next_delivery_date: string | null
@@ -429,6 +436,7 @@ export type Database = {
           product_id: string | null
           protein_line: string
           status: string | null
+          type: string | null
           updated_at: string
           user_id: string
           weekly_amount_kg: number | null
@@ -437,6 +445,7 @@ export type Database = {
           created_at?: string
           discount_percent?: number | null
           frequency: string
+          frequency_days?: number | null
           id?: string
           next_billing_date?: string | null
           next_delivery_date?: string | null
@@ -448,6 +457,7 @@ export type Database = {
           product_id?: string | null
           protein_line: string
           status?: string | null
+          type?: string | null
           updated_at?: string
           user_id: string
           weekly_amount_kg?: number | null
@@ -456,6 +466,7 @@ export type Database = {
           created_at?: string
           discount_percent?: number | null
           frequency?: string
+          frequency_days?: number | null
           id?: string
           next_billing_date?: string | null
           next_delivery_date?: string | null
@@ -467,6 +478,7 @@ export type Database = {
           product_id?: string | null
           protein_line?: string
           status?: string | null
+          type?: string | null
           updated_at?: string
           user_id?: string
           weekly_amount_kg?: number | null
