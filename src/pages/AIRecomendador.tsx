@@ -32,6 +32,7 @@ type Step =
   | "profile_entry"
   | "edit_menu"
   | "cancel_reason"
+  | "cancel_other_details"
   | "profile_name"
   | "profile_birthday"
   | "profile_weight"
@@ -246,6 +247,7 @@ export default function AIRecomendador() {
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
   const [singleFieldEdit, setSingleFieldEdit] = useState<string | null>(null);
   const [resultTab, setResultTab] = useState<"subscription" | "oneoff">("subscription");
+  const [cancelReason, setCancelReason] = useState<string | null>(null);
 
   // ==================== DATA QUERIES ====================
 
@@ -269,7 +271,7 @@ export default function AIRecomendador() {
     enabled: !!user?.id,
   });
 
-  const activeDogs = dogProfiles.filter(d => d.status === "active");
+  const activeDogs = dogProfiles.filter(d => d.status === "active" || d.status === "paused");
 
   const { data: products } = useQuery({
     queryKey: ["products-for-recommendation"],
@@ -686,6 +688,24 @@ export default function AIRecomendador() {
 
   // ==================== HANDLERS: CANCEL FLOW (SENSITIVE) ====================
 
+  const saveCancellation = async (reason: string, details?: string) => {
+    if (!user?.id) return;
+    
+    const dog = selectedDog || activeDogs.find((d) => d.id === editingDogId);
+    
+    try {
+      await supabase.from("cancellations").insert({
+        user_id: user.id,
+        dog_profile_id: dog?.id || null,
+        subscription_id: null, // Could be enhanced to link to actual subscription
+        reason,
+        reason_details: details || null,
+      });
+    } catch (error) {
+      console.error("Failed to save cancellation:", error);
+    }
+  };
+
   const handleCancelReasonSelect = async (value: string, label: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -700,6 +720,9 @@ export default function AIRecomendador() {
           await updateDogStatus(dog.id, "deceased");
         }
         
+        // Save cancellation to database
+        await saveCancellation("deceased");
+        
         // Long typing delay for sensitive response
         await addBotMessage(
           `Lo sentimos mucho. 🤍\n\nHemos pausado todo para ${dog?.name || "tu mascota"} inmediatamente. No recibirás más recordatorios sobre él/ella.\n\nCuando estés listo para cualquier cosa, aquí estaremos. 💙`,
@@ -709,6 +732,10 @@ export default function AIRecomendador() {
         setStep("initial");
         setSelectedDog(null);
         setEditingDogId(null);
+        setCancelReason(null);
+        
+        // Refresh dog profiles
+        refetchDogs();
         
         // End flow - do not ask for more details
         toast({
@@ -722,12 +749,92 @@ export default function AIRecomendador() {
           variant: "destructive",
         });
       }
+    } else if (value === "other") {
+      // Ask for more details
+      setCancelReason(value);
+      await addBotMessage("¿Quieres contarnos más? Puedes escribir el motivo o simplemente presionar enviar para continuar. 💬", TYPING_DELAY);
+      setStep("cancel_other_details");
     } else {
-      // Other cancel reasons - redirect to account
-      await addBotMessage("Gracias por tu feedback. Te llevaré a tu cuenta para gestionar tu suscripción. 🏠", TYPING_DELAY);
-      setIsProcessing(false);
-      setTimeout(() => navigate("/mi-cuenta"), 1000);
-      return;
+      // Other cancel reasons - pause dog and show farewell message
+      try {
+        if (dog) {
+          await updateDogStatus(dog.id, "paused");
+        }
+        
+        // Save cancellation to database
+        await saveCancellation(value);
+        
+        await addBotMessage(
+          `¡Entendido! Lamentamos que te vayas. 🥺\n\nTu suscripción se ha cancelado exitosamente, pero el perfil de ${dog?.name || "tu perrito"} seguirá guardado aquí por si deciden volver a comer rico y sano en el futuro.\n\n¡Hasta pronto! 🐾`,
+          TYPING_DELAY
+        );
+        
+        setStep("initial");
+        setSelectedDog(null);
+        setEditingDogId(null);
+        setCancelReason(null);
+        
+        // Refresh dog profiles
+        refetchDogs();
+        
+        toast({
+          title: "Suscripción cancelada",
+          description: `El perfil de ${dog?.name || "tu perrito"} ha sido pausado.`,
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handleCancelOtherDetailsSubmit = async (details: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    
+    const trimmedDetails = details.trim();
+    if (trimmedDetails) {
+      addMessage(trimmedDetails, false);
+    }
+
+    const dog = selectedDog || activeDogs.find((d) => d.id === editingDogId);
+
+    try {
+      if (dog) {
+        await updateDogStatus(dog.id, "paused");
+      }
+      
+      // Save cancellation with details to database
+      await saveCancellation("other", trimmedDetails || undefined);
+      
+      await addBotMessage(
+        `¡Entendido! Lamentamos que te vayas. 🥺\n\nTu suscripción se ha cancelado exitosamente, pero el perfil de ${dog?.name || "tu perrito"} seguirá guardado aquí por si deciden volver a comer rico y sano en el futuro.\n\n¡Hasta pronto! 🐾`,
+        TYPING_DELAY
+      );
+      
+      setStep("initial");
+      setSelectedDog(null);
+      setEditingDogId(null);
+      setCancelReason(null);
+      
+      // Refresh dog profiles
+      refetchDogs();
+      
+      toast({
+        title: "Suscripción cancelada",
+        description: `El perfil de ${dog?.name || "tu perrito"} ha sido pausado.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
 
     setIsProcessing(false);
@@ -1353,6 +1460,9 @@ export default function AIRecomendador() {
 
       case "cancel_reason":
         return <QuickReplies options={cancelReasonOptions} onSelect={handleCancelReasonSelect} columns={2} disabled={isProcessing} />;
+
+      case "cancel_other_details":
+        return <ChatInput placeholder="Cuéntanos más (opcional)..." onSubmit={handleCancelOtherDetailsSubmit} disabled={isProcessing} />;
 
       case "guest_save_prompt":
         return (

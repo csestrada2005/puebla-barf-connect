@@ -38,6 +38,51 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellations: {
+        Row: {
+          created_at: string
+          dog_profile_id: string | null
+          id: string
+          reason: string
+          reason_details: string | null
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dog_profile_id?: string | null
+          id?: string
+          reason: string
+          reason_details?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dog_profile_id?: string | null
+          id?: string
+          reason?: string
+          reason_details?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cancellations_dog_profile_id_fkey"
+            columns: ["dog_profile_id"]
+            isOneToOne: false
+            referencedRelation: "dog_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cancellations_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coverage_zones: {
         Row: {
           created_at: string
