@@ -172,42 +172,43 @@ export default function AIRecomendador() {
   const [pendingProfileEntry, setPendingProfileEntry] = useState(false);
 
   // Restore state from localStorage on mount
+  // Restore state ONLY when step === "result" (plan delivered)
+  // Otherwise auto-restart to fresh state
   useEffect(() => {
     const intent = searchParams.get("intent");
-    if (intent === "new_profile") return;
+    if (intent === "new_profile") return; // handled by smart entry
 
     const savedState = localStorage.getItem("ai-recommender-state");
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        const validSteps: Step[] = [
-          "initial",
-          "name",
-          "weight",
-          "age",
-          "activity",
-          "bodyCondition",
-          "sensitivity",
-          "goal",
-          "result",
-          "profile_entry",
-          "profile_name",
-          "profile_birthday",
-          "profile_weight",
-          "profile_activity",
-          "profile_bodyCondition",
-          "profile_allergies",
-          "profile_done",
-        ];
-        const restoredStep = validSteps.includes(parsed.step) ? parsed.step : "initial";
-        setStep(restoredStep);
-        setMessages(parsed.messages);
-        setPetData(parsed.petData);
-        setResult(parsed.result);
-        if (parsed.profileDraft) setProfileDraft(parsed.profileDraft);
-        if (parsed.editingDogId) setEditingDogId(parsed.editingDogId);
+        
+        // Only restore if step was "result" (user finished and got their plan)
+        if (parsed.step === "result") {
+          setStep("result");
+          setMessages(parsed.messages || []);
+          setPetData(parsed.petData || {
+            name: "",
+            weight: 0,
+            age: "",
+            activity: "normal",
+            bodyCondition: "ideal",
+            sensitivity: "low",
+            goal: "routine",
+            zoneId: "",
+            zoneName: "",
+            deliveryFee: 0,
+          });
+          setResult(parsed.result || null);
+          if (parsed.profileDraft) setProfileDraft(parsed.profileDraft);
+          if (parsed.editingDogId) setEditingDogId(parsed.editingDogId);
+        } else {
+          // Any other step: clear and start fresh
+          localStorage.removeItem("ai-recommender-state");
+        }
       } catch (e) {
         console.error("Failed to restore AI state:", e);
+        localStorage.removeItem("ai-recommender-state");
       }
     }
   }, [searchParams]);
