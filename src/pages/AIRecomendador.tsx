@@ -25,6 +25,7 @@ type Step =
   | "goal"
   | "result"
   | "profile_entry"
+  | "edit_menu"
   | "profile_name"
   | "profile_birthday"
   | "profile_weight"
@@ -169,6 +170,7 @@ export default function AIRecomendador() {
     allergy: "none",
   });
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
+  const [singleFieldEdit, setSingleFieldEdit] = useState<string | null>(null); // tracks which field we're editing from menu
   const [pendingProfileEntry, setPendingProfileEntry] = useState(false);
 
   // Restore state from localStorage on mount
@@ -425,7 +427,20 @@ export default function AIRecomendador() {
         const id = value.replace("edit:", "");
         const dog = dogProfiles.find((d) => d.id === id);
         setIsProcessing(false);
-        if (dog) startNewDogFlow(dog);
+        if (dog) {
+          // Show edit menu instead of starting full flow
+          setEditingDogId(dog.id);
+          setProfileDraft({
+            name: dog.name,
+            birthday: dog.birthday,
+            weightKg: Number(dog.weight_kg),
+            activity: (dog.activity_level as any) || "normal",
+            bodyCondition: (dog.body_condition as any) || "ideal",
+            allergy: "none",
+          });
+          addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
+          setStep("edit_menu");
+        }
         return;
       }
 
@@ -433,7 +448,85 @@ export default function AIRecomendador() {
     }, 250);
   };
 
-  const handleProfileNameSubmit = (name: string) => {
+  const handleEditMenuSelect = async (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    const dog = dogProfiles.find((d) => d.id === editingDogId);
+
+    setTimeout(async () => {
+      switch (value) {
+        case "edit_name":
+          setSingleFieldEdit("name");
+          addMessage(`¿Cuál es el nuevo nombre? (actual: ${profileDraft.name})`, true);
+          setStep("profile_name");
+          break;
+        case "edit_birthday":
+          setSingleFieldEdit("birthday");
+          addMessage(`¿Cuándo es su cumpleaños? 🎂 (actual: ${profileDraft.birthday || "sin fecha"})`, true);
+          setStep("profile_birthday");
+          break;
+        case "edit_weight":
+          setSingleFieldEdit("weight");
+          addMessage(`¿Cuánto pesa ahora? (actual: ${profileDraft.weightKg} kg) ⚖️`, true);
+          setStep("profile_weight");
+          break;
+        case "view_plan":
+          setSingleFieldEdit(null);
+          // Generate plan for this dog
+          if (dog && products && products.length > 0) {
+            const ageStage = dog.birthday ? getAgeStageFromBirthday(dog.birthday) : (dog.age_stage as any) || "adult";
+            const updatedPetData: ExtendedPetData = {
+              name: dog.name,
+              weight: Number(dog.weight_kg),
+              age: ageStage,
+              activity: dog.activity_level || "normal",
+              bodyCondition: dog.body_condition || "ideal",
+              sensitivity: dog.sensitivity || "low",
+              goal: dog.goal || "routine",
+              zoneId: "",
+              zoneName: "",
+              deliveryFee: 0,
+            };
+            setPetData(updatedPetData);
+            const recommendation = calculateRecommendation(updatedPetData, products);
+            setResult(recommendation);
+            addMessage(`🧬 ¡Aquí está el plan actualizado para ${dog.name}! 🎉`, true);
+            setStep("result");
+            setIsResultOpen(true);
+          }
+          break;
+        case "cancel_subscription":
+          setSingleFieldEdit(null);
+          addMessage("Te llevaré a tu cuenta para gestionar tu suscripción. 🏠", true);
+          setIsProcessing(false);
+          setTimeout(() => navigate("/mi-cuenta"), 800);
+          return;
+        default:
+          break;
+      }
+      setIsProcessing(false);
+    }, 300);
+  };
+
+  // Handler for single-field edit completion (save immediately after)
+  const handleSingleFieldEditComplete = async () => {
+    try {
+      const saved = await upsertDogProfileFromDraft(profileDraft);
+      addMessage(`¡Listo! ${saved.name} actualizado. ✅`, true);
+      setStep("edit_menu");
+    } catch (error: any) {
+      toast({
+        title: "No pude guardar",
+        description: error.message,
+        variant: "destructive",
+      });
+      setStep("edit_menu");
+    }
+  };
+
+  const handleProfileNameSubmit = async (name: string) => {
     if (isProcessing) return;
     const raw = name.trim();
     const isKeep = !!editingDogId && /^igual$/i.test(raw);
@@ -441,8 +534,25 @@ export default function AIRecomendador() {
     if (!nextName) return;
 
     setIsProcessing(true);
-    setProfileDraft((prev) => ({ ...prev, name: nextName }));
+    const updatedDraft = { ...profileDraft, name: nextName };
+    setProfileDraft(updatedDraft);
     addMessage(isKeep ? `igual (${profileDraft.name})` : nextName, false);
+
+    // If single field edit from menu, save and return to menu
+    if (singleFieldEdit === "name") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        addMessage(`¡Listo! ${saved.name} actualizado. ✅`, true);
+        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     setTimeout(() => {
       addMessage("Para calcular su etapa, ¿cuándo es su cumpleaños? 🎂 (YYYY-MM-DD o DD/MM/AAAA)", true);
@@ -451,7 +561,7 @@ export default function AIRecomendador() {
     }, 350);
   };
 
-  const handleProfileBirthdaySubmit = (input: string) => {
+  const handleProfileBirthdaySubmit = async (input: string) => {
     if (isProcessing) return;
     const raw = input.trim();
     const isKeep = !!editingDogId && /^igual$/i.test(raw);
@@ -465,7 +575,24 @@ export default function AIRecomendador() {
 
     setIsProcessing(true);
     addMessage(isKeep ? `igual (${profileDraft.birthday || "sin fecha"})` : parsed!, false);
-    setProfileDraft((prev) => ({ ...prev, birthday: parsed }));
+    const updatedDraft = { ...profileDraft, birthday: parsed };
+    setProfileDraft(updatedDraft);
+
+    // If single field edit from menu, save and return to menu
+    if (singleFieldEdit === "birthday") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        addMessage(`¡Listo! Cumpleaños de ${saved.name} actualizado. ✅`, true);
+        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     setTimeout(() => {
       addMessage("¿Cuánto pesa actualmente? (kg) ⚖️", true);
@@ -474,7 +601,7 @@ export default function AIRecomendador() {
     }, 350);
   };
 
-  const handleProfileWeightSubmit = (input: string) => {
+  const handleProfileWeightSubmit = async (input: string) => {
     if (isProcessing) return;
     const raw = input.trim();
     const isKeep = !!editingDogId && /^igual$/i.test(raw);
@@ -486,8 +613,25 @@ export default function AIRecomendador() {
     }
 
     setIsProcessing(true);
-    setProfileDraft((prev) => ({ ...prev, weightKg: weight }));
+    const updatedDraft = { ...profileDraft, weightKg: weight };
+    setProfileDraft(updatedDraft);
     addMessage(isKeep ? `igual (${profileDraft.weightKg} kg)` : `${weight} kg`, false);
+
+    // If single field edit from menu, save and return to menu
+    if (singleFieldEdit === "weight") {
+      try {
+        const saved = await upsertDogProfileFromDraft(updatedDraft);
+        addMessage(`¡Listo! Peso de ${saved.name} actualizado. ✅`, true);
+        addMessage(`¿Qué más quieres cambiar de ${saved.name}? 🐾`, true);
+        setSingleFieldEdit(null);
+        setStep("edit_menu");
+      } catch (error: any) {
+        toast({ title: "No pude guardar", description: error.message, variant: "destructive" });
+        setStep("edit_menu");
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     setTimeout(() => {
       addMessage("¿Es muy activo o prefiere el sofá?", true);
@@ -879,6 +1023,16 @@ export default function AIRecomendador() {
           { value: "new", label: "Agregar Nuevo", emoji: "➕" },
         ];
         return <QuickReplies options={options} onSelect={handleProfileEntrySelect} columns={2} disabled={isProcessing} />;
+      }
+      case "edit_menu": {
+        const editMenuOptions = [
+          { value: "edit_name", label: "Cambiar Nombre", emoji: "✏️" },
+          { value: "edit_birthday", label: "Cambiar Edad", emoji: "🎂" },
+          { value: "edit_weight", label: "Cambiar Peso", emoji: "⚖️" },
+          { value: "view_plan", label: "Ver Plan", emoji: "📄" },
+          { value: "cancel_subscription", label: "Cancelar", emoji: "❌" },
+        ];
+        return <QuickReplies options={editMenuOptions} onSelect={handleEditMenuSelect} columns={2} disabled={isProcessing} />;
       }
       case "profile_name":
         return <ChatInput placeholder="Nombre del perrito…" onSubmit={handleProfileNameSubmit} disabled={isProcessing} />;
