@@ -59,7 +59,7 @@ export function Layout({ children, hideFooter, hideFab }: LayoutProps) {
                   <X className="h-3 w-3" />
                 </button>
                 <p className="text-sm font-medium text-foreground">
-                  ¿Dudas con la porción? 🦴
+                  ¿Dudas con la ración? 🦴
                 </p>
                 {/* Bubble tail */}
                 <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45" />
@@ -80,7 +80,7 @@ export function Layout({ children, hideFooter, hideFab }: LayoutProps) {
               />
             </div>
             <span className="hidden md:block font-medium pr-1">
-              Asistente Dogtor
+              Asistente Nutricional
             </span>
           </Link>
         </div>

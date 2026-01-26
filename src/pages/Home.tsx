@@ -136,7 +136,7 @@ export default function Home() {
                 >
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5 mr-2" />
-                    Iniciar Diagnóstico Gratuito
+                    Iniciar Análisis Nutricional 🧬
                   </Link>
                 </Button>
                 <Button 
