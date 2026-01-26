@@ -14,7 +14,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Package, ShoppingCart } from "lucide-react";
 
-type Step = "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "result";
+type Step = "initial" | "name" | "weight" | "age" | "activity" | "bodyCondition" | "sensitivity" | "goal" | "result";
 
 interface Message {
   id: string;
@@ -71,6 +71,11 @@ const goalOptions = [
   { value: "variety", label: "Variedad", emoji: "🎨" },
 ];
 
+const initialOptions = [
+  { value: "new_plan", label: "Obtener Plan Nutricional", emoji: "🥗" },
+  { value: "profile", label: "Crear/Editar Perfil", emoji: "🐕" },
+];
+
 export default function AIRecomendador() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -78,13 +83,13 @@ export default function AIRecomendador() {
   const { addItem } = useCart();
   const { user, isAuthenticated } = useAuth();
   
-  const [step, setStep] = useState<Step>("name");
+  const [step, setStep] = useState<Step>("initial");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor, tu experto en nutrición canina 🐾. Vamos a encontrar el plan perfecto para tu perrito. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor. ¿En qué te puedo ayudar hoy? 🐾",
       isBot: true,
     }
   ]);
@@ -108,7 +113,9 @@ export default function AIRecomendador() {
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        setStep(parsed.step);
+        const validSteps: Step[] = ["initial", "name", "weight", "age", "activity", "bodyCondition", "sensitivity", "goal", "result"];
+        const restoredStep = validSteps.includes(parsed.step) ? parsed.step : "initial";
+        setStep(restoredStep);
         setMessages(parsed.messages);
         setPetData(parsed.petData);
         setResult(parsed.result);
@@ -179,6 +186,28 @@ export default function AIRecomendador() {
 
   const addMessage = (content: string, isBot: boolean) => {
     setMessages(prev => [...prev, { id: Date.now().toString(), content, isBot }]);
+  };
+
+  const handleInitialSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+    
+    if (value === "new_plan") {
+      setTimeout(() => {
+        addMessage("¡Excelente! Vamos a encontrar la dieta perfecta. ¿Cómo se llama tu mejor amigo?", true);
+        setStep("name");
+        setIsProcessing(false);
+      }, 400);
+    } else if (value === "profile") {
+      setTimeout(() => {
+        addMessage("Entendido. Te llevaré a tu perfil para gestionar tus perros. 🐕💨", true);
+        setIsProcessing(false);
+        setTimeout(() => {
+          navigate("/mi-cuenta");
+        }, 1500);
+      }, 400);
+    }
   };
 
   const handleNameSubmit = (name: string) => {
@@ -381,7 +410,7 @@ export default function AIRecomendador() {
     
     setMessages([{
       id: "welcome",
-      content: "¡Hola! 👋 Soy el Dogtor, tu experto en nutrición canina 🐾. Vamos a encontrar el plan perfecto para tu perrito. ¿Cómo se llama tu mejor amigo?",
+      content: "¡Hola! 👋 Soy el Dogtor. ¿En qué te puedo ayudar hoy? 🐾",
       isBot: true,
     }]);
     setPetData({ 
@@ -397,7 +426,7 @@ export default function AIRecomendador() {
       deliveryFee: 0 
     });
     setResult(null);
-    setStep("name");
+    setStep("initial");
   };
 
   // Render input section based on current step
@@ -405,6 +434,8 @@ export default function AIRecomendador() {
     if (step === "result") return null;
     
     switch (step) {
+      case "initial":
+        return <QuickReplies options={initialOptions} onSelect={handleInitialSelect} columns={2} disabled={isProcessing} />;
       case "name":
         return <ChatInput placeholder="Nombre de tu perro..." onSubmit={handleNameSubmit} disabled={isProcessing} />;
       case "weight":
