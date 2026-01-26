@@ -61,7 +61,7 @@ export default function Nosotros() {
               <img 
                 src={dogPeeking} 
                 alt="Perro saludable" 
-                className="w-full max-w-md object-contain drop-shadow-2xl"
+                className="w-64 md:w-72 lg:w-80 object-contain drop-shadow-2xl"
               />
             </motion.div>
           </div>
