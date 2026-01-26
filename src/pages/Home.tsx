@@ -77,7 +77,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-left max-w-xl"
+              className="text-center max-w-xl mx-auto lg:mx-0"
             >
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-4">
                 <Sparkles className="h-4 w-4 text-secondary" />
@@ -87,14 +87,16 @@ export default function Home() {
               <img 
                 src={heroLogoTagline} 
                 alt="Raw Paw - La nueva forma de cuidarlos" 
-                className="w-56 sm:w-72 md:w-80 mb-4"
+                className="w-56 sm:w-72 md:w-80 mb-4 mx-auto"
               />
 
-              <p className="text-base md:text-lg text-primary-foreground/80 mb-6 max-w-md">
-                Donde la frescura nutre, la calidad se siente y la alegría permanece.
+              <p className="text-xl md:text-2xl lg:text-3xl text-primary-foreground/90 mb-6 max-w-lg text-center mx-auto leading-relaxed font-light tracking-wide">
+                Donde la frescura nutre,<br className="hidden sm:block" />
+                la calidad se siente<br className="hidden sm:block" />
+                y la alegría permanece.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 
                   asChild 
                   size="lg" 
@@ -120,7 +122,7 @@ export default function Home() {
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-6 text-primary-foreground/70 text-sm">
+              <div className="flex items-center gap-6 mt-6 text-primary-foreground/70 text-sm justify-center">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-secondary" />
                   <span>100% Natural</span>
