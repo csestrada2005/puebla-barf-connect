@@ -63,11 +63,11 @@ export default function Home() {
     <Layout>
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
-        {/* Centered Logo */}
+        {/* Centered Logo at Top */}
         <img 
           src={heroLogoCentered} 
           alt="Raw Paw - La nueva forma de cuidarlos" 
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 md:w-96 lg:w-[480px] z-10 pointer-events-none"
+          className="absolute left-1/2 -translate-x-1/2 top-8 sm:top-12 md:top-16 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none"
         />
 
         {/* Decorative dog */}
