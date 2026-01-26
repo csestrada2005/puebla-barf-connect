@@ -335,7 +335,7 @@ export default function MiCuenta() {
                   </p>
                 </div>
                 <Button asChild className="gap-2">
-                  <Link to="/ai">
+                  <Link to="/ai?intent=new_profile">
                     <Plus className="h-4 w-4" />
                     Agregar Perro
                   </Link>
@@ -396,7 +396,7 @@ export default function MiCuenta() {
                       Crea tu primer perfil nutricional con El Dogtor
                     </p>
                     <Button asChild className="gap-2">
-                      <Link to="/ai">
+                      <Link to="/ai?intent=new_profile">
                         <Sparkles className="h-4 w-4" />
                         Crear Perfil
                       </Link>
