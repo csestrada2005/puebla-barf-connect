@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   CreditCard, Banknote, MessageCircle, 
-  ArrowLeft, Check, Loader2, AlertCircle 
+  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus 
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 const WHATSAPP_NUMBER = "5212213606464";
@@ -45,6 +46,7 @@ export default function Checkout() {
   const { items, getSubtotal, clearCart } = useCart();
   const { isConfirmed, zoneName, address, deliveryFee } = useCoverage();
   const { recommendation } = useRecommendation();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -208,6 +210,34 @@ export default function Checkout() {
           </Button>
 
           <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+          {/* Guest Gate */}
+          {!authLoading && !isAuthenticated && (
+            <Card className="mb-6 border-primary/30 bg-primary/5">
+              <CardContent className="py-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <p className="font-medium">¿Ya has comprado antes?</p>
+                    <p className="text-sm text-muted-foreground">Inicia sesión para acceder a tus datos guardados</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button asChild variant="outline" size="sm" className="gap-2">
+                      <Link to="/login">
+                        <LogIn className="h-4 w-4" />
+                        Iniciar Sesión
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" className="gap-2">
+                      <Link to="/registro">
+                        <UserPlus className="h-4 w-4" />
+                        Crear Cuenta
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {!isConfirmed && (
             <Alert variant="destructive" className="mb-6">

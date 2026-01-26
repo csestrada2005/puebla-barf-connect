@@ -10,37 +10,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles } from "lucide-react";
+import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles, Plus, XCircle } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { BirthdayBanner, CancellationModal } from "@/components/plan";
+import { isBirthday, calculateAge } from "@/hooks/usePlanCalculator";
 
 export default function MiCuenta() {
   const { user, signOut } = useAuthContext();
   const { profile, isLoading, updateProfile } = useProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<ProfileFormData>>({});
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
 
-  // Fetch user's active subscription
-  const { data: subscription } = useQuery({
-    queryKey: ["my-subscription", user?.id],
+  // Fetch user's active subscriptions
+  const { data: subscriptions } = useQuery({
+    queryKey: ["my-subscriptions", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("user_id", user?.id)
-        .eq("status", "active")
-        .maybeSingle();
+        .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!user?.id,
   });
+
+  const activeSubscription = subscriptions?.find(s => s.status === "active");
 
   // Fetch user's dog profiles
   const { data: dogProfiles } = useQuery({
@@ -57,6 +63,10 @@ export default function MiCuenta() {
     },
     enabled: !!user?.id,
   });
+
+  // Filter active dogs (exclude deceased/archived)
+  const activeDogs = dogProfiles?.filter(d => d.status !== 'deceased' && d.status !== 'archived') || [];
+  const birthdayDog = activeDogs.find(d => isBirthday(d.birthday));
 
   // Fetch user orders
   const { data: orders } = useQuery({
@@ -113,6 +123,16 @@ export default function MiCuenta() {
     navigate("/");
   };
 
+  const handleOpenCancelModal = (subscription: any) => {
+    setSelectedSubscription(subscription);
+    setCancelModalOpen(true);
+  };
+
+  const handleCancelled = () => {
+    queryClient.invalidateQueries({ queryKey: ["my-subscriptions"] });
+    queryClient.invalidateQueries({ queryKey: ["my-dogs"] });
+  };
+
   const getPlanLabel = (planType: string) => {
     switch (planType) {
       case "monthly": return "Mensual";
@@ -120,6 +140,10 @@ export default function MiCuenta() {
       case "annual": return "Anual";
       default: return planType;
     }
+  };
+
+  const getSubscriptionTypeLabel = (type: string) => {
+    return type === "pro" ? "Pro" : "Básico";
   };
 
   if (isLoading) {
@@ -136,7 +160,7 @@ export default function MiCuenta() {
     <Layout>
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold">Mi Cuenta</h1>
               <p className="text-muted-foreground">
@@ -149,25 +173,31 @@ export default function MiCuenta() {
             </Button>
           </div>
 
+          {/* Birthday Banner */}
+          {birthdayDog && (
+            <div className="mb-6">
+              <BirthdayBanner dogName={birthdayDog.name} />
+            </div>
+          )}
+
           <Tabs defaultValue="suscripcion" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="suscripcion" className="gap-2">
                 <Package className="h-4 w-4" />
                 Mi Suscripción
               </TabsTrigger>
+              <TabsTrigger value="perros" className="gap-2">
+                <Dog className="h-4 w-4" />
+                Mis Perros
+              </TabsTrigger>
               <TabsTrigger value="perfil" className="gap-2">
                 <User className="h-4 w-4" />
                 Mi Perfil
-              </TabsTrigger>
-              <TabsTrigger value="pedidos" className="gap-2">
-                <Truck className="h-4 w-4" />
-                Mis Pedidos
               </TabsTrigger>
             </TabsList>
 
             {/* Subscription Tab */}
             <TabsContent value="suscripcion" className="space-y-6">
-              {/* Active Subscription */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -176,23 +206,40 @@ export default function MiCuenta() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {subscription ? (
+                  {activeSubscription ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-lg">Plan {getPlanLabel(subscription.plan_type)}</span>
+                            <span className="font-bold text-lg">
+                              Plan {activeSubscription.frequency_days === 15 ? '15 Días' : '7 Días'}
+                            </span>
                             <Badge className="bg-primary/10 text-primary border-0">
-                              {subscription.status === "active" ? "Activo" : subscription.status}
+                              {activeSubscription.status === "active" ? "Activo" : activeSubscription.status}
                             </Badge>
+                            {activeSubscription.type && (
+                              <Badge variant="secondary">
+                                {getSubscriptionTypeLabel(activeSubscription.type)}
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {subscription.protein_line} • {subscription.presentation}
+                            {activeSubscription.protein_line} • {activeSubscription.presentation}
                           </p>
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to="/suscripcion">Modificar</Link>
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to="/suscripcion">Modificar</Link>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleOpenCancelModal(activeSubscription)}
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4">
@@ -201,8 +248,8 @@ export default function MiCuenta() {
                           <div>
                             <p className="text-sm text-muted-foreground">Próxima Entrega</p>
                             <p className="font-semibold">
-                              {subscription.next_delivery_date 
-                                ? format(new Date(subscription.next_delivery_date), "EEEE d 'de' MMMM", { locale: es })
+                              {activeSubscription.next_delivery_date 
+                                ? format(new Date(activeSubscription.next_delivery_date), "EEEE d 'de' MMMM", { locale: es })
                                 : "Por confirmar"}
                             </p>
                           </div>
@@ -212,8 +259,8 @@ export default function MiCuenta() {
                           <div>
                             <p className="text-sm text-muted-foreground">Próxima Facturación</p>
                             <p className="font-semibold">
-                              {subscription.next_billing_date 
-                                ? format(new Date(subscription.next_billing_date), "d 'de' MMMM yyyy", { locale: es })
+                              {activeSubscription.next_billing_date 
+                                ? format(new Date(activeSubscription.next_billing_date), "d 'de' MMMM yyyy", { locale: es })
                                 : "Por confirmar"}
                             </p>
                           </div>
@@ -235,55 +282,131 @@ export default function MiCuenta() {
                 </CardContent>
               </Card>
 
-              {/* Dog Profiles */}
+              {/* Order History */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Dog className="h-5 w-5 text-primary" />
-                    Mis Perros
-                  </CardTitle>
-                  <CardDescription>
-                    Perfiles nutricionales calculados por El Dogtor
-                  </CardDescription>
+                  <CardTitle>Historial de Pedidos</CardTitle>
+                  <CardDescription>Tus últimos pedidos realizados</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {dogProfiles && dogProfiles.length > 0 ? (
+                  {orders && orders.length > 0 ? (
                     <div className="space-y-3">
-                      {dogProfiles.map((dog: any) => (
-                        <div key={dog.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-secondary/50 flex items-center justify-center">
-                              🐕
-                            </div>
+                      {orders.slice(0, 5).map((order: any) => (
+                        <Link 
+                          key={order.id} 
+                          to={`/pedido/${order.order_number}`}
+                          className="block"
+                        >
+                          <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                             <div>
-                              <p className="font-medium">{dog.name}</p>
+                              <p className="font-medium">#{order.order_number}</p>
                               <p className="text-sm text-muted-foreground">
-                                {dog.weight_kg}kg • {dog.age_stage === "puppy" ? "Cachorro" : dog.age_stage === "senior" ? "Senior" : "Adulto"}
+                                {new Date(order.created_at).toLocaleDateString("es-MX")}
                               </p>
                             </div>
+                            <div className="text-right">
+                              <p className="font-semibold">${order.total?.toLocaleString("es-MX")}</p>
+                              <Badge variant="outline" className="text-xs">
+                                {order.status === "delivered" ? "Entregado" : 
+                                 order.status === "pending" ? "Pendiente" : order.status}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-primary">{dog.daily_grams}g/día</p>
-                            <p className="text-xs text-muted-foreground">
-                              {dog.recommended_protein === "chicken" ? "Pollo" : dog.recommended_protein === "beef" ? "Res" : "Mix"}
-                            </p>
-                          </div>
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-muted-foreground">
-                      <Dog className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                      <p>No hay perfiles guardados</p>
-                      <Button variant="link" asChild className="mt-2">
-                        <Link to="/ai">Crear perfil con El Dogtor →</Link>
-                      </Button>
-                    </div>
+                    <p className="text-center text-muted-foreground py-6">
+                      Aún no tienes pedidos
+                    </p>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
 
+            {/* Dogs Tab - Multi-Dog Dashboard */}
+            <TabsContent value="perros" className="space-y-6">
+              {/* Add Dog Button */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-semibold">Mis Perros</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Perfiles nutricionales calculados por El Dogtor
+                  </p>
+                </div>
+                <Button asChild className="gap-2">
+                  <Link to="/ai">
+                    <Plus className="h-4 w-4" />
+                    Agregar Perro
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Dog Cards */}
+              {activeDogs.length > 0 ? (
+                <div className="grid gap-4">
+                  {activeDogs.map((dog: any) => (
+                    <Card key={dog.id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="flex items-stretch">
+                          {/* Dog Avatar */}
+                          <div className="w-24 bg-secondary/30 flex items-center justify-center">
+                            <div className="text-4xl">🐕</div>
+                          </div>
+                          
+                          {/* Dog Info */}
+                          <div className="flex-1 p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-bold text-lg">{dog.name}</h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {dog.weight_kg}kg • {dog.age_stage === "puppy" ? "Cachorro" : dog.age_stage === "senior" ? "Senior" : "Adulto"}
+                                  {dog.birthday && ` • ${calculateAge(dog.birthday)}`}
+                                </p>
+                              </div>
+                              <Button variant="ghost" size="sm" asChild>
+                                <Link to="/ai">Actualizar</Link>
+                              </Button>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              <Badge className="bg-primary/10 text-primary border-0">
+                                {dog.daily_grams}g/día
+                              </Badge>
+                              <Badge variant="outline">
+                                {dog.recommended_protein === "chicken" ? "Pollo" : dog.recommended_protein === "beef" ? "Res" : "Mix"}
+                              </Badge>
+                              <Badge variant="outline">
+                                {dog.activity_level === "high" ? "Alta actividad" : 
+                                 dog.activity_level === "low" ? "Baja actividad" : "Actividad normal"}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-dashed">
+                  <CardContent className="py-12 text-center">
+                    <Dog className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                    <h3 className="font-semibold mb-2">No tienes perros registrados</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Crea tu primer perfil nutricional con El Dogtor
+                    </p>
+                    <Button asChild className="gap-2">
+                      <Link to="/ai">
+                        <Sparkles className="h-4 w-4" />
+                        Crear Perfil
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Profile Tab */}
             <TabsContent value="perfil" className="space-y-6">
               {/* Pet Info */}
               <Card>
@@ -416,58 +539,21 @@ export default function MiCuenta() {
                 Guardar Cambios
               </Button>
             </TabsContent>
-
-            <TabsContent value="pedidos">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Historial de Pedidos</CardTitle>
-                  <CardDescription>
-                    Tus últimos pedidos realizados
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {orders && orders.length > 0 ? (
-                    <div className="space-y-4">
-                      {orders.map((order: any) => (
-                        <Link 
-                          key={order.id} 
-                          to={`/pedido/${order.order_number}`}
-                          className="block"
-                        >
-                          <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                            <div>
-                              <p className="font-medium">#{order.order_number}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {new Date(order.created_at).toLocaleDateString("es-MX")}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">
-                                ${Number(order.total).toLocaleString("es-MX")}
-                              </p>
-                              <p className="text-sm text-muted-foreground capitalize">
-                                {order.status}
-                              </p>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Aún no tienes pedidos</p>
-                      <Button asChild className="mt-4">
-                        <Link to="/tienda">Ir a la tienda</Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      {/* Cancellation Modal */}
+      {selectedSubscription && (
+        <CancellationModal
+          open={cancelModalOpen}
+          onOpenChange={setCancelModalOpen}
+          subscriptionId={selectedSubscription.id}
+          dogName={activeDogs[0]?.name}
+          dogId={activeDogs[0]?.id}
+          onCancelled={handleCancelled}
+        />
+      )}
     </Layout>
   );
 }

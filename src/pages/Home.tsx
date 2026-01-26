@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, User, LogIn } from "lucide-react";
 import { BenefitsSection } from "@/components/home/BenefitsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 import isotipoTall from "@/assets/brand/isotipo-tall.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
@@ -39,6 +40,7 @@ const howItWorks = [
 export default function Home() {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
+  const { isAuthenticated, loading: authLoading } = useAuth();
   
   const { data: testimonials } = useQuery({
     queryKey: ["testimonials"],
@@ -142,6 +144,24 @@ export default function Home() {
                   <span>Entrega 24-48h</span>
                 </div>
               </div>
+
+              {/* Auth Buttons */}
+              {!authLoading && !isAuthenticated && (
+                <div className="flex gap-3 mt-6 pt-4 border-t border-white/20">
+                  <Button asChild size="sm" variant="secondary" className="gap-2">
+                    <Link to="/registro">
+                      <User className="h-4 w-4" />
+                      Crear Cuenta
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="ghost" className="text-primary-foreground hover:bg-white/10 gap-2">
+                    <Link to="/login">
+                      <LogIn className="h-4 w-4" />
+                      Iniciar Sesión
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
