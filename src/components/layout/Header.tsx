@@ -8,15 +8,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import logoRawPaw from "@/assets/brand/logo-rawpaw.png";
 
-const navLinks = [
+const navLinksLeft = [
   { href: "/tienda", label: "Tienda" },
   { href: "/suscripcion", label: "Suscripción" },
   { href: "/ai", label: "Recomendador AI" },
+];
+
+const navLinksRight = [
   { href: "/guias-barf", label: "Guía BARF" },
   { href: "/cobertura", label: "Cobertura" },
   { href: "/faq", label: "FAQ" },
   { href: "/nosotros", label: "Nosotros" },
 ];
+
+const allNavLinks = [...navLinksLeft, ...navLinksRight];
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,18 +33,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
-        {/* Left: Logo */}
-        <Link to="/" className="flex items-center">
-          <img 
-            src={logoRawPaw} 
-            alt="Raw Paw" 
-            className="h-8 w-auto"
-          />
-        </Link>
-
-        {/* Center: Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
-          {navLinks.map((link) => (
+        {/* Left: Navigation Links (Desktop) */}
+        <nav className="hidden lg:flex items-center gap-5 flex-1">
+          {navLinksLeft.map((link) => (
             <Link
               key={link.href}
               to={link.href}
@@ -55,8 +51,32 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Right: Cart, Register & Mobile Menu */}
-        <div className="flex items-center gap-2">
+        {/* Center: Logo */}
+        <Link to="/" className="flex items-center justify-center">
+          <img 
+            src={logoRawPaw} 
+            alt="Raw Paw" 
+            className="h-9 w-auto"
+          />
+        </Link>
+
+        {/* Right: Navigation Links (Desktop) + Icons */}
+        <div className="hidden lg:flex items-center gap-5 flex-1 justify-end">
+          {navLinksRight.map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                location.pathname === link.href
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+
           {/* Cart */}
           <Link to="/carrito">
             <Button variant="ghost" size="icon" className="relative">
@@ -71,7 +91,7 @@ export function Header() {
 
           {/* Auth CTA */}
           {!loading && (
-            <Button asChild size="sm" className="hidden sm:flex gap-2">
+            <Button asChild size="sm" className="gap-2">
               {isAuthenticated ? (
                 <Link to="/mi-cuenta">
                   <User className="h-4 w-4" />
@@ -84,10 +104,26 @@ export function Header() {
               )}
             </Button>
           )}
+        </div>
+
+        {/* Mobile: Cart + Hamburger */}
+        <div className="flex items-center gap-2 lg:hidden">
+
+          {/* Cart */}
+          <Link to="/carrito">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {itemCount}
+                </span>
+              )}
+            </Button>
+          </Link>
 
           {/* Mobile Hamburger Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="lg:hidden">
+            <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Menú</span>
@@ -114,7 +150,7 @@ export function Header() {
                 >
                   Inicio
                 </Link>
-                {navLinks.map((link) => (
+                {allNavLinks.map((link) => (
                   <Link
                     key={link.href}
                     to={link.href}
