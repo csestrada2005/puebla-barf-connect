@@ -19,6 +19,7 @@ import MiCuenta from "./pages/MiCuenta";
 import Terminos from "./pages/Terminos";
 import Privacidad from "./pages/Privacidad";
 import GuiasBarf from "./pages/GuiasBarf";
+import Nosotros from "./pages/Nosotros";
 import NotFound from "./pages/NotFound";
 import { PromoPopup } from "./components/PromoPopup";
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/terminos" element={<Terminos />} />
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/guias-barf" element={<GuiasBarf />} />
+            <Route path="/nosotros" element={<Nosotros />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
