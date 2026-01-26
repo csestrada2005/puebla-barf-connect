@@ -16,7 +16,7 @@ import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
-import heroLogoTagline from "@/assets/brand/hero-logo-tagline.png";
+import heroLogoCentered from "@/assets/brand/hero-logo-centered.png";
 
 const howItWorks = [
   {
@@ -63,6 +63,13 @@ export default function Home() {
     <Layout>
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
+        {/* Centered Logo */}
+        <img 
+          src={heroLogoCentered} 
+          alt="Raw Paw - La nueva forma de cuidarlos" 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 md:w-96 lg:w-[480px] z-10 pointer-events-none"
+        />
+
         {/* Decorative dog */}
         <img 
           src={heroDogLicking} 
@@ -82,12 +89,6 @@ export default function Home() {
                 <Sparkles className="h-4 w-4 text-secondary" />
                 <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
               </div>
-
-              <img 
-                src={heroLogoTagline} 
-                alt="Raw Paw - La nueva forma de cuidarlos" 
-                className="w-48 sm:w-64 md:w-72 mb-3"
-              />
 
               <div className="mb-4 max-w-lg">
                 <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
