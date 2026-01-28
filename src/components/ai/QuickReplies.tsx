@@ -21,11 +21,14 @@ export function QuickReplies({ options, onSelect, columns = 2, disabled }: Quick
     4: "grid-cols-2 sm:grid-cols-4",
   }[columns];
 
+  // If only one option, use flex to center it
+  const isSingleOption = options.length === 1;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`grid ${gridClass} gap-3 w-full`}
+      className={isSingleOption ? "flex justify-center w-full" : `grid ${gridClass} gap-3 w-full`}
     >
       {options.map((option, index) => (
         <motion.div
