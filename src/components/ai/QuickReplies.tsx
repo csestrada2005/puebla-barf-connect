@@ -21,33 +21,36 @@ export function QuickReplies({ options, onSelect, columns = 2, disabled }: Quick
     4: "grid-cols-2 sm:grid-cols-4",
   }[columns];
 
-  // If only one option, use flex to center it
+  // If only one option, make it full width
   const isSingleOption = options.length === 1;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={isSingleOption ? "flex justify-center w-full" : `grid ${gridClass} gap-3 w-full`}
+      className="w-full"
     >
-      {options.map((option, index) => (
-        <motion.div
-          key={option.value}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.05 * index }}
-        >
-          <Button
-            variant="outline"
-            className="w-full h-auto py-4 px-3 flex flex-col gap-1.5 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all rounded-xl text-center"
-            onClick={() => onSelect(option.value, option.label)}
-            disabled={disabled}
+      <div className={isSingleOption ? "w-full" : `grid ${gridClass} gap-3`}>
+        {options.map((option, index) => (
+          <motion.div
+            key={option.value}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.05 * index }}
+            className={isSingleOption ? "w-full" : ""}
           >
-            {option.emoji && <span className="text-2xl">{option.emoji}</span>}
-            <span className="text-sm font-medium leading-tight">{option.label}</span>
-          </Button>
-        </motion.div>
-      ))}
+            <Button
+              variant={isSingleOption ? "default" : "outline"}
+              className={`w-full h-auto py-4 px-3 flex ${isSingleOption ? "flex-row justify-center gap-3" : "flex-col gap-1.5"} hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all rounded-xl text-center ${isSingleOption ? "text-lg font-semibold" : ""}`}
+              onClick={() => onSelect(option.value, option.label)}
+              disabled={disabled}
+            >
+              {option.emoji && <span className={isSingleOption ? "text-2xl" : "text-2xl"}>{option.emoji}</span>}
+              <span className={isSingleOption ? "text-base font-semibold" : "text-sm font-medium leading-tight"}>{option.label}</span>
+            </Button>
+          </motion.div>
+        ))}
+      </div>
     </motion.div>
   );
 }
