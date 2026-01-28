@@ -90,46 +90,46 @@ export default function Home() {
           }} transition={{
             duration: 0.6
           }} className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-3">
-                <Sparkles className="h-4 w-4 text-secondary" />
-                <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
+              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
+                <Sparkles className="h-5 w-5 text-secondary" />
+                <span className="text-base md:text-lg text-primary-foreground/90 font-medium">Nutrición calculada con IA</span>
               </div>
 
-              <div className="mb-4 max-w-lg">
-                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
+              <div className="mb-6 max-w-2xl">
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   Donde la{" "}
                   <span className="text-secondary">Frescura</span>{" "}
                   nutre,
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   la calidad se siente
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary-foreground font-bold leading-snug tracking-tight">
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   y la{" "}
                   <span className="text-secondary">Nutrición</span>{" "}
                   permanece.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-start">
-                <Button asChild size="lg" variant="secondary" className="text-base px-6 py-5 rounded-2xl btn-bounce shadow-lg">
+              <div className="flex flex-col sm:flex-row gap-4 justify-start">
+                <Button asChild size="lg" variant="secondary" className="text-lg md:text-xl px-10 py-7 rounded-2xl btn-bounce shadow-lg">
                   <Link to="/ai">
-                    <Sparkles className="h-5 w-5 mr-2" />
+                    <Sparkles className="h-6 w-6 mr-2" />
                     Iniciar
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
+                <Button asChild variant="ghost" size="lg" className="text-lg text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
                   <Link to="/tienda">
                     Explorar productos
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="h-5 w-5 ml-2" />
                   </Link>
                 </Button>
               </div>
               {/* Auth Buttons */}
-              {!authLoading && !isAuthenticated && <div className="flex justify-start mt-6 pt-4 border-t border-white/20">
-                  <Button asChild size="sm" variant="ghost" className="text-primary-foreground hover:bg-white/10 gap-2">
+              {!authLoading && !isAuthenticated && <div className="flex justify-start mt-8 pt-5 border-t border-white/20">
+                  <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/10 gap-2 text-base">
                     <Link to="/login">
-                      <LogIn className="h-4 w-4" />
+                      <LogIn className="h-5 w-5" />
                       Iniciar Sesión
                     </Link>
                   </Button>
