@@ -16,7 +16,7 @@ import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
-import logoTaglinePreferente from "@/assets/brand/logo-tagline-preferente.png";
+import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
@@ -64,7 +64,7 @@ export default function Home() {
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top */}
-        <img src={logoTaglinePreferente} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-64 sm:w-80 md:w-96 lg:w-[450px] z-10 pointer-events-none ${!authLoading && !isAuthenticated ? "top-4 sm:top-6 md:top-10" : "top-8 sm:top-12 md:top-16"}`} />
+        <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-64 sm:w-80 md:w-96 lg:w-[450px] z-10 pointer-events-none brightness-0 invert ${!authLoading && !isAuthenticated ? "top-4 sm:top-6 md:top-10" : "top-8 sm:top-12 md:top-16"}`} />
 
         {/* Decorative dog */}
         <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90" />
