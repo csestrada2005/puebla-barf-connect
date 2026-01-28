@@ -18,79 +18,69 @@ import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
 import heroLogoCentered from "@/assets/brand/hero-logo-centered.png";
-
-const howItWorks = [
-  {
-    step: 1,
-    title: "Cuéntanos sobre tu perro",
-    description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
-  },
-  {
-    step: 2,
-    title: "Recibe tu receta personalizada",
-    description: "Calculamos la porción exacta y la proteína ideal para su perfil.",
-  },
-  {
-    step: 3,
-    title: "Entrega en 24-48h",
-    description: "Alimento fresco directo a tu puerta en Puebla.",
-  },
-];
-
+const howItWorks = [{
+  step: 1,
+  title: "Cuéntanos sobre tu perro",
+  description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo."
+}, {
+  step: 2,
+  title: "Recibe tu receta personalizada",
+  description: "Calculamos la porción exacta y la proteína ideal para su perfil."
+}, {
+  step: 3,
+  title: "Entrega en 24-48h",
+  description: "Alimento fresco directo a tu puerta en Puebla."
+}];
 export default function Home() {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [email, setEmail] = useState("");
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  
-  const { data: testimonials } = useQuery({
+  const {
+    isAuthenticated,
+    loading: authLoading
+  } = useAuth();
+  const {
+    data: testimonials
+  } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
-      const { data } = await supabase.from("testimonials").select("*").eq("is_active", true);
+      const {
+        data
+      } = await supabase.from("testimonials").select("*").eq("is_active", true);
       return data || [];
-    },
+    }
   });
-
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       toast({
         title: "¡Gracias por suscribirte!",
-        description: "Recibirás nuestras ofertas y novedades.",
+        description: "Recibirás nuestras ofertas y novedades."
       });
       setEmail("");
     }
   };
-
-  return (
-    <Layout>
+  return <Layout>
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top */}
-        <img 
-          src={heroLogoCentered} 
-          alt="Raw Paw - La nueva forma de cuidarlos" 
-          className={`absolute left-1/2 -translate-x-1/2 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none ${
-            !authLoading && !isAuthenticated 
-              ? "top-1 sm:top-2 md:top-6" 
-              : "top-8 sm:top-12 md:top-16"
-          }`}
-        />
+        <img src={heroLogoCentered} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none ${!authLoading && !isAuthenticated ? "top-1 sm:top-2 md:top-6" : "top-8 sm:top-12 md:top-16"}`} />
 
         {/* Decorative dog */}
-        <img 
-          src={heroDogLicking} 
-          alt="Perro feliz" 
-          className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90"
-        />
+        <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90" />
 
         <div className="container relative z-20 h-full flex flex-col justify-end pb-8 sm:pb-12 md:pb-16 pt-48 sm:pt-56 md:pt-64">
-          <div className="flex flex-col items-start justify-end text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-2xl"
-            >
+          <div className="flex-col text-left flex items-start justify-center">
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6
+          }} className="max-w-2xl">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 mb-3">
                 <Sparkles className="h-4 w-4 text-secondary" />
                 <span className="text-sm text-primary-foreground/90">Nutrición calculada con IA</span>
@@ -113,23 +103,13 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-start">
-                <Button 
-                  asChild 
-                  size="lg" 
-                  variant="secondary" 
-                  className="text-base px-6 py-5 rounded-2xl btn-bounce shadow-lg"
-                >
+                <Button asChild size="lg" variant="secondary" className="text-base px-6 py-5 rounded-2xl btn-bounce shadow-lg">
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5 mr-2" />
                     Iniciar Análisis Nutricional 🧬
                   </Link>
                 </Button>
-                <Button 
-                  asChild 
-                  variant="ghost" 
-                  size="lg"
-                  className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10"
-                >
+                <Button asChild variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
                   <Link to="/tienda">
                     O ver catálogo completo
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -150,8 +130,7 @@ export default function Home() {
               </div>
 
               {/* Auth Buttons */}
-              {!authLoading && !isAuthenticated && (
-                <div className="flex gap-3 mt-6 pt-4 border-t border-white/20">
+              {!authLoading && !isAuthenticated && <div className="flex gap-3 mt-6 pt-4 border-t border-white/20">
                   <Button asChild size="sm" variant="secondary" className="gap-2">
                     <Link to="/registro">
                       <User className="h-4 w-4" />
@@ -164,8 +143,7 @@ export default function Home() {
                       Iniciar Sesión
                     </Link>
                   </Button>
-                </div>
-              )}
+                </div>}
             </motion.div>
           </div>
         </div>
@@ -175,11 +153,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <div className="text-center mb-12">
-            <img 
-              src={isotipoBowl} 
-              alt="Raw Paw" 
-              className="h-16 w-auto mx-auto mb-4"
-            />
+            <img src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Así de fácil funciona
             </h2>
@@ -189,14 +163,18 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {howItWorks.map((item, index) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
+            {howItWorks.map((item, index) => <motion.div key={item.step} initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5,
+            delay: index * 0.1
+          }} viewport={{
+            once: true
+          }}>
                 <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
                   <CardContent className="pt-8 pb-6 text-center">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
@@ -206,8 +184,7 @@ export default function Home() {
                     <p className="text-muted-foreground">{item.description}</p>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
+              </motion.div>)}
           </div>
 
           <div className="text-center mt-12">
@@ -224,18 +201,18 @@ export default function Home() {
       {/* Brand Philosophy */}
       <section className="py-16 md:py-20 bg-secondary text-secondary-foreground">
         <div className="container">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <img 
-              src={isotipoTall} 
-              alt="Raw Paw" 
-              className="h-20 w-auto mx-auto mb-6"
-            />
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }} viewport={{
+          once: true
+        }} className="max-w-4xl mx-auto text-center">
+            <img src={isotipoTall} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
               En Raw Paw <span className="opacity-60">no</span> hacemos comida para perros
             </h2>
@@ -250,8 +227,7 @@ export default function Home() {
       <BenefitsSection />
 
       {/* Testimonials */}
-      {testimonials && testimonials.length > 0 && (
-        <section className="py-16 md:py-24 bg-card">
+      {testimonials && testimonials.length > 0 && <section className="py-16 md:py-24 bg-card">
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -262,36 +238,26 @@ export default function Home() {
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {testimonials.slice(0, 3).map((t) => (
-                <TestimonialCard
-                  key={t.id}
-                  customerName={t.customer_name}
-                  petName={t.pet_name || undefined}
-                  petBreed={t.pet_breed || undefined}
-                  content={t.content}
-                  rating={t.rating || 5}
-                />
-              ))}
+              {testimonials.slice(0, 3).map(t => <TestimonialCard key={t.id} customerName={t.customer_name} petName={t.pet_name || undefined} petBreed={t.pet_breed || undefined} content={t.content} rating={t.rating || 5} />)}
             </div>
           </div>
-        </section>
-      )}
+        </section>}
 
       {/* Email Capture */}
       <section className="py-16 md:py-24 bg-muted/50">
         <div className="container">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-xl mx-auto text-center"
-          >
-            <img 
-              src={isotipoFluffy} 
-              alt="Raw Paw" 
-              className="h-20 w-auto mx-auto mb-4"
-            />
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }} viewport={{
+          once: true
+        }} className="max-w-xl mx-auto text-center">
+            <img src={isotipoFluffy} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Recibe ofertas exclusivas
             </h2>
@@ -299,14 +265,7 @@ export default function Home() {
               Suscríbete para recibir tips de nutrición canina, ofertas y novedades.
             </p>
             <form onSubmit={handleEmailSubmit} className="flex gap-2 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="tu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 rounded-xl"
-              />
+              <Input type="email" placeholder="tu@email.com" value={email} onChange={e => setEmail(e.target.value)} required className="flex-1 rounded-xl" />
               <Button type="submit" className="rounded-xl btn-bounce">Suscribir</Button>
             </form>
           </motion.div>
@@ -330,6 +289,5 @@ export default function Home() {
           </Button>
         </div>
       </section>
-    </Layout>
-  );
+    </Layout>;
 }
