@@ -1435,7 +1435,7 @@ export default function AIRecomendador() {
       case "guest_greeting":
         return (
           <QuickReplies
-            options={[{ value: "start_plan", label: "Empezar Plan", emoji: "🥗" }]}
+            options={[{ value: "start_plan", label: "Iniciar", emoji: "🥗" }]}
             onSelect={handleGuestGreetingSelect}
             columns={2}
             disabled={isProcessing}
