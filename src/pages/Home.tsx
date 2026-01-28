@@ -17,6 +17,14 @@ import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
+// Decorative icons
+import decoBowl from "@/assets/brand/deco-bowl.png";
+import decoCarrot from "@/assets/brand/deco-carrot.png";
+import decoDogRunning from "@/assets/brand/deco-dog-running.png";
+import decoDogStanding from "@/assets/brand/deco-dog-standing.png";
+import decoBall from "@/assets/brand/deco-ball.png";
+import decoPuppy from "@/assets/brand/deco-puppy.png";
+import decoPaw from "@/assets/brand/deco-paw.png";
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
@@ -149,8 +157,12 @@ export default function Home() {
       </section>
 
       {/* How it works - Simplified */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container">
+      <section className="py-16 md:py-24 bg-background relative overflow-hidden">
+        {/* Decorative background icons */}
+        <img src={decoBowl} alt="" className="absolute top-10 left-4 w-24 md:w-32 opacity-30 pointer-events-none" aria-hidden="true" />
+        <img src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-20 md:w-28 opacity-30 pointer-events-none" aria-hidden="true" />
+        
+        <div className="container relative z-10">
           <div className="text-center mb-12">
             <img src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -198,8 +210,12 @@ export default function Home() {
       </section>
 
       {/* Brand Philosophy */}
-      <section className="py-16 md:py-20 bg-secondary text-secondary-foreground">
-        <div className="container">
+      <section className="py-16 md:py-20 bg-secondary text-secondary-foreground relative overflow-hidden">
+        {/* Decorative background icons */}
+        <img src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-32 md:w-48 opacity-20 pointer-events-none" aria-hidden="true" />
+        <img src={decoBall} alt="" className="absolute top-8 right-8 w-16 md:w-24 opacity-20 pointer-events-none" aria-hidden="true" />
+        
+        <div className="container relative z-10">
           <motion.div initial={{
           opacity: 0,
           y: 20
@@ -243,8 +259,12 @@ export default function Home() {
         </section>}
 
       {/* Email Capture */}
-      <section className="py-16 md:py-24 bg-muted/50">
-        <div className="container">
+      <section className="py-16 md:py-24 bg-muted/50 relative overflow-hidden">
+        {/* Decorative background icons */}
+        <img src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-28 md:w-40 opacity-20 pointer-events-none" aria-hidden="true" />
+        <img src={decoPaw} alt="" className="absolute top-8 left-8 w-20 md:w-28 opacity-20 pointer-events-none" aria-hidden="true" />
+        
+        <div className="container relative z-10">
           <motion.div initial={{
           opacity: 0,
           y: 20
@@ -272,8 +292,11 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container text-center">
+      <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
+        {/* Decorative background icons */}
+        <img src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-28 md:w-40 opacity-10 pointer-events-none" aria-hidden="true" />
+        
+        <div className="container text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             ¿Listo para mejorar la alimentación de tu perro?
           </h2>
