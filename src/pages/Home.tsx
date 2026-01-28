@@ -12,12 +12,11 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import isotipoTall from "@/assets/brand/isotipo-tall.png";
+import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
-import isotipoFluffy from "@/assets/brand/isotipo-fluffy.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroDogLicking from "@/assets/brand/hero-dog-licking.png";
-import heroLogoCentered from "@/assets/brand/hero-logo-centered.png";
+import logoTaglinePreferente from "@/assets/brand/logo-tagline-preferente.png";
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
@@ -65,7 +64,7 @@ export default function Home() {
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top */}
-        <img src={heroLogoCentered} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-48 sm:w-64 md:w-80 lg:w-96 z-10 pointer-events-none ${!authLoading && !isAuthenticated ? "top-1 sm:top-2 md:top-6" : "top-8 sm:top-12 md:top-16"}`} />
+        <img src={logoTaglinePreferente} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-64 sm:w-80 md:w-96 lg:w-[450px] z-10 pointer-events-none ${!authLoading && !isAuthenticated ? "top-4 sm:top-6 md:top-10" : "top-8 sm:top-12 md:top-16"}`} />
 
         {/* Decorative dog */}
         <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90" />
@@ -212,7 +211,7 @@ export default function Home() {
         }} viewport={{
           once: true
         }} className="max-w-4xl mx-auto text-center">
-            <img src={isotipoTall} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
+            <img src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
               En Raw Paw <span className="opacity-60">no</span> hacemos comida para perros
             </h2>
@@ -257,7 +256,7 @@ export default function Home() {
         }} viewport={{
           once: true
         }} className="max-w-xl mx-auto text-center">
-            <img src={isotipoFluffy} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
+            <img src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Recibe ofertas exclusivas
             </h2>

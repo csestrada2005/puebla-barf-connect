@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import logoRawPaw from "@/assets/brand/logo-rawpaw.png";
+import logoChoco from "@/assets/brand/logo-choco.png";
 
 const navLinksLeft = [
   { href: "/tienda", label: "Tienda" },
@@ -36,9 +36,9 @@ export function Header() {
         {/* Left: Logo */}
         <Link to="/" className="flex-shrink-0">
           <img 
-            src={logoRawPaw} 
+            src={logoChoco} 
             alt="Raw Paw" 
-            className="h-9 w-auto"
+            className="h-12 w-auto"
           />
         </Link>
 
@@ -118,9 +118,9 @@ export function Header() {
             <SheetContent side="right" className="w-72">
               <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center mb-8">
                 <img 
-                  src={logoRawPaw} 
+                  src={logoChoco} 
                   alt="Raw Paw" 
-                  className="h-10 w-auto"
+                  className="h-14 w-auto"
                 />
               </Link>
               <nav className="flex flex-col gap-2">
