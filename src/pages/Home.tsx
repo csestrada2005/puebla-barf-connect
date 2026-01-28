@@ -126,13 +126,7 @@ export default function Home() {
                 </Button>
               </div>
               {/* Auth Buttons */}
-              {!authLoading && !isAuthenticated && <div className="flex gap-3 mt-6 pt-4 border-t border-white/20">
-                  <Button asChild size="sm" variant="secondary" className="gap-2">
-                    <Link to="/registro">
-                      <User className="h-4 w-4" />
-                      Crear Cuenta
-                    </Link>
-                  </Button>
+              {!authLoading && !isAuthenticated && <div className="flex justify-start mt-6 pt-4 border-t border-white/20">
                   <Button asChild size="sm" variant="ghost" className="text-primary-foreground hover:bg-white/10 gap-2">
                     <Link to="/login">
                       <LogIn className="h-4 w-4" />
