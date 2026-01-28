@@ -16,8 +16,6 @@ const navLinksLeft = [
 
 const navLinksRight = [
   { href: "/guias-barf", label: "Guía BARF" },
-  { href: "/cobertura", label: "Cobertura" },
-  { href: "/faq", label: "FAQ" },
   { href: "/nosotros", label: "Nosotros" },
 ];
 
