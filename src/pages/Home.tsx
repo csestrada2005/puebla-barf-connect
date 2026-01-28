@@ -125,19 +125,6 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-
-              {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-4 text-primary-foreground/70 text-sm justify-start">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-secondary" />
-                  <span>100% Natural</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-secondary" />
-                  <span>Entrega 24-48h</span>
-                </div>
-              </div>
-
               {/* Auth Buttons */}
               {!authLoading && !isAuthenticated && <div className="flex gap-3 mt-6 pt-4 border-t border-white/20">
                   <Button asChild size="sm" variant="secondary" className="gap-2">
