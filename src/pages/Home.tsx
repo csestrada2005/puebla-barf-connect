@@ -120,7 +120,7 @@ export default function Home() {
                 </Button>
                 <Button asChild variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
                   <Link to="/tienda">
-                    O ver catálogo completo
+                    Ver Tienda
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
