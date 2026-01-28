@@ -115,7 +115,7 @@ export default function Home() {
                 <Button asChild size="lg" variant="secondary" className="text-base px-6 py-5 rounded-2xl btn-bounce shadow-lg">
                   <Link to="/ai">
                     <Sparkles className="h-5 w-5 mr-2" />
-                    Iniciar Análisis Nutricional 🧬
+                    Iniciar
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" size="lg" className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
