@@ -25,6 +25,8 @@ import decoDogStanding from "@/assets/brand/deco-dog-standing.png";
 import decoBall from "@/assets/brand/deco-ball.png";
 import decoPuppy from "@/assets/brand/deco-puppy.png";
 import decoPaw from "@/assets/brand/deco-paw.png";
+import decoFluffy from "@/assets/brand/deco-fluffy.png";
+
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
@@ -242,8 +244,11 @@ export default function Home() {
       <BenefitsSection />
 
       {/* Testimonials */}
-      {testimonials && testimonials.length > 0 && <section className="py-16 md:py-24 bg-card">
-          <div className="container">
+      {testimonials && testimonials.length > 0 && <section className="py-16 md:py-24 bg-card relative overflow-hidden">
+          {/* Decorative background icons */}
+          <img src={decoFluffy} alt="" className="absolute top-8 right-4 w-24 md:w-36 opacity-20 pointer-events-none" aria-hidden="true" />
+          
+          <div className="container relative z-10">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Lo que dicen nuestros clientes
