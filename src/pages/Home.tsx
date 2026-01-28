@@ -70,7 +70,7 @@ export default function Home() {
         {/* Decorative dog */}
         <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90" />
 
-        <div className="container relative z-20 h-full flex flex-col justify-end pb-8 sm:pb-12 md:pb-16 pt-48 sm:pt-56 md:pt-64">
+        <div className="container relative z-20 h-full flex flex-col justify-end pb-8 sm:pb-12 md:pb-16 pt-32 sm:pt-40 md:pt-48">
           <div className="flex-col text-left flex items-start justify-center">
             <motion.div initial={{
             opacity: 0,
