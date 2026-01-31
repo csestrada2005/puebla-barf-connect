@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight } from "lucide-react";
-import nosotrosDogPeeking from "@/assets/brand/nosotros-dog-peeking.png";
+import dogPeeking from "@/assets/brand/dog-peeking.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -59,7 +59,7 @@ export default function Nosotros() {
               className="relative flex justify-center lg:justify-end"
             >
               <img 
-                src={nosotrosDogPeeking} 
+                src={dogPeeking} 
                 alt="Perro saludable" 
                 className="w-56 md:w-64 lg:w-72 object-contain drop-shadow-2xl"
               />
