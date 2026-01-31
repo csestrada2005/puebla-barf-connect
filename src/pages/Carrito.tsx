@@ -19,18 +19,18 @@ export default function Carrito() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20 relative overflow-visible">
-          {/* Aussie (partial, looking LEFT) - peeking from RIGHT when cart empty */}
+        <div className="container py-20 relative overflow-hidden">
+          {/* Aussie (looking left) - bottom LEFT corner, bigger */}
           <motion.div 
-            initial={{ opacity: 0, x: 60 }}
+            initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="absolute bottom-12 -right-8 md:-right-20 lg:-right-28 z-10 pointer-events-none hidden md:block"
+            className="absolute bottom-0 -left-8 md:-left-16 lg:-left-20 z-10 pointer-events-none hidden md:block"
           >
             <img 
               src={playAussie} 
               alt="Perro esperando" 
-              className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
+              className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
             />
           </motion.div>
 
@@ -58,18 +58,18 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Aussie (partial, looking LEFT) - peeking from RIGHT when cart has items */}
+      <div className="container py-12 relative overflow-hidden">
+        {/* Aussie (looking left) - bottom LEFT corner, bigger */}
         <motion.div 
-          initial={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-8 -right-8 md:-right-20 lg:-right-28 z-10 pointer-events-none hidden lg:block"
+          className="absolute bottom-0 -left-8 md:-left-16 lg:-left-20 z-10 pointer-events-none hidden lg:block"
         >
           <img 
             src={playAussie} 
             alt="Perro feliz por el pedido" 
-            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
+            className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
           />
         </motion.div>
 

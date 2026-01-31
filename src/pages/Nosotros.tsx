@@ -35,12 +35,12 @@ export default function Nosotros() {
     <Layout>
       {/* Hero / Manifesto Section */}
       <section className="relative overflow-visible bg-primary/10">
-        {/* Playful dog peeking from top-right corner */}
+        {/* Playful dog peeking from top-right corner - moved more to the right */}
         <motion.div 
           initial={{ opacity: 0, y: -50, rotate: 5 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-8 right-0 md:right-4 lg:right-8 z-20 pointer-events-none"
+          className="absolute -top-8 -right-8 md:-right-12 lg:-right-16 z-20 pointer-events-none"
         >
           <img 
             src={nosotrosBrownDog} 

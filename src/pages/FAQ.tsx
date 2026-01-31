@@ -7,8 +7,6 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import playHound from "@/assets/brand/play-hound.png";
 
 const faqs = [
   {
@@ -56,21 +54,7 @@ const faqs = [
 export default function FAQ() {
   return (
     <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Hound (partial, looking RIGHT) - peeking from LEFT side */}
-        <motion.div 
-          initial={{ opacity: 0, x: -60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-24 -left-8 md:-left-20 lg:-left-32 z-10 pointer-events-none hidden md:block"
-        >
-          <img 
-            src={playHound} 
-            alt="Perro curioso mirando las preguntas" 
-            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
-          />
-        </motion.div>
-
+      <div className="container py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Preguntas Frecuentes</h1>
