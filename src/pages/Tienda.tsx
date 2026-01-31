@@ -35,21 +35,7 @@ export default function Tienda() {
 
   return (
     <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Pomeranian (full body) - sitting on top left of benefits bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute top-[280px] md:top-[260px] -left-4 md:-left-8 lg:-left-12 z-10 pointer-events-none hidden md:block"
-        >
-          <img 
-            src={playPomeranian} 
-            alt="Pomeranian feliz" 
-            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
-          />
-        </motion.div>
-
+      <div className="container py-12 relative">
         {/* Header */}
         <div className="text-center mb-8">
           <Badge variant="secondary" className="mb-4">
@@ -61,19 +47,35 @@ export default function Tienda() {
           </p>
         </div>
 
-        {/* Benefits Bar */}
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
-          <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-            <Truck className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium">Envío incluido</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-            <Clock className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium">Entrega 24-48h</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-            <Check className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium">Pago contra entrega</span>
+        {/* Benefits Bar - with Pomeranian sitting on top left */}
+        <div className="relative mb-8">
+          {/* Pomeranian (full body) - sitting on top of "Envio Incluido" */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="absolute -top-16 md:-top-20 lg:-top-24 left-0 md:left-4 lg:left-8 z-20 pointer-events-none hidden md:block"
+          >
+            <img 
+              src={playPomeranian} 
+              alt="Pomeranian feliz" 
+              className="w-24 md:w-28 lg:w-36 object-contain drop-shadow-xl"
+            />
+          </motion.div>
+
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
+              <Truck className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Envío incluido</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
+              <Clock className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Entrega 24-48h</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
+              <Check className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Pago contra entrega</span>
+            </div>
           </div>
         </div>
 
