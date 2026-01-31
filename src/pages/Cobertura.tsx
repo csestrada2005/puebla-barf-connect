@@ -60,7 +60,7 @@ export default function Cobertura() {
   return (
     <Layout>
       <div className="container py-4 lg:py-6 relative min-h-[60vh]">
-        <div ref={contentRef} className="flex flex-col lg:flex-row lg:items-start lg:gap-4">
+        <div ref={contentRef} className="flex flex-col lg:flex-row lg:items-start lg:gap-4 min-h-[400px]">
           {/* Left side - Content */}
           <div className="w-full lg:w-[55%]">
             <div className="max-w-xl mx-auto lg:mx-0 lg:ml-auto lg:mr-8">
@@ -118,7 +118,7 @@ export default function Cobertura() {
                 transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 className="absolute right-0 top-0 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
                 style={{ 
-                  top: Math.max(0, contentHeight - 335),
+                  top: Math.max(60, contentHeight - 335),
                 }}
               />
             </AnimatePresence>
