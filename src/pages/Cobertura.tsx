@@ -45,17 +45,17 @@ export default function Cobertura() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Playful dog licking - positioned at top-right */}
+        {/* Dog licking (partial) - bottom right, eagerly waiting */}
         <motion.div 
-          initial={{ opacity: 0, x: 40, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-2 right-0 md:right-4 lg:right-16 z-10 pointer-events-none hidden md:block"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute -bottom-4 right-0 md:right-8 lg:right-16 z-10 pointer-events-none hidden lg:block"
         >
           <img 
             src={dogLicking} 
-            alt="Perro feliz esperando" 
-            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
+            alt="Perro esperando ansioso" 
+            className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
           />
         </motion.div>
 

@@ -5,24 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, Book, Calculator, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
-import decoPuppy from "@/assets/brand/deco-puppy.png";
 import heroDogtongue from "@/assets/brand/hero-dog-tongue.png";
 
 export default function GuiasBarf() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Playful puppy peeking from right */}
+        {/* Dog with tongue (partial) - peeking from bottom left */}
         <motion.div 
-          initial={{ opacity: 0, x: 50, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-4 -right-4 md:right-0 z-10 pointer-events-none hidden lg:block"
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute -bottom-4 -left-4 md:-left-12 lg:-left-20 z-10 pointer-events-none hidden lg:block"
         >
           <img 
-            src={decoPuppy} 
-            alt="Cachorro curioso" 
-            className="w-32 md:w-40 object-contain drop-shadow-xl"
+            src={heroDogtongue} 
+            alt="Perro ansioso por aprender" 
+            className="w-36 md:w-44 lg:w-52 object-contain drop-shadow-xl"
           />
         </motion.div>
 
@@ -93,22 +92,7 @@ export default function GuiasBarf() {
           </Card>
 
           {/* Portion Calculator */}
-          <Card className="mb-8 border-primary relative overflow-visible">
-            {/* Dog with tongue peeking beside calculator section */}
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="absolute -top-4 -left-4 md:-left-12 z-10 pointer-events-none hidden md:block"
-            >
-              <img 
-                src={heroDogtongue} 
-                alt="" 
-                className="w-20 md:w-24 object-contain opacity-90 drop-shadow-lg"
-                aria-hidden="true"
-              />
-            </motion.div>
-
+          <Card className="mb-8 border-primary">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5" />

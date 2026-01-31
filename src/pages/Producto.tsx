@@ -20,8 +20,6 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import { motion } from "framer-motion";
-import heroDogtongue from "@/assets/brand/hero-dog-tongue.png";
 
 const benefitIcons: Record<string, React.ReactNode> = {
   "Mejora digestión y aliento": <Sparkles className="h-5 w-5" />,
@@ -142,21 +140,7 @@ export default function Producto() {
 
   return (
     <Layout>
-      <div className="container py-8 relative overflow-visible">
-        {/* Playful dog with tongue excited about the product */}
-        <motion.div 
-          initial={{ opacity: 0, y: -30, rotate: 5 }}
-          animate={{ opacity: 1, y: 0, rotate: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -top-2 right-8 md:right-16 lg:right-24 z-10 pointer-events-none hidden lg:block"
-        >
-          <img 
-            src={heroDogtongue} 
-            alt="Perro emocionado" 
-            className="w-28 md:w-36 object-contain drop-shadow-xl"
-          />
-        </motion.div>
-
+      <div className="container py-8">
         {/* Back link */}
         <Link 
           to="/tienda" 

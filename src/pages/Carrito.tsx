@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { motion } from "framer-motion";
-import dogPeeking from "@/assets/brand/dog-peeking.png";
 import decoFluffy from "@/assets/brand/deco-fluffy.png";
 
 export default function Carrito() {
@@ -21,17 +20,17 @@ export default function Carrito() {
     return (
       <Layout>
         <div className="container py-20 relative overflow-visible">
-          {/* Sad dog peeking when cart is empty */}
+          {/* Fluffy dog (partial) - peeking from right when cart is empty */}
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="absolute bottom-8 right-8 md:right-16 z-10 pointer-events-none hidden md:block"
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="absolute bottom-12 -right-4 md:-right-12 lg:-right-20 z-10 pointer-events-none hidden md:block"
           >
             <img 
-              src={dogPeeking} 
-              alt="Perro esperando" 
-              className="w-24 md:w-32 object-contain opacity-70 drop-shadow-lg"
+              src={decoFluffy} 
+              alt="Perro esperando que agregues productos" 
+              className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
             />
           </motion.div>
 
@@ -60,17 +59,17 @@ export default function Carrito() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Happy fluffy dog when cart has items */}
+        {/* Fluffy dog (partial) - peeking from right when cart has items */}
         <motion.div 
-          initial={{ opacity: 0, x: 40, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-2 -right-4 md:right-0 z-10 pointer-events-none hidden lg:block"
+          className="absolute top-8 -right-4 md:-right-12 lg:-right-16 z-10 pointer-events-none hidden lg:block"
         >
           <img 
             src={decoFluffy} 
-            alt="Perro feliz" 
-            className="w-28 md:w-36 object-contain drop-shadow-xl"
+            alt="Perro feliz por el pedido" 
+            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
           />
         </motion.div>
 
@@ -160,7 +159,7 @@ export default function Carrito() {
                       </span>
                       <span>
                         {deliveryFee === 0 ? (
-                          <span className="text-green-600 font-medium">Gratis</span>
+                          <span className="text-primary font-medium">Gratis</span>
                         ) : (
                           `$${deliveryFee.toLocaleString("es-MX")}`
                         )}
