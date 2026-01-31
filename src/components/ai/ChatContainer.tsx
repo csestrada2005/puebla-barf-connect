@@ -1,8 +1,7 @@
 import { useRef, useEffect, ReactNode, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import aiHoundRight from "@/assets/brand/ai-hound-right.png";
-import playPomeranian from "@/assets/brand/play-pomeranian.png";
 
 interface ChatContainerProps {
   children: ReactNode;
@@ -37,36 +36,27 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative overflow-visible">
-      {/* Pomeranian (looking right) - LEFT side, fixed to viewport, reactive to input height */}
-      <motion.div 
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed left-0 z-50 pointer-events-none hidden md:block"
-        style={{ bottom: 0 }}
-      >
-        <img 
-          src={playPomeranian} 
-          alt="Perro atento mirando el chat" 
-          className="w-32 md:w-48 lg:w-64 object-contain drop-shadow-xl scale-x-[-1]"
-        />
-      </motion.div>
-
-      {/* Hound (looking right) - RIGHT side, fixed to viewport */}
-      <motion.div 
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed right-0 z-50 pointer-events-none hidden md:block"
-        style={{ bottom: 0 }}
-      >
-        <img 
-          src={aiHoundRight} 
-          alt="Perro atento mirando el chat" 
-          className="w-32 md:w-48 lg:w-64 object-contain drop-shadow-xl"
-        />
-      </motion.div>
+    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
+      {/* Hound (looking LEFT) - positioned at RIGHT edge, reacting to input section height */}
+      <AnimatePresence>
+        <motion.div 
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0,
+            bottom: inputHeight + 8
+          }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="absolute right-0 z-10 pointer-events-none hidden md:block"
+          style={{ bottom: inputHeight + 8 }}
+        >
+          <img 
+            src={aiHoundRight} 
+            alt="Perro atento mirando el chat" 
+            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
+          />
+        </motion.div>
+      </AnimatePresence>
 
       {/* Header Badge */}
       <div className="flex-shrink-0 text-center py-4">
@@ -76,8 +66,8 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         </div>
       </div>
 
-      {/* Messages Area - Scrollable with bottom padding for dogs */}
-      <div className="flex-1 overflow-y-auto px-4 pb-20">
+      {/* Messages Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
