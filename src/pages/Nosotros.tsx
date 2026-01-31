@@ -33,14 +33,14 @@ const values = [
 export default function Nosotros() {
   return (
     <Layout>
-      {/* Hero / Manifesto Section */}
-      <section className="relative bg-primary/10 overflow-hidden">
-        {/* Brown dog peeking from top-right */}
+      {/* Wrapper for hero + mission sections so dog can span across */}
+      <div className="relative">
+        {/* Brown dog peeking from top-right - now outside overflow-hidden */}
         <motion.div 
           initial={{ opacity: 0, x: 50, rotate: 5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-4 right-0 z-20 pointer-events-none"
+          className="absolute top-8 right-0 z-20 pointer-events-none"
         >
           <img 
             src={nosotrosBrownDog} 
@@ -49,30 +49,32 @@ export default function Nosotros() {
           />
         </motion.div>
 
-        <div className="container py-16 md:py-24 pt-32 sm:pt-36 md:pt-20">
-          <div className="max-w-2xl">
-            <motion.div {...fadeInUp} className="space-y-6">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
-                Nuestra Filosofía
-              </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Nutrición con Intención
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                En Raw-Paw no creemos en alimentar por costumbre. Creemos en nutrir con intención. 
-                No hacemos comida para perros. Hacemos alimento real y fresco con ingredientes de 
-                calidad humana, porque creemos que la salud empieza en el plato.
-              </p>
-              <p className="text-xl md:text-2xl font-medium text-foreground italic">
-                "Cada receta está pensada, probada y aprobada por quienes amamos."
-              </p>
-            </motion.div>
+        {/* Hero / Manifesto Section */}
+        <section className="relative bg-primary/10 overflow-hidden">
+          <div className="container py-16 md:py-24 pt-32 sm:pt-36 md:pt-20">
+            <div className="max-w-2xl">
+              <motion.div {...fadeInUp} className="space-y-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
+                  Nuestra Filosofía
+                </span>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                  Nutrición con Intención
+                </h1>
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                  En Raw-Paw no creemos en alimentar por costumbre. Creemos en nutrir con intención. 
+                  No hacemos comida para perros. Hacemos alimento real y fresco con ingredientes de 
+                  calidad humana, porque creemos que la salud empieza en el plato.
+                </p>
+                <p className="text-xl md:text-2xl font-medium text-foreground italic">
+                  "Cada receta está pensada, probada y aprobada por quienes amamos."
+                </p>
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Mission & Vision Section */}
-      <section className="py-16 md:py-24 bg-background">
+        {/* Mission & Vision Section */}
+        <section className="py-16 md:py-24 bg-background">
         <div className="container">
           <motion.div {...fadeInUp} className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -118,7 +120,8 @@ export default function Nosotros() {
             </motion.div>
           </motion.div>
         </div>
-      </section>
+        </section>
+      </div>
 
       {/* Values Section */}
       <section className="py-16 md:py-24 bg-secondary/30">
