@@ -71,8 +71,15 @@ export default function Home() {
         {/* Centered Logo at Top */}
         <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" />
 
-        {/* Hero dog image */}
-        <img src={heroBorderCollie} alt="Perro feliz" className="absolute bottom-0 right-0 w-48 sm:w-60 md:w-80 lg:w-[420px] object-contain z-10 pointer-events-none" />
+        {/* Playful hero dog - peeking from bottom right */}
+        <motion.img 
+          src={heroBorderCollie} 
+          alt="Perro feliz" 
+          initial={{ opacity: 0, x: 50, rotate: -5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute -bottom-4 -right-4 md:-right-8 w-56 sm:w-72 md:w-96 lg:w-[480px] xl:w-[550px] object-contain z-10 pointer-events-none drop-shadow-2xl" 
+        />
 
         <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">
           <div className="flex-col text-left flex items-start justify-center">
