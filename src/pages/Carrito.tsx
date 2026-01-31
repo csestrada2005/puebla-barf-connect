@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import { Layout } from "@/components/layout";
@@ -12,21 +13,47 @@ import playAussie from "@/assets/brand/play-aussie.png";
 export default function Carrito() {
   const { items, updateQuantity, removeItem, getSubtotal, clearCart } = useCart();
   const { isConfirmed, zoneName, deliveryFee } = useCoverage();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
   
   const subtotal = getSubtotal();
   const total = subtotal + (isConfirmed ? deliveryFee : 0);
 
+  // Hide dog when scrolled past the content section (into footer)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        // Dog is visible when the container is in view
+        const isInView = rect.top < viewportHeight && rect.bottom > 350;
+        setIsVisible(isInView);
+      }
+    };
+    
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20 pb-48 lg:pb-48 relative">
-          {/* Aussie (looking left) - at bottom left of section */}
+        <div ref={containerRef} className="container py-20 pb-48 lg:pb-48 relative">
+          {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
           <motion.img 
             src={playAussie} 
             alt="Perro esperando" 
             initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            animate={{ 
+              opacity: isVisible ? 1 : 0, 
+              x: isVisible ? 0 : -40 
+            }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
           />
           <div className="max-w-md mx-auto text-center">
@@ -53,14 +80,17 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div className="container py-12 pb-48 lg:pb-48 relative">
-        {/* Aussie (looking left) - at bottom left of section */}
+      <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative">
+        {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
         <motion.img 
           src={playAussie} 
           alt="Perro feliz por el pedido" 
           initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          animate={{ 
+            opacity: isVisible ? 1 : 0, 
+            x: isVisible ? 0 : -40 
+          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden lg:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
         />
 
