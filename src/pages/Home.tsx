@@ -66,19 +66,19 @@ export default function Home() {
     }
   };
   return <Layout>
-      {/* Hero - Full viewport */}
-      <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
+      {/* Hero - Full viewport with overflow for dog to peek into next section */}
+      <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-visible bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top */}
         <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" />
 
-        {/* Playful hero dog - peeking from bottom right */}
+        {/* Playful hero dog - peeking from bottom right, overlapping into next section by ~80px */}
         <motion.img 
           src={heroBorderCollie} 
           alt="Perro feliz" 
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 w-56 sm:w-72 md:w-96 lg:w-[480px] xl:w-[550px] object-contain z-10 pointer-events-none drop-shadow-2xl" 
+          className="peeking-dog -bottom-20 md:-bottom-24 -right-4 md:-right-8 w-64 sm:w-80 md:w-[420px] lg:w-[520px] xl:w-[600px] object-contain drop-shadow-2xl" 
         />
 
         <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">

@@ -2,10 +2,20 @@ import { Link } from "react-router-dom";
 import { MessageCircle, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
+import decoFluffy from "@/assets/brand/deco-fluffy.png";
+
 const WHATSAPP_NUMBER = "5212213606464";
+
 export function Footer() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}`;
-  return <footer className="border-t border-border bg-primary text-primary-foreground">
+  return <footer className="border-t border-border bg-primary text-primary-foreground relative overflow-visible">
+      {/* Footer guardians - rising up behind copyright text */}
+      <img 
+        src={decoFluffy} 
+        alt="" 
+        aria-hidden="true"
+        className="peeking-dog bottom-0 left-1/2 -translate-x-1/2 w-28 md:w-36 lg:w-44 opacity-20"
+      />
       <div className="container py-12">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Clock, Check } from "lucide-react";
+import decoDogStanding from "@/assets/brand/deco-dog-standing.png";
 
 type ProteinFilter = "all" | "pollo" | "res";
 
@@ -33,6 +34,14 @@ export default function Tienda() {
 
   return (
     <Layout>
+      {/* Shop assistant dog - fixed/sticky at bottom-left, peeking up, hidden on mobile */}
+      <img 
+        src={decoDogStanding} 
+        alt="" 
+        aria-hidden="true"
+        className="peeking-dog bottom-0 left-4 w-24 md:w-32 lg:w-40 opacity-60 hover:opacity-100 transition-opacity duration-300 hidden md:block"
+        style={{ position: 'fixed' }}
+      />
       <div className="container py-12">
         {/* Header */}
         <div className="text-center mb-8">
