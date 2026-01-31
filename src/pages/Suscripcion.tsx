@@ -92,7 +92,7 @@ export default function Suscripcion() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
   return <Layout>
-      <div className="container py-12 pt-20 md:pt-24 lg:pt-28 relative overflow-visible">
+      <div className="container py-12 pt-20 md:pt-24 lg:pt-28 relative">
         {/* Hero */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <Badge variant="secondary" className="mb-4 gap-1">
@@ -203,23 +203,23 @@ export default function Suscripcion() {
 
           {/* Summary & Benefits - Sticky container */}
           <div className="lg:sticky lg:top-24 space-y-6 h-fit">
-            {/* Price Card with Bulldogs standing on top */}
-            <div className="relative">
-              {/* Bulldogs (full body pair) - standing ON TOP of the card */}
+            {/* Price Card with Bulldogs standing on top - outside/above the card */}
+            <div className="relative pt-28 md:pt-32 lg:pt-36">
+              {/* Bulldogs (full body pair) - standing ON TOP of the card, completely visible */}
               <motion.div 
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                className="absolute -top-24 md:-top-28 lg:-top-32 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+                className="absolute top-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
               >
                 <img 
                   src={playBulldogs} 
                   alt="Bulldogs felices" 
-                  className="w-36 md:w-44 lg:w-52 object-contain drop-shadow-xl"
+                  className="w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
                 />
               </motion.div>
               
-              <Card className="border-primary border-2 pt-8 md:pt-10">
+              <Card className="border-primary border-2 relative z-10">
                 <CardHeader>
                   <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>

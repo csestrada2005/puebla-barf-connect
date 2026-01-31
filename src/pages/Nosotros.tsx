@@ -34,18 +34,18 @@ export default function Nosotros() {
   return (
     <Layout>
       {/* Hero / Manifesto Section */}
-      <section className="relative overflow-visible bg-primary/10">
-        {/* Playful dog peeking from top-right corner - moved more to the right */}
+      <section className="relative bg-primary/10">
+        {/* Brown dog peeking from top-right - positioned at the far right edge, no cropping */}
         <motion.div 
-          initial={{ opacity: 0, y: -50, rotate: 5 }}
-          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          initial={{ opacity: 0, x: 50, rotate: 5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-8 -right-8 md:-right-12 lg:-right-16 z-20 pointer-events-none"
+          className="absolute -top-4 right-0 z-20 pointer-events-none"
         >
           <img 
             src={nosotrosBrownDog} 
             alt="Perro curioso asomándose" 
-            className="w-56 sm:w-72 md:w-96 lg:w-[450px] xl:w-[520px] object-contain drop-shadow-2xl"
+            className="w-48 sm:w-56 md:w-72 lg:w-96 xl:w-[420px] object-contain drop-shadow-2xl"
           />
         </motion.div>
 

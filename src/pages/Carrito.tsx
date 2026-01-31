@@ -19,21 +19,21 @@ export default function Carrito() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20 relative overflow-hidden">
-          {/* Aussie (looking left) - bottom LEFT corner, bigger */}
-          <motion.div 
-            initial={{ opacity: 0, x: -60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="absolute bottom-0 -left-8 md:-left-16 lg:-left-20 z-10 pointer-events-none hidden md:block"
-          >
-            <img 
-              src={playAussie} 
-              alt="Perro esperando" 
-              className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
-            />
-          </motion.div>
+        {/* Aussie (looking left) - fixed at bottom LEFT corner of viewport, full image visible */}
+        <motion.div 
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="fixed bottom-0 left-0 z-10 pointer-events-none hidden md:block"
+        >
+          <img 
+            src={playAussie} 
+            alt="Perro esperando" 
+            className="w-48 md:w-56 lg:w-72 object-contain drop-shadow-xl"
+          />
+        </motion.div>
 
+        <div className="container py-20 relative">
           <div className="max-w-md mx-auto text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
               <ShoppingCart className="h-12 w-12 text-muted-foreground" />
@@ -58,20 +58,21 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div className="container py-12 relative overflow-hidden">
-        {/* Aussie (looking left) - bottom LEFT corner, bigger */}
-        <motion.div 
-          initial={{ opacity: 0, x: -60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute bottom-0 -left-8 md:-left-16 lg:-left-20 z-10 pointer-events-none hidden lg:block"
-        >
-          <img 
-            src={playAussie} 
-            alt="Perro feliz por el pedido" 
-            className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
-          />
-        </motion.div>
+      {/* Aussie (looking left) - fixed at bottom LEFT corner of viewport, full image visible */}
+      <motion.div 
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+        className="fixed bottom-0 left-0 z-10 pointer-events-none hidden lg:block"
+      >
+        <img 
+          src={playAussie} 
+          alt="Perro feliz por el pedido" 
+          className="w-48 md:w-56 lg:w-72 object-contain drop-shadow-xl"
+        />
+      </motion.div>
+
+      <div className="container py-12 relative">
 
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
