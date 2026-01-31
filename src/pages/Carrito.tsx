@@ -19,8 +19,8 @@ export default function Carrito() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20 pb-32 lg:pb-20 relative min-h-[60vh]">
-          <div className="max-w-md mx-auto text-center relative">
+        <div className="container py-20 pb-32 lg:pb-20 relative min-h-[60vh] overflow-visible">
+          <div className="max-w-md mx-auto text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
               <ShoppingCart className="h-12 w-12 text-muted-foreground" />
             </div>
@@ -38,7 +38,7 @@ export default function Carrito() {
             </div>
           </div>
           
-          {/* Aussie (looking left) - bottom-left of empty state, not cropped */}
+          {/* Aussie (looking left) - bottom-left of container, not cropped */}
           <motion.div 
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -48,7 +48,7 @@ export default function Carrito() {
             <img 
               src={playAussie} 
               alt="Perro esperando" 
-              className="w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl"
+              className="w-32 md:w-48 lg:w-56 object-contain drop-shadow-xl"
             />
           </motion.div>
         </div>
@@ -58,21 +58,8 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div className="container py-12 pb-32 lg:pb-12 relative min-h-[60vh]">
-        <div className="max-w-3xl mx-auto relative">
-          {/* Aussie (looking left) - bottom-left of cart section */}
-          <motion.div 
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="absolute -bottom-24 -left-32 lg:-left-64 z-10 pointer-events-none hidden lg:block"
-          >
-            <img 
-              src={playAussie} 
-              alt="Perro feliz por el pedido" 
-              className="w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl"
-            />
-          </motion.div>
+      <div className="container py-12 pb-32 lg:pb-12 relative min-h-[60vh] overflow-visible">
+        <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Tu Carrito</h1>
             <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive">

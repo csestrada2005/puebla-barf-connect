@@ -9,11 +9,11 @@ import playLabrador from "@/assets/brand/play-labrador.png";
 export default function GuiasBarf() {
   return (
     <Layout>
-      <div className="container py-12 relative">
+      <div className="container py-12">
         {/* Main content wrapper with sidebar space for dog */}
-        <div className="flex">
+        <div className="flex items-start">
           {/* Sticky Dog Column - LEFT side */}
-          <div className="hidden lg:block w-72 flex-shrink-0 relative">
+          <div className="hidden lg:block w-72 flex-shrink-0 pl-4 overflow-visible">
             <div className="sticky top-24">
               <img 
                 src={playLabrador} 
