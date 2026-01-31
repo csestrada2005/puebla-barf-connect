@@ -44,7 +44,7 @@ export function Layout({
 
           {/* FAB Button */}
           <Link to="/ai" className="group flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full pl-0 pr-0 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="w-16 h-16 sm:w-16 sm:h-16 flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-18 sm:h-18 flex items-center justify-center">
               <img src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-contain" />
             </div>
             <span className="hidden md:block font-medium pr-1">
