@@ -19,7 +19,7 @@ export function ChatMessage({ content, isBot = true, children }: ChatMessageProp
       )}
     >
       {isBot && (
-        <div className="w-12 h-12 flex-shrink-0">
+        <div className="w-16 h-16 flex-shrink-0">
           <img 
             src={dogtorAvatar} 
             alt="El Dogtor" 

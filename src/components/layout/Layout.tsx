@@ -43,8 +43,8 @@ export function Layout({
           </AnimatePresence>
 
           {/* FAB Button */}
-          <Link to="/ai" className="group flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full pl-1 pr-1 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="w-12 h-12 sm:w-11 sm:h-11 flex items-center justify-center">
+          <Link to="/ai" className="group flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full pl-0.5 pr-0.5 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="w-14 h-14 sm:w-14 sm:h-14 flex items-center justify-center">
               <img src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-contain" />
             </div>
             <span className="hidden md:block font-medium pr-1">
