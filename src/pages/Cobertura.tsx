@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCoverage } from "@/hooks/useCoverage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandImage } from "@/components/ui/BrandImage";
 import coberturaPitbull from "@/assets/brand/cobertura-pitbull.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
@@ -110,17 +111,22 @@ export default function Cobertura() {
           {/* Right side - Pitbull B&W - positioned relative to content */}
           <div className="hidden lg:block lg:w-[45%] relative">
             <AnimatePresence>
-              <motion.img 
-                src={coberturaPitbull} 
-                alt="Perro atento mirando" 
+              <motion.div 
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-                className="absolute right-0 top-0 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
+                className="absolute right-0 pointer-events-none"
                 style={{ 
                   top: Math.max(0, contentHeight - 335),
                 }}
-              />
+              >
+                <BrandImage 
+                  src={coberturaPitbull} 
+                  alt="Perro atento mirando" 
+                  className="w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl"
+                  priority
+                />
+              </motion.div>
             </AnimatePresence>
           </div>
         </div>

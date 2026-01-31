@@ -9,15 +9,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import logoChoco from "@/assets/brand/logo-choco.png";
 
+// Prefetch functions for route preloading
+const prefetchTienda = () => import("@/pages/Tienda");
+const prefetchSuscripcion = () => import("@/pages/Suscripcion");
+const prefetchAI = () => import("@/pages/AIRecomendador");
+const prefetchGuiasBarf = () => import("@/pages/GuiasBarf");
+const prefetchNosotros = () => import("@/pages/Nosotros");
+
 const navLinksLeft = [
-  { href: "/tienda", label: "Tienda" },
-  { href: "/suscripcion", label: "Suscripción" },
-  { href: "/ai", label: "Recomendador AI" },
+  { href: "/tienda", label: "Tienda", prefetch: prefetchTienda },
+  { href: "/suscripcion", label: "Suscripción", prefetch: prefetchSuscripcion },
+  { href: "/ai", label: "Recomendador AI", prefetch: prefetchAI },
 ];
 
 const navLinksRight = [
-  { href: "/guias-barf", label: "Guía BARF" },
-  { href: "/nosotros", label: "Nosotros" },
+  { href: "/guias-barf", label: "Guía BARF", prefetch: prefetchGuiasBarf },
+  { href: "/nosotros", label: "Nosotros", prefetch: prefetchNosotros },
 ];
 
 const allNavLinks = [...navLinksLeft, ...navLinksRight];
@@ -42,12 +49,13 @@ export function Header() {
           />
         </Link>
 
-        {/* Center: Navigation Links (Desktop) */}
+        {/* Center: Navigation Links (Desktop) with prefetch on hover */}
         <nav className="hidden lg:flex items-center gap-6 mx-auto">
           {allNavLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
+              onMouseEnter={link.prefetch}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location.pathname === link.href

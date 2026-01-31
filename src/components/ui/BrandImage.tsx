@@ -9,7 +9,7 @@ interface BrandImageProps {
 }
 
 export function BrandImage({ src, alt, className, priority = false }: BrandImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(priority); // Skip animation for priority images
 
   return (
     <img
@@ -20,9 +20,9 @@ export function BrandImage({ src, alt, className, priority = false }: BrandImage
       fetchPriority={priority ? "high" : undefined}
       onLoad={() => setIsLoaded(true)}
       className={cn(
-        "transition-all duration-500 ease-out",
-        !isLoaded && "blur-sm opacity-80",
-        isLoaded && "blur-0 opacity-100",
+        "transition-opacity duration-300 ease-out",
+        !isLoaded && "opacity-0",
+        isLoaded && "opacity-100",
         className
       )}
     />

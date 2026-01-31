@@ -3,6 +3,7 @@ import { ShoppingCart, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -70,7 +71,7 @@ export function ProductCard({
       <Link to={`/producto/${slug}`}>
         <div className="aspect-square bg-muted relative overflow-hidden">
           {imageUrl ? (
-            <img
+            <BrandImage
               src={imageUrl}
               alt={name}
               className="w-full h-full object-cover transition-transform group-hover:scale-105"

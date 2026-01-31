@@ -5,6 +5,7 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { motion } from "framer-motion";
@@ -45,17 +46,21 @@ export default function Carrito() {
       <Layout>
         <div ref={containerRef} className="container py-20 pb-48 lg:pb-48 relative">
           {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
-          <motion.img 
-            src={playAussie} 
-            alt="Perro esperando" 
+          <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ 
               opacity: isVisible ? 1 : 0, 
               x: isVisible ? 0 : -40 
             }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
-          />
+            className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden md:block"
+          >
+            <BrandImage 
+              src={playAussie} 
+              alt="Perro esperando" 
+              className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
+            />
+          </motion.div>
           <div className="max-w-md mx-auto text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
               <ShoppingCart className="h-12 w-12 text-muted-foreground" />
@@ -82,17 +87,21 @@ export default function Carrito() {
     <Layout>
       <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative">
         {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
-        <motion.img 
-          src={playAussie} 
-          alt="Perro feliz por el pedido" 
+        <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ 
             opacity: isVisible ? 1 : 0, 
             x: isVisible ? 0 : -40 
           }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden lg:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
-        />
+          className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden lg:block"
+        >
+          <BrandImage 
+            src={playAussie} 
+            alt="Perro feliz por el pedido" 
+            className="w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
+          />
+        </motion.div>
 
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -112,7 +121,7 @@ export default function Carrito() {
                     <div className="flex gap-4">
                       <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center text-3xl shrink-0">
                         {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                          <BrandImage src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                         ) : (
                           "🥩"
                         )}
