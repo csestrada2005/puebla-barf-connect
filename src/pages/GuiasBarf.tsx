@@ -5,68 +5,49 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, Book, Calculator, AlertTriangle } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import playLabrador from "@/assets/brand/play-labrador.png";
 
 export default function GuiasBarf() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const contentEndRef = useRef<HTMLDivElement>(null);
-  const [dogTop, setDogTop] = useState(100);
+  const [isVisible, setIsVisible] = useState(true);
   
-  const { scrollY } = useScroll();
-  
-  // Calculate bounds for dog positioning
-  const [scrollBounds, setScrollBounds] = useState({ start: 0, end: 1000 });
-  
+  // Hide dog when scrolled past the content section (into footer)
   useEffect(() => {
-    const updateBounds = () => {
-      if (containerRef.current && contentEndRef.current) {
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const contentEndRect = contentEndRef.current.getBoundingClientRect();
-        const scrollTop = window.scrollY;
-        
-        // Start position (when container comes into view)
-        const start = scrollTop + containerRect.top - 100;
-        // End position (stop before content ends, accounting for dog height ~320px)
-        const end = scrollTop + contentEndRect.top - 400;
-        
-        setScrollBounds({ start, end: Math.max(start, end) });
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        // Dog is visible when the container is in view (accounting for footer)
+        // Hide when bottom of container is above viewport or we're past content
+        const isInView = rect.top < viewportHeight && rect.bottom > 350;
+        setIsVisible(isInView);
       }
     };
     
-    updateBounds();
-    window.addEventListener('resize', updateBounds);
-    // Recalculate after content loads
-    const timer = setTimeout(updateBounds, 100);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
     return () => {
-      window.removeEventListener('resize', updateBounds);
-      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
   }, []);
-  
-  // Calculate dog Y position with clamped bounds
-  useEffect(() => {
-    return scrollY.on("change", (latest) => {
-      const { start, end } = scrollBounds;
-      const progress = Math.max(0, Math.min(1, (latest - start) / (end - start)));
-      // Dog moves from top:100px to top:500px max within the section
-      const newTop = 100 + (progress * 400);
-      setDogTop(newTop);
-    });
-  }, [scrollY, scrollBounds]);
 
   return (
     <Layout>
       <div ref={containerRef} className="container py-12 pb-48 relative">
-        {/* Labrador - reactive scrolling on LEFT side, stops before footer */}
+        {/* Labrador - fixed at bottom-left, visible only within content section */}
         <motion.img 
           src={playLabrador}
           alt="Labrador sonriente"
           initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          style={{ top: dogTop }}
-          className="fixed left-0 z-10 pointer-events-none hidden lg:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+          animate={{ 
+            opacity: isVisible ? 1 : 0, 
+            x: isVisible ? 0 : -40 
+          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="fixed bottom-0 left-0 z-10 pointer-events-none hidden lg:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
         />
 
         <div className="max-w-3xl mx-auto">
@@ -258,9 +239,6 @@ export default function GuiasBarf() {
             </CardContent>
           </Card>
         </div>
-        
-        {/* Content end reference for dog scroll stop */}
-        <div ref={contentEndRef} className="h-1" />
       </div>
     </Layout>
   );
