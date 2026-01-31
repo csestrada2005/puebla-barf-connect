@@ -7,6 +7,9 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import heroDogtongue from "@/assets/brand/hero-dog-tongue.png";
+import decoFluffy from "@/assets/brand/deco-fluffy.png";
 
 const faqs = [
   {
@@ -54,7 +57,21 @@ const faqs = [
 export default function FAQ() {
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 relative overflow-visible">
+        {/* Playful dog with tongue out - peeking from left side */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50, rotate: -5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="absolute top-8 -left-4 md:-left-8 lg:-left-16 z-10 pointer-events-none hidden md:block"
+        >
+          <img 
+            src={heroDogtongue} 
+            alt="Perro feliz con lengua afuera" 
+            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Preguntas Frecuentes</h1>
@@ -76,7 +93,23 @@ export default function FAQ() {
             ))}
           </Accordion>
 
-          <div className="mt-12 text-center p-6 bg-muted rounded-lg">
+          {/* CTA with playful fluffy dog */}
+          <div className="mt-12 text-center p-6 bg-muted rounded-lg relative overflow-visible">
+            {/* Fluffy dog peeking from bottom-right of CTA card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="absolute -bottom-6 -right-4 md:-right-8 z-10 pointer-events-none"
+            >
+              <img 
+                src={decoFluffy} 
+                alt="" 
+                className="w-20 md:w-24 object-contain opacity-80 drop-shadow-lg"
+                aria-hidden="true"
+              />
+            </motion.div>
+
             <h3 className="font-bold mb-2">¿No encontraste tu respuesta?</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Escríbenos por WhatsApp y te respondemos en minutos.
