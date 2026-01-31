@@ -49,7 +49,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             x: 0
           }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none hidden md:block w-60 md:w-72 lg:w-80 object-contain drop-shadow-xl"
+          className="fixed left-0 z-10 pointer-events-none hidden md:block w-72 md:w-80 lg:w-96 object-contain drop-shadow-xl"
           style={{ bottom: inputHeight - 24 }}
         />
       </AnimatePresence>
