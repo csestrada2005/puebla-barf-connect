@@ -10,43 +10,64 @@ import playLabrador from "@/assets/brand/play-labrador.png";
 
 export default function GuiasBarf() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const [maxScroll, setMaxScroll] = useState(0);
+  const contentEndRef = useRef<HTMLDivElement>(null);
+  const [dogTop, setDogTop] = useState(100);
   
   const { scrollY } = useScroll();
   
-  // Calculate the dog's Y position based on scroll, stopping at footer
+  // Calculate bounds for dog positioning
+  const [scrollBounds, setScrollBounds] = useState({ start: 0, end: 1000 });
+  
   useEffect(() => {
-    const updateMaxScroll = () => {
-      if (containerRef.current && footerRef.current) {
-        const containerTop = containerRef.current.offsetTop;
-        const footerTop = footerRef.current.offsetTop;
-        const dogHeight = 320; // approximate height of dog image
-        setMaxScroll(footerTop - containerTop - dogHeight - 100);
+    const updateBounds = () => {
+      if (containerRef.current && contentEndRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const contentEndRect = contentEndRef.current.getBoundingClientRect();
+        const scrollTop = window.scrollY;
+        
+        // Start position (when container comes into view)
+        const start = scrollTop + containerRect.top - 100;
+        // End position (stop before content ends, accounting for dog height ~320px)
+        const end = scrollTop + contentEndRect.top - 400;
+        
+        setScrollBounds({ start, end: Math.max(start, end) });
       }
     };
     
-    updateMaxScroll();
-    window.addEventListener('resize', updateMaxScroll);
-    return () => window.removeEventListener('resize', updateMaxScroll);
+    updateBounds();
+    window.addEventListener('resize', updateBounds);
+    // Recalculate after content loads
+    const timer = setTimeout(updateBounds, 100);
+    return () => {
+      window.removeEventListener('resize', updateBounds);
+      clearTimeout(timer);
+    };
   }, []);
   
-  const dogY = useTransform(scrollY, [0, maxScroll > 0 ? maxScroll : 1000], [100, maxScroll > 0 ? maxScroll : 500]);
+  // Calculate dog Y position with clamped bounds
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      const { start, end } = scrollBounds;
+      const progress = Math.max(0, Math.min(1, (latest - start) / (end - start)));
+      // Dog moves from top:100px to top:500px max within the section
+      const newTop = 100 + (progress * 400);
+      setDogTop(newTop);
+    });
+  }, [scrollY, scrollBounds]);
 
   return (
     <Layout>
-      <div ref={containerRef} className="container py-12 relative">
-        {/* Labrador - reactive scrolling on LEFT side, stops at footer */}
-        <motion.div 
-          style={{ y: dogY }}
-          className="fixed left-0 z-10 pointer-events-none hidden lg:block"
-        >
-          <img 
-            src={playLabrador} 
-            alt="Labrador sonriente" 
-            className="w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
-          />
-        </motion.div>
+      <div ref={containerRef} className="container py-12 pb-48 relative">
+        {/* Labrador - reactive scrolling on LEFT side, stops before footer */}
+        <motion.img 
+          src={playLabrador}
+          alt="Labrador sonriente"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          style={{ top: dogTop }}
+          className="fixed left-0 z-10 pointer-events-none hidden lg:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+        />
 
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
@@ -238,8 +259,8 @@ export default function GuiasBarf() {
           </Card>
         </div>
         
-        {/* Footer reference for dog scroll stop */}
-        <div ref={footerRef} className="h-1" />
+        {/* Content end reference for dog scroll stop */}
+        <div ref={contentEndRef} className="h-1" />
       </div>
     </Layout>
   );

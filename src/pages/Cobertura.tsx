@@ -44,20 +44,16 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-12 pb-32 lg:pb-12 relative">
-        {/* Pitbull B&W - fixed above footer on the right */}
-        <motion.div 
+      <div className="container py-12 pb-48 lg:pb-48 relative">
+        {/* Pitbull B&W - at bottom of section on the right */}
+        <motion.img 
+          src={playPitbull} 
+          alt="Perro atento mirando" 
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="fixed bottom-16 right-0 z-10 pointer-events-none hidden lg:block"
-        >
-          <img 
-            src={playPitbull} 
-            alt="Perro atento mirando" 
-            className="w-48 md:w-56 lg:w-64 object-contain drop-shadow-xl"
-          />
-        </motion.div>
+          className="absolute bottom-0 right-0 z-10 pointer-events-none hidden lg:block w-48 md:w-56 lg:w-64 object-contain drop-shadow-xl"
+        />
 
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">

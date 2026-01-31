@@ -16,7 +16,6 @@ import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
-import playPomeranian from "@/assets/brand/play-pomeranian.png";
 // Decorative icons
 import decoBowl from "@/assets/brand/deco-bowl.png";
 import decoCarrot from "@/assets/brand/deco-carrot.png";
@@ -243,17 +242,6 @@ export default function Home() {
         {/* Decorative background icons */}
         <img src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-28 md:w-40 opacity-20 pointer-events-none" aria-hidden="true" />
         <img src={decoPaw} alt="" className="absolute top-8 left-8 w-20 md:w-28 opacity-20 pointer-events-none" aria-hidden="true" />
-        
-        {/* Pomeranian - sitting near the email form */}
-        <motion.img 
-          src={playPomeranian} 
-          alt="Pomeranian feliz" 
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="absolute bottom-0 left-4 md:left-8 lg:left-16 w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl pointer-events-none hidden md:block z-10" 
-        />
         
         <div className="container relative z-10">
           <motion.div initial={{

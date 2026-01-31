@@ -2,6 +2,7 @@ import { useRef, useEffect, ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import aiHoundRight from "@/assets/brand/ai-hound-right.png";
+import playPomeranian from "@/assets/brand/play-pomeranian.png";
 
 interface ChatContainerProps {
   children: ReactNode;
@@ -37,25 +38,36 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
-      {/* Hound (looking LEFT) - positioned at RIGHT edge, reacting to input section height */}
+      {/* Pomeranian (looking right) - LEFT side, reactive to input height */}
       <AnimatePresence>
-        <motion.div 
+        <motion.img 
+          src={playPomeranian}
+          alt="Pomeranian mirando el chat"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0
+          }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed left-0 z-10 pointer-events-none hidden md:block w-44 md:w-56 lg:w-64 object-contain drop-shadow-xl"
+          style={{ bottom: inputHeight + 8 }}
+        />
+      </AnimatePresence>
+
+      {/* Hound (looking LEFT) - RIGHT side, reactive to input height */}
+      <AnimatePresence>
+        <motion.img 
+          src={aiHoundRight}
+          alt="Perro atento mirando el chat"
           initial={{ opacity: 0, x: 40 }}
           animate={{ 
             opacity: 1, 
-            x: 0,
-            bottom: inputHeight + 8
+            x: 0
           }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute right-0 z-10 pointer-events-none hidden md:block"
+          className="fixed right-0 z-10 pointer-events-none hidden md:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
           style={{ bottom: inputHeight + 8 }}
-        >
-          <img 
-            src={aiHoundRight} 
-            alt="Perro atento mirando el chat" 
-            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
-          />
-        </motion.div>
+        />
       </AnimatePresence>
 
       {/* Header Badge */}
