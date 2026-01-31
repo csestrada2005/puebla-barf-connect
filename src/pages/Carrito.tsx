@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { motion } from "framer-motion";
-import decoFluffy from "@/assets/brand/deco-fluffy.png";
+import playAussie from "@/assets/brand/play-aussie.png";
 
 export default function Carrito() {
   const { items, updateQuantity, removeItem, getSubtotal, clearCart } = useCart();
@@ -20,17 +20,17 @@ export default function Carrito() {
     return (
       <Layout>
         <div className="container py-20 relative overflow-visible">
-          {/* Fluffy dog (partial) - peeking from right when cart is empty */}
+          {/* Aussie (partial, looking LEFT) - peeking from RIGHT when cart empty */}
           <motion.div 
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="absolute bottom-12 -right-4 md:-right-12 lg:-right-20 z-10 pointer-events-none hidden md:block"
+            className="absolute bottom-12 -right-8 md:-right-20 lg:-right-28 z-10 pointer-events-none hidden md:block"
           >
             <img 
-              src={decoFluffy} 
-              alt="Perro esperando que agregues productos" 
-              className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
+              src={playAussie} 
+              alt="Perro esperando" 
+              className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
             />
           </motion.div>
 
@@ -59,17 +59,17 @@ export default function Carrito() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Fluffy dog (partial) - peeking from right when cart has items */}
+        {/* Aussie (partial, looking LEFT) - peeking from RIGHT when cart has items */}
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-8 -right-4 md:-right-12 lg:-right-16 z-10 pointer-events-none hidden lg:block"
+          className="absolute top-8 -right-8 md:-right-20 lg:-right-28 z-10 pointer-events-none hidden lg:block"
         >
           <img 
-            src={decoFluffy} 
+            src={playAussie} 
             alt="Perro feliz por el pedido" 
-            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
+            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
           />
         </motion.div>
 
