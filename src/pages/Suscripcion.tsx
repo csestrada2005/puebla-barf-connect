@@ -11,8 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
-import decoFluffy from "@/assets/brand/deco-fluffy.png";
-import dogLicking from "@/assets/brand/dog-licking.png";
+import playBulldogs from "@/assets/brand/play-bulldogs.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -121,17 +120,17 @@ export default function Suscripcion() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Happy fluffy dog excited about subscription */}
+        {/* Bulldogs (full body pair) - bottom left corner */}
         <motion.div 
-          initial={{ opacity: 0, x: -50, rotate: -5 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-16 -left-4 md:left-0 z-10 pointer-events-none hidden lg:block"
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute -bottom-8 -left-8 md:-left-16 lg:-left-24 z-10 pointer-events-none hidden xl:block"
         >
           <img 
-            src={decoFluffy} 
-            alt="Perro feliz" 
-            className="w-32 md:w-40 object-contain drop-shadow-xl"
+            src={playBulldogs} 
+            alt="Bulldogs felices" 
+            className="w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
           />
         </motion.div>
 
@@ -277,22 +276,7 @@ export default function Suscripcion() {
           {/* Summary & Benefits - Sticky container */}
           <div className="lg:sticky lg:top-24 space-y-6">
             {/* Price Card */}
-            <Card className="border-primary border-2 relative overflow-visible">
-              {/* Dog licking excited about the subscription */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="absolute -top-8 -right-4 md:-right-8 z-10 pointer-events-none hidden md:block"
-              >
-                <img 
-                  src={dogLicking} 
-                  alt="" 
-                  className="w-20 md:w-24 object-contain opacity-90 drop-shadow-lg"
-                  aria-hidden="true"
-                />
-              </motion.div>
-
+            <Card className="border-primary border-2">
               <CardHeader>
                 <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>

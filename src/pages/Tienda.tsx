@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Clock, Check } from "lucide-react";
 import { motion } from "framer-motion";
-import dogPeeking from "@/assets/brand/dog-peeking.png";
 import decoPuppy from "@/assets/brand/deco-puppy.png";
 
 type ProteinFilter = "all" | "pollo" | "res";
@@ -37,17 +36,17 @@ export default function Tienda() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Playful dog peeking from top-right */}
+        {/* Puppy (full body) - bottom right, sitting cutely watching products */}
         <motion.div 
-          initial={{ opacity: 0, x: 50, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute -top-4 -right-4 md:right-0 z-10 pointer-events-none hidden md:block"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute -bottom-6 right-4 md:right-8 lg:right-16 z-10 pointer-events-none hidden md:block"
         >
           <img 
-            src={dogPeeking} 
-            alt="Perro curioso asomándose" 
-            className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
+            src={decoPuppy} 
+            alt="Cachorro feliz observando los productos" 
+            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
           />
         </motion.div>
 
@@ -107,21 +106,6 @@ export default function Tienda() {
 
         {/* Products Grid */}
         <div className="relative">
-          {/* Decorative puppy at bottom-left of products grid */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="absolute -bottom-8 -left-4 md:-left-8 z-10 pointer-events-none hidden lg:block"
-          >
-            <img 
-              src={decoPuppy} 
-              alt="" 
-              className="w-28 md:w-36 object-contain opacity-80 drop-shadow-lg"
-              aria-hidden="true"
-            />
-          </motion.div>
-
           {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => (
