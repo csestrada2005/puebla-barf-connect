@@ -27,7 +27,7 @@ export default function Carrito() {
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="absolute bottom-0 left-0 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
+            className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
           />
           <div className="max-w-md mx-auto text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
@@ -61,7 +61,7 @@ export default function Carrito() {
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute bottom-0 left-0 z-10 pointer-events-none hidden lg:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
+          className="fixed bottom-0 -left-8 z-10 pointer-events-none hidden lg:block w-52 md:w-64 lg:w-80 object-contain drop-shadow-xl"
         />
 
         <div className="max-w-3xl mx-auto">
