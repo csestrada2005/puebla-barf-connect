@@ -100,7 +100,7 @@ export default function Cobertura() {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-              className="w-80 lg:w-96 xl:w-[28rem] object-contain drop-shadow-xl pointer-events-none"
+              className="w-72 lg:w-80 xl:w-96 h-48 lg:h-56 xl:h-64 object-cover object-top drop-shadow-xl pointer-events-none"
             />
           </div>
         </div>
