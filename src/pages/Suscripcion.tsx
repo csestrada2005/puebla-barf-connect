@@ -92,22 +92,7 @@ export default function Suscripcion() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
   return <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Bulldogs (full body pair) - bottom left corner */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 60
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} transition={{
-        duration: 0.8,
-        delay: 0.4,
-        ease: "easeOut"
-      }} className="absolute -bottom-8 -left-8 md:-left-16 lg:-left-24 z-10 pointer-events-none hidden xl:block">
-          <img src={playBulldogs} alt="Bulldogs felices" className="w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl" />
-        </motion.div>
-
+      <div className="container py-12 pt-20 md:pt-24 lg:pt-28 relative overflow-visible">
         {/* Hero */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <Badge variant="secondary" className="mb-4 gap-1">
@@ -218,10 +203,25 @@ export default function Suscripcion() {
 
           {/* Summary & Benefits - Sticky container */}
           <div className="lg:sticky lg:top-24 space-y-6 h-fit">
-            {/* Price Card */}
-            <Card className="border-primary border-2">
-              <CardHeader>
-                <CardTitle className="text-xl">Tu suscripción</CardTitle>
+            {/* Price Card with Bulldogs standing on top */}
+            <div className="relative">
+              {/* Bulldogs (full body pair) - standing ON TOP of the card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                className="absolute -top-24 md:-top-28 lg:-top-32 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+              >
+                <img 
+                  src={playBulldogs} 
+                  alt="Bulldogs felices" 
+                  className="w-36 md:w-44 lg:w-52 object-contain drop-shadow-xl"
+                />
+              </motion.div>
+              
+              <Card className="border-primary border-2 pt-8 md:pt-10">
+                <CardHeader>
+                  <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>
                   BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - Plan {planType === "pro" ? "Pro" : "Básico"}
                 </CardDescription>
@@ -255,7 +255,8 @@ export default function Suscripcion() {
                   Sin compromiso. Cancela cuando quieras.
                 </p>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
 
             {/* Extra Benefits */}
             <Card>

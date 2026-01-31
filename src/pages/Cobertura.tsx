@@ -44,18 +44,18 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Pitbull B&W (partial, looking forward) - bottom left corner */}
+      <div className="container py-12 relative overflow-hidden">
+        {/* Pitbull B&W (partial) - emerging from RIGHT side, properly aligned */}
         <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-8 -left-8 md:-left-20 lg:-left-28 z-10 pointer-events-none hidden lg:block"
+          className="absolute bottom-0 -right-8 md:-right-12 lg:-right-16 z-10 pointer-events-none hidden lg:block"
         >
           <img 
             src={playPitbull} 
             alt="Perro atento mirando" 
-            className="w-44 md:w-56 lg:w-72 object-contain drop-shadow-xl"
+            className="w-48 md:w-60 lg:w-80 object-contain drop-shadow-xl"
           />
         </motion.div>
 

@@ -36,17 +36,17 @@ export default function Tienda() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Pomeranian (full body) - bottom right corner, sitting happily */}
+        {/* Pomeranian (full body) - sitting on top left of benefits bar */}
         <motion.div 
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-8 right-4 md:right-12 lg:right-20 z-10 pointer-events-none hidden md:block"
+          className="absolute top-[280px] md:top-[260px] -left-4 md:-left-8 lg:-left-12 z-10 pointer-events-none hidden md:block"
         >
           <img 
             src={playPomeranian} 
             alt="Pomeranian feliz" 
-            className="w-32 md:w-40 lg:w-52 object-contain drop-shadow-xl"
+            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
           />
         </motion.div>
 

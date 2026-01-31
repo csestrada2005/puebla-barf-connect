@@ -10,18 +10,18 @@ import playLabrador from "@/assets/brand/play-labrador.png";
 export default function GuiasBarf() {
   return (
     <Layout>
-      <div className="container py-12 relative overflow-visible">
-        {/* Labrador (partial, looking forward) - bottom right, happy face peeking */}
+      <div className="container py-12 relative overflow-hidden">
+        {/* Labrador (partial) - emerging from RIGHT edge, properly aligned */}
         <motion.div 
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-8 right-0 md:right-4 lg:right-12 z-10 pointer-events-none hidden lg:block"
+          className="absolute bottom-0 -right-8 md:-right-12 lg:-right-16 z-10 pointer-events-none hidden lg:block"
         >
           <img 
             src={playLabrador} 
             alt="Labrador sonriente" 
-            className="w-44 md:w-56 lg:w-72 object-contain drop-shadow-xl"
+            className="w-48 md:w-60 lg:w-80 object-contain drop-shadow-xl"
           />
         </motion.div>
 
