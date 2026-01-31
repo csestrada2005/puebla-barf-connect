@@ -45,7 +45,7 @@ export default function Nosotros() {
           <img 
             src={nosotrosBrownDog} 
             alt="Perro curioso asomándose" 
-            className="w-40 sm:w-48 md:w-64 lg:w-80 xl:w-96 object-contain drop-shadow-2xl translate-x-[15%]"
+            className="w-40 sm:w-48 md:w-64 lg:w-80 xl:w-96 object-contain drop-shadow-2xl -translate-x-[10%]"
           />
         </motion.div>
 
