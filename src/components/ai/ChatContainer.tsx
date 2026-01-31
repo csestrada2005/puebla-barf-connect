@@ -38,39 +38,33 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative overflow-visible">
-      {/* Pomeranian (looking right) - LEFT side, reactive to input height */}
+      {/* Pomeranian (looking right) - LEFT side, fixed to viewport, reactive to input height */}
       <motion.div 
         initial={{ opacity: 0, x: -40 }}
-        animate={{ 
-          opacity: 1, 
-          x: 0,
-        }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed left-0 z-10 pointer-events-none hidden md:block"
-        style={{ bottom: inputHeight - 20 }}
+        className="fixed left-0 z-50 pointer-events-none hidden md:block"
+        style={{ bottom: 0 }}
       >
         <img 
           src={playPomeranian} 
           alt="Perro atento mirando el chat" 
-          className="w-44 md:w-56 lg:w-64 object-contain drop-shadow-xl"
+          className="w-32 md:w-48 lg:w-64 object-contain drop-shadow-xl scale-x-[-1]"
         />
       </motion.div>
 
-      {/* Hound (looking LEFT) - RIGHT side, reactive to input height */}
+      {/* Hound (looking right) - RIGHT side, fixed to viewport */}
       <motion.div 
         initial={{ opacity: 0, x: 40 }}
-        animate={{ 
-          opacity: 1, 
-          x: 0,
-        }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed right-0 z-10 pointer-events-none hidden md:block"
-        style={{ bottom: inputHeight - 20 }}
+        className="fixed right-0 z-50 pointer-events-none hidden md:block"
+        style={{ bottom: 0 }}
       >
         <img 
           src={aiHoundRight} 
           alt="Perro atento mirando el chat" 
-          className="w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+          className="w-32 md:w-48 lg:w-64 object-contain drop-shadow-xl"
         />
       </motion.div>
 
@@ -82,8 +76,8 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         </div>
       </div>
 
-      {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      {/* Messages Area - Scrollable with bottom padding for dogs */}
+      <div className="flex-1 overflow-y-auto px-4 pb-20">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
