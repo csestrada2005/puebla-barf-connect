@@ -53,14 +53,14 @@ export function Footer() {
               </a>
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" asChild className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="secondary" size="icon" asChild className="hover:bg-secondary/80">
                 <a href="https://instagram.com/rawpawmx" target="_blank" rel="noopener noreferrer">
-                  <Instagram className="h-4 w-4" />
+                  <Instagram className="h-5 w-5" />
                 </a>
               </Button>
-              <Button variant="outline" size="icon" asChild className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="secondary" size="icon" asChild className="hover:bg-secondary/80">
                 <a href="https://facebook.com/rawpawmx" target="_blank" rel="noopener noreferrer">
-                  <Facebook className="h-4 w-4" />
+                  <Facebook className="h-5 w-5" />
                 </a>
               </Button>
             </div>
