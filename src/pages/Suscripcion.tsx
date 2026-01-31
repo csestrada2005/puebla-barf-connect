@@ -215,7 +215,7 @@ export default function Suscripcion() {
                 <img 
                   src={playBulldogs} 
                   alt="Bulldogs felices" 
-                  className="w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
+                  className="w-52 md:w-60 lg:w-72 object-contain drop-shadow-xl"
                 />
               </motion.div>
               
