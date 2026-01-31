@@ -49,8 +49,8 @@ export default function Cobertura() {
           {/* Left side - Content */}
           <div className="w-full lg:w-[55%]">
             <div className="max-w-xl mx-auto lg:mx-0 lg:ml-auto lg:mr-8">
-              <div className="text-center mb-4">
-                <h1 className="text-3xl lg:text-4xl font-bold">Verifica tu cobertura</h1>
+              <div className="text-center mb-6">
+                <h1 className="text-4xl lg:text-5xl font-bold">Verifica tu cobertura</h1>
               </div>
 
               {hasSearched && <>
@@ -76,10 +76,10 @@ export default function Cobertura() {
                 </Card>}
               </>}
 
-              {zones && zones.length > 0 && !hasSearched && <div className="mt-3">
-                <h3 className="font-medium mb-3 text-base text-center">Zonas con cobertura:</h3>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {zones.map(z => <Button key={z.id} variant="outline" size="default" className="text-base" onClick={() => {
+              {zones && zones.length > 0 && !hasSearched && <div className="mt-4">
+                <h3 className="font-semibold mb-4 text-lg text-center">Zonas con cobertura:</h3>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {zones.map(z => <Button key={z.id} variant="outline" size="lg" className="text-lg px-6" onClick={() => {
                     setSearch(z.zone_name);
                     setSelectedZone(z);
                     setHasSearched(true);
@@ -99,7 +99,7 @@ export default function Cobertura() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="hidden lg:block fixed right-0 bottom-0 z-10 w-80 lg:w-96 xl:w-[28rem] object-contain drop-shadow-xl pointer-events-none"
+            className="hidden lg:block fixed right-0 bottom-0 z-10 w-72 lg:w-80 xl:w-96 object-contain drop-shadow-xl pointer-events-none"
             style={{ bottom: 40 }}
           />
         </div>
