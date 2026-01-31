@@ -92,17 +92,16 @@ export default function Cobertura() {
             </div>
           </div>
 
-          {/* Right side - Pitbull B&W */}
-          <div className="hidden lg:flex lg:w-[45%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16">
-            <motion.img 
-              src={coberturaPitbull} 
-              alt="Perro atento mirando" 
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-              className="w-72 lg:w-80 xl:w-96 object-contain drop-shadow-xl pointer-events-none"
-            />
-          </div>
+          {/* Right side - Pitbull B&W - positioned lower */}
+          <motion.img 
+            src={coberturaPitbull} 
+            alt="Perro atento mirando" 
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+            className="hidden lg:block fixed right-0 bottom-0 z-10 w-72 lg:w-80 xl:w-96 object-contain drop-shadow-xl pointer-events-none"
+            style={{ bottom: -20 }}
+          />
         </div>
       </div>
     </Layout>
