@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Leaf, Zap, Sparkles, ShieldCheck, Smile, Scale } from "lucide-react";
+import { BrandImage } from "@/components/ui/BrandImage";
 import benefitsDog from "@/assets/brand/benefits-dog.jpeg";
 
 const benefits = [
@@ -77,7 +78,7 @@ export function BenefitsSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <img
+            <BrandImage
               src={benefitsDog}
               alt="Beneficios de la dieta BARF"
               className="w-full rounded-3xl shadow-xl"

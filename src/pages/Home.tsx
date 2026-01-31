@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { TestimonialCard } from "@/components";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -13,7 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
-import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 // Decorative icons
@@ -39,22 +39,18 @@ const howItWorks = [{
   title: "Entrega en 24-48h",
   description: "Alimento fresco directo a tu puerta en Puebla."
 }];
+
 export default function Home() {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
-  const {
-    data: testimonials
-  } = useQuery({
+  const { data: testimonials } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
-      const {
-        data
-      } = await supabase.from("testimonials").select("*").eq("is_active", true);
+      const { data } = await supabase.from("testimonials").select("*").eq("is_active", true);
       return data || [];
     }
   });
+
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
@@ -65,33 +61,37 @@ export default function Home() {
       setEmail("");
     }
   };
-  return <Layout>
+
+  return (
+    <Layout>
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
-        {/* Centered Logo at Top */}
-        <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" />
+        {/* Centered Logo at Top - PRIORITY */}
+        <BrandImage 
+          src={logoTaglineBlack} 
+          alt="Raw Paw - La nueva forma de cuidarlos" 
+          className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" 
+          priority 
+        />
 
-        {/* Playful hero dog - peeking from bottom right */}
-        <motion.img 
-          src={heroBorderCollie} 
-          alt="Perro feliz" 
+        {/* Playful hero dog - peeking from bottom right - PRIORITY */}
+        <motion.div
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 w-56 sm:w-72 md:w-96 lg:w-[480px] xl:w-[550px] object-contain z-10 pointer-events-none drop-shadow-2xl" 
-        />
+          className="absolute -bottom-4 -right-4 md:-right-8 w-56 sm:w-72 md:w-96 lg:w-[480px] xl:w-[550px] z-10 pointer-events-none"
+        >
+          <BrandImage 
+            src={heroBorderCollie} 
+            alt="Perro feliz" 
+            className="w-full h-auto object-contain drop-shadow-2xl" 
+            priority 
+          />
+        </motion.div>
 
         <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">
           <div className="flex-col text-left flex items-start justify-center">
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6
-          }} className="max-w-2xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
                 <Sparkles className="h-5 w-5 text-secondary" />
                 <span className="text-base md:text-lg text-primary-foreground/90 font-medium">Nutrición calculada con IA</span>
@@ -134,13 +134,13 @@ export default function Home() {
 
       {/* How it works - Simplified */}
       <section className="py-16 md:py-24 bg-background relative overflow-hidden">
-        {/* Decorative background icons */}
-        <img src={decoBowl} alt="" className="absolute top-10 left-4 w-24 md:w-32 opacity-30 pointer-events-none" aria-hidden="true" />
-        <img src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-20 md:w-28 opacity-30 pointer-events-none" aria-hidden="true" />
+        {/* Decorative background icons - LAZY */}
+        <BrandImage src={decoBowl} alt="" className="absolute top-10 left-4 w-24 md:w-32 opacity-30 pointer-events-none" />
+        <BrandImage src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-20 md:w-28 opacity-30 pointer-events-none" />
         
         <div className="container relative z-10">
           <div className="text-center mb-12">
-            <img src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
+            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Así de fácil funciona
             </h2>
@@ -150,18 +150,8 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {howItWorks.map((item, index) => <motion.div key={item.step} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.5,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }}>
+            {howItWorks.map((item, index) => (
+              <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} viewport={{ once: true }}>
                 <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
                   <CardContent className="pt-8 pb-6 text-center">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
@@ -171,7 +161,8 @@ export default function Home() {
                     <p className="text-muted-foreground">{item.description}</p>
                   </CardContent>
                 </Card>
-              </motion.div>)}
+              </motion.div>
+            ))}
           </div>
 
           <div className="text-center mt-12">
@@ -187,23 +178,13 @@ export default function Home() {
 
       {/* Brand Philosophy */}
       <section className="py-16 md:py-20 bg-secondary text-secondary-foreground relative overflow-hidden">
-        {/* Decorative background icons */}
-        <img src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-32 md:w-48 opacity-20 pointer-events-none" aria-hidden="true" />
-        <img src={decoBall} alt="" className="absolute top-8 right-8 w-16 md:w-24 opacity-20 pointer-events-none" aria-hidden="true" />
+        {/* Decorative background icons - LAZY */}
+        <BrandImage src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-32 md:w-48 opacity-20 pointer-events-none" />
+        <BrandImage src={decoBall} alt="" className="absolute top-8 right-8 w-16 md:w-24 opacity-20 pointer-events-none" />
         
         <div className="container relative z-10">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} viewport={{
-          once: true
-        }} className="max-w-4xl mx-auto text-center">
-            <img src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-4xl mx-auto text-center">
+            <BrandImage src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
               En Raw Paw <span className="opacity-60">no</span> hacemos comida para perros
             </h2>
@@ -218,9 +199,10 @@ export default function Home() {
       <BenefitsSection />
 
       {/* Testimonials */}
-      {testimonials && testimonials.length > 0 && <section className="py-16 md:py-24 bg-card relative overflow-hidden">
-          {/* Decorative background icons */}
-          <img src={decoFluffy} alt="" className="absolute top-8 right-4 w-24 md:w-36 opacity-20 pointer-events-none" aria-hidden="true" />
+      {testimonials && testimonials.length > 0 && (
+        <section className="py-16 md:py-24 bg-card relative overflow-hidden">
+          {/* Decorative background icons - LAZY */}
+          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-24 md:w-36 opacity-20 pointer-events-none" />
           
           <div className="container relative z-10">
             <div className="text-center mb-12">
@@ -232,30 +214,30 @@ export default function Home() {
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {testimonials.slice(0, 3).map(t => <TestimonialCard key={t.id} customerName={t.customer_name} petName={t.pet_name || undefined} petBreed={t.pet_breed || undefined} content={t.content} rating={t.rating || 5} />)}
+              {testimonials.slice(0, 3).map(t => (
+                <TestimonialCard 
+                  key={t.id} 
+                  customerName={t.customer_name} 
+                  petName={t.pet_name || undefined} 
+                  petBreed={t.pet_breed || undefined} 
+                  content={t.content} 
+                  rating={t.rating || 5} 
+                />
+              ))}
             </div>
           </div>
-        </section>}
+        </section>
+      )}
 
       {/* Email Capture */}
       <section className="py-16 md:py-24 bg-muted/50 relative overflow-hidden">
-        {/* Decorative background icons */}
-        <img src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-28 md:w-40 opacity-20 pointer-events-none" aria-hidden="true" />
-        <img src={decoPaw} alt="" className="absolute top-8 left-8 w-20 md:w-28 opacity-20 pointer-events-none" aria-hidden="true" />
+        {/* Decorative background icons - LAZY */}
+        <BrandImage src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-28 md:w-40 opacity-20 pointer-events-none" />
+        <BrandImage src={decoPaw} alt="" className="absolute top-8 left-8 w-20 md:w-28 opacity-20 pointer-events-none" />
         
         <div className="container relative z-10">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} viewport={{
-          once: true
-        }} className="max-w-xl mx-auto text-center">
-            <img src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-xl mx-auto text-center">
+            <BrandImage src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Recibe ofertas exclusivas
             </h2>
@@ -272,8 +254,8 @@ export default function Home() {
 
       {/* Final CTA */}
       <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
-        {/* Decorative background icons */}
-        <img src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-28 md:w-40 opacity-10 pointer-events-none" aria-hidden="true" />
+        {/* Decorative background icons - LAZY */}
+        <BrandImage src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-28 md:w-40 opacity-10 pointer-events-none" />
         
         <div className="container text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -290,5 +272,6 @@ export default function Home() {
           </Button>
         </div>
       </section>
-    </Layout>;
+    </Layout>
+  );
 }

@@ -3,6 +3,7 @@ import { Menu, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -31,12 +32,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
-        {/* Left: Logo */}
+        {/* Left: Logo - PRIORITY */}
         <Link to="/" className="flex-shrink-0">
-          <img 
+          <BrandImage 
             src={logoChoco} 
             alt="Raw Paw" 
             className="h-12 w-auto"
+            priority
           />
         </Link>
 
@@ -115,7 +117,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center mb-8">
-                <img 
+                <BrandImage 
                   src={logoChoco} 
                   alt="Raw Paw" 
                   className="h-14 w-auto"

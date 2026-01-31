@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandImage } from "@/components/ui/BrandImage";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 interface LayoutProps {
   children: React.ReactNode;
@@ -42,10 +43,10 @@ export function Layout({
             {showBubble}
           </AnimatePresence>
 
-          {/* FAB Button */}
+          {/* FAB Button - PRIORITY */}
           <Link to="/ai" className="group flex items-center gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-1 pr-1 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-              <img src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-cover scale-110" />
+              <BrandImage src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-cover scale-110" priority />
             </div>
             <span className="hidden md:block font-medium pr-1">
               Asistente Nutricional
