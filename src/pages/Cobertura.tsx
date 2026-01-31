@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCoverage } from "@/hooks/useCoverage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import playPitbull from "@/assets/brand/play-pitbull.png";
+import coberturaPitbull from "@/assets/brand/cobertura-pitbull.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -95,12 +95,12 @@ export default function Cobertura() {
           {/* Right side - Pitbull B&W */}
           <div className="hidden lg:flex lg:w-[50%] lg:justify-end lg:items-start lg:-mr-12 xl:-mr-16">
             <motion.img 
-              src={playPitbull} 
+              src={coberturaPitbull} 
               alt="Perro atento mirando" 
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-              className="w-72 lg:w-80 xl:w-96 h-48 lg:h-56 xl:h-64 object-cover object-top drop-shadow-xl pointer-events-none"
+              className="w-72 lg:w-80 xl:w-96 object-contain drop-shadow-xl pointer-events-none"
             />
           </div>
         </div>
