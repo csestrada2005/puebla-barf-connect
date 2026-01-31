@@ -45,21 +45,7 @@ export default function Cobertura() {
   return (
     <Layout>
       <div className="container py-12 pb-32 lg:pb-12 relative">
-        {/* Pitbull B&W - fixed above footer on the right */}
-        <motion.div 
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="fixed bottom-16 right-0 z-10 pointer-events-none hidden lg:block"
-        >
-          <img 
-            src={playPitbull} 
-            alt="Perro atento mirando" 
-            className="w-48 md:w-56 lg:w-64 object-contain drop-shadow-xl"
-          />
-        </motion.div>
-
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto relative">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">Verifica tu cobertura</h1>
           </div>
@@ -99,7 +85,21 @@ export default function Cobertura() {
                 {z.zone_name}
               </Button>)}
             </div>
-            </div>}
+          </div>}
+
+          {/* Pitbull B&W - positioned at the bottom-right of this section */}
+          <motion.div 
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="absolute -bottom-48 -right-32 lg:-right-64 z-10 pointer-events-none hidden lg:block"
+          >
+            <img 
+              src={playPitbull} 
+              alt="Perro atento mirando" 
+              className="w-48 md:w-56 lg:w-64 object-contain drop-shadow-xl"
+            />
+          </motion.div>
         </div>
       </div>
     </Layout>
