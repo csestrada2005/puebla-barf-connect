@@ -34,9 +34,23 @@ export default function Nosotros() {
   return (
     <Layout>
       {/* Hero / Manifesto Section */}
-      <section className="relative overflow-hidden bg-primary/10">
-        <div className="container py-16 md:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative overflow-visible bg-primary/10">
+        {/* Playful dog peeking from top-right corner */}
+        <motion.div 
+          initial={{ opacity: 0, y: -50, rotate: 5 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="absolute -top-4 right-4 md:right-8 lg:right-16 z-20 pointer-events-none"
+        >
+          <img 
+            src={nosotrosBrownDog} 
+            alt="Perro curioso asomándose" 
+            className="w-40 sm:w-52 md:w-64 lg:w-80 xl:w-96 object-contain drop-shadow-2xl"
+          />
+        </motion.div>
+
+        <div className="container py-16 md:py-24 pt-32 sm:pt-36 md:pt-20">
+          <div className="max-w-2xl">
             <motion.div {...fadeInUp} className="space-y-6">
               <span className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
                 Nuestra Filosofía
@@ -52,17 +66,6 @@ export default function Nosotros() {
               <p className="text-xl md:text-2xl font-medium text-foreground italic">
                 "Cada receta está pensada, probada y aprobada por quienes amamos."
               </p>
-            </motion.div>
-            <motion.div 
-              {...fadeInUp}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative flex justify-center lg:justify-end"
-            >
-              <img 
-                src={nosotrosBrownDog} 
-                alt="Perro saludable" 
-                className="w-64 md:w-72 lg:w-80 object-contain drop-shadow-2xl"
-              />
             </motion.div>
           </div>
         </div>
