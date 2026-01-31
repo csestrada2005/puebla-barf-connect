@@ -35,18 +35,22 @@ export default function Nosotros() {
     <Layout>
       {/* Hero / Manifesto Section */}
       <section className="relative overflow-visible bg-primary/10">
-        {/* Playful dog - standing in front of text column, breaking the grid */}
-        <motion.img 
-          src={nosotrosBrownDog} 
-          alt="Perro curioso asomándose"
-          initial={{ opacity: 0, x: 100, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: -3 }}
+        {/* Playful dog peeking from top-right corner */}
+        <motion.div 
+          initial={{ opacity: 0, y: -50, rotate: 5 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="peeking-dog -right-8 md:right-8 lg:right-16 top-1/2 -translate-y-1/2 w-48 sm:w-64 md:w-80 lg:w-[400px] xl:w-[480px] object-contain drop-shadow-2xl hidden sm:block"
-        />
+          className="absolute -top-8 right-0 md:right-4 lg:right-8 z-20 pointer-events-none"
+        >
+          <img 
+            src={nosotrosBrownDog} 
+            alt="Perro curioso asomándose" 
+            className="w-56 sm:w-72 md:w-96 lg:w-[450px] xl:w-[520px] object-contain drop-shadow-2xl"
+          />
+        </motion.div>
 
-        <div className="container py-16 md:py-24 pt-16 sm:pt-20 md:pt-20">
-          <div className="max-w-2xl lg:max-w-xl">
+        <div className="container py-16 md:py-24 pt-32 sm:pt-36 md:pt-20">
+          <div className="max-w-2xl">
             <motion.div {...fadeInUp} className="space-y-6">
               <span className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
                 Nuestra Filosofía

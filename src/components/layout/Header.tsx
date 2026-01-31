@@ -7,7 +7,6 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import logoChoco from "@/assets/brand/logo-choco.png";
-import decoPuppy from "@/assets/brand/deco-puppy.png";
 
 const navLinksLeft = [
   { href: "/tienda", label: "Tienda" },
@@ -30,14 +29,7 @@ export function Header() {
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 overflow-visible">
-      {/* Header mascot - Pomeranian with paw resting near cart button */}
-      <img 
-        src={decoPuppy} 
-        alt="" 
-        aria-hidden="true"
-        className="peeking-dog -top-2 right-16 md:right-24 lg:right-32 w-12 md:w-14 lg:w-16 rotate-12 opacity-90 hidden lg:block"
-      />
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="flex-shrink-0">
