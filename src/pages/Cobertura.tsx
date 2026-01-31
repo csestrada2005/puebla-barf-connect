@@ -118,7 +118,7 @@ export default function Cobertura() {
                 transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 className="absolute right-0 top-0 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
                 style={{ 
-                  top: Math.max(0, contentHeight - 330),
+                  top: Math.max(0, contentHeight - 335),
                 }}
               />
             </AnimatePresence>
