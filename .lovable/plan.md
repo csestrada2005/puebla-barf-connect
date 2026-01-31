@@ -1,49 +1,42 @@
 
-# Plan: Hacer los Elementos del Hero Mas Grandes
+# Fix: Crop Transparent Space Around Pitbull Image
 
-## Resumen
+## Problem
+The `play-pitbull.png` image has significant transparent padding around the actual dog. When sizing the image element, this empty space is included, making the image container much larger than the visible dog content.
 
-Voy a aumentar el tamano de todos los elementos principales del hero para que sean mas prominentes y cubran mas espacio visual.
+## Solution
+Apply CSS cropping techniques to focus on the visible dog and eliminate the impact of transparent areas.
 
----
+### Changes to `src/pages/Cobertura.tsx`
 
-## Cambios Especificos
+**Current image styling:**
+```jsx
+className="w-80 lg:w-96 xl:w-[28rem] object-contain drop-shadow-xl pointer-events-none"
+```
 
-### 1. Badge "Nutricion calculada con IA"
-- **Actual:** `px-3 py-1.5`, icono `h-4 w-4`, texto `text-sm`
-- **Nuevo:** `px-5 py-2.5`, icono `h-5 w-5`, texto `text-base md:text-lg`
+**New image styling:**
+```jsx
+className="w-72 lg:w-80 xl:w-96 h-48 lg:h-56 xl:h-64 object-cover object-top drop-shadow-xl pointer-events-none"
+```
 
-### 2. Tagline Principal
-- **Actual:** `text-xl sm:text-2xl md:text-3xl lg:text-4xl`
-- **Nuevo:** `text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl`
-- Aumentar el `max-w` del contenedor para dar mas espacio
+**Key changes:**
+1. **Add fixed height** (`h-48 lg:h-56 xl:h-64`) - Constrains vertical space taken
+2. **Change to `object-cover`** - Allows the image to fill the container and be cropped
+3. **Add `object-top`** - Positions the crop to show the dog (top portion) rather than centering
+4. **Slightly reduce widths** - Compensate for the cropping behavior
 
-### 3. Boton "Iniciar" (Primario)
-- **Actual:** `size="lg"`, `px-6 py-5`, icono `h-5 w-5`
-- **Nuevo:** `px-10 py-7`, texto `text-lg md:text-xl`, icono `h-6 w-6`
-
-### 4. Boton "Explorar productos" (Secundario)
-- **Actual:** `size="lg"`, icono `h-4 w-4`
-- **Nuevo:** texto `text-lg`, icono `h-5 w-5`
-
-### 5. Boton "Iniciar Sesion"
-- **Actual:** `size="sm"`, icono `h-4 w-4`
-- **Nuevo:** `size="default"`, icono `h-5 w-5`, texto mas grande
-
-### 6. Espaciado General
-- Aumentar el `mb` (margin-bottom) entre elementos
-- Dar mas espacio al tagline con `mb-6` en lugar de `mb-4`
+This approach effectively "zooms in" on the dog portion of the image while reducing the overall element footprint on the page.
 
 ---
 
-## Archivo a Modificar
+## Technical Details
 
-| Archivo | Cambio |
-|---------|--------|
-| `src/pages/Home.tsx` | Aumentar tamanos de texto, padding, iconos y espaciado en la seccion hero |
+| Property | Before | After | Purpose |
+|----------|--------|-------|---------|
+| `width` | `w-80 lg:w-96 xl:w-[28rem]` | `w-72 lg:w-80 xl:w-96` | Slightly smaller container |
+| `height` | (auto) | `h-48 lg:h-56 xl:h-64` | Constrain vertical space |
+| `object-fit` | `object-contain` | `object-cover` | Allow cropping |
+| `object-position` | (default: center) | `object-top` | Focus on the dog |
 
----
-
-## Resultado Visual Esperado
-
-El hero tendra elementos mas grandes y prominentes, haciendo que el contenido principal sea mas impactante y ocupe mas del viewport, especialmente en dispositivos moviles y tablets.
+## Alternative (Long-term)
+For the best results, consider editing the `play-pitbull.png` file to crop out the transparent padding. This would allow normal sizing without CSS cropping tricks.
