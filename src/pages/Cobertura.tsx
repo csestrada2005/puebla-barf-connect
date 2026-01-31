@@ -44,10 +44,10 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-2 lg:py-3">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-2">
+      <div className="container py-6 lg:py-10">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-2">
           {/* Left side - Content */}
-          <div className="w-full lg:w-[50%]">
+          <div className="w-full lg:w-[50%] lg:pl-8 xl:pl-16">
             <div className="max-w-lg">
               <div className="text-center lg:text-left mb-2">
                 <h1 className="text-2xl lg:text-3xl font-bold mb-1">Verifica tu cobertura</h1>
@@ -93,7 +93,7 @@ export default function Cobertura() {
           </div>
 
           {/* Right side - Pitbull B&W */}
-          <div className="hidden lg:flex lg:w-[50%] lg:justify-end lg:items-start lg:-mr-12 xl:-mr-16">
+          <div className="hidden lg:flex lg:w-[50%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16 lg:mt-12">
             <motion.img 
               src={coberturaPitbull} 
               alt="Perro atento mirando" 
