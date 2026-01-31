@@ -40,12 +40,12 @@ export default function Nosotros() {
           initial={{ opacity: 0, x: 50, rotate: 5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-8 right-0 z-20 pointer-events-none"
+          className="absolute top-12 right-0 z-20 pointer-events-none"
         >
           <img 
             src={nosotrosBrownDog} 
             alt="Perro curioso asomándose" 
-            className="w-40 sm:w-48 md:w-64 lg:w-80 xl:w-96 object-contain drop-shadow-2xl -translate-x-[10%]"
+            className="w-52 sm:w-64 md:w-80 lg:w-[400px] xl:w-[480px] object-contain drop-shadow-2xl translate-x-[25%]"
           />
         </motion.div>
 
