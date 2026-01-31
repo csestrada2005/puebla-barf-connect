@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MessageCircle, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandImage } from "@/components/ui/BrandImage";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 const WHATSAPP_NUMBER = "5212213606464";
 export function Footer() {
@@ -11,7 +12,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img src={isotipoBarky} alt="Raw Paw" className="h-14 w-auto brightness-0 invert" />
+              <BrandImage src={isotipoBarky} alt="Raw Paw" className="h-14 w-auto brightness-0 invert" />
               <span className="text-xl font-bold">Raw Paw</span>
             </div>
             <p className="text-sm opacity-80">

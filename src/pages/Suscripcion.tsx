@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
+import { BrandImage } from "@/components/ui/BrandImage";
 import playBulldogs from "@/assets/brand/play-bulldogs.png";
 const WHATSAPP_NUMBER = "5212213606464";
 const proteinOptions = [{
@@ -212,10 +213,11 @@ export default function Suscripcion() {
                 transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                 className="absolute top-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
               >
-                <img 
+                <BrandImage 
                   src={playBulldogs} 
                   alt="Bulldogs felices" 
                   className="w-52 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+                  priority
                 />
               </motion.div>
               

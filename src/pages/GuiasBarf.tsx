@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, Book, Calculator, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { BrandImage } from "@/components/ui/BrandImage";
 import playLabrador from "@/assets/brand/play-labrador.png";
 
 export default function GuiasBarf() {
@@ -38,17 +39,21 @@ export default function GuiasBarf() {
     <Layout>
       <div ref={containerRef} className="container py-12 pb-48 relative">
         {/* Labrador - fixed at bottom-left, visible only within content section */}
-        <motion.img 
-          src={playLabrador}
-          alt="Labrador sonriente"
+        <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ 
             opacity: isVisible ? 1 : 0, 
             x: isVisible ? 0 : -40 
           }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed bottom-0 left-0 z-10 pointer-events-none hidden lg:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
-        />
+          className="fixed bottom-0 left-0 z-10 pointer-events-none hidden lg:block"
+        >
+          <BrandImage 
+            src={playLabrador}
+            alt="Labrador sonriente"
+            className="w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+          />
+        </motion.div>
 
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">

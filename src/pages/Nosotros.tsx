@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight } from "lucide-react";
+import { BrandImage } from "@/components/ui/BrandImage";
 import nosotrosBrownDog from "@/assets/brand/nosotros-brown-dog.png";
 
 const fadeInUp = {
@@ -35,17 +36,18 @@ export default function Nosotros() {
     <Layout>
       {/* Wrapper for hero + mission sections so dog can span across */}
       <div className="relative">
-        {/* Brown dog peeking from top-right - now outside overflow-hidden */}
+        {/* Brown dog peeking from top-right - PRIORITY */}
         <motion.div 
           initial={{ opacity: 0, x: 50, rotate: 5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           className="absolute top-8 right-0 z-20 pointer-events-none"
         >
-          <img 
+          <BrandImage 
             src={nosotrosBrownDog} 
             alt="Perro curioso asomándose" 
             className="w-64 sm:w-80 md:w-96 lg:w-[480px] xl:w-[560px] object-contain drop-shadow-2xl translate-x-[2%]"
+            priority
           />
         </motion.div>
 

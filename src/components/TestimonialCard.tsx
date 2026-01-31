@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { cn } from "@/lib/utils";
 
 interface TestimonialCardProps {
@@ -39,9 +40,9 @@ export function TestimonialCard({
           "{content}"
         </blockquote>
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-lg">
+          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-lg overflow-hidden">
             {imageUrl ? (
-              <img src={imageUrl} alt={customerName} className="h-full w-full rounded-full object-cover" />
+              <BrandImage src={imageUrl} alt={customerName} className="h-full w-full object-cover" />
             ) : (
               "🐕"
             )}

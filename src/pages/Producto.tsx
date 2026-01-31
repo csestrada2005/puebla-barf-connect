@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BrandImage } from "@/components/ui/BrandImage";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -155,7 +156,7 @@ export default function Producto() {
           <div className="relative">
             <div className="aspect-square rounded-2xl bg-muted overflow-hidden">
               {product.image_url ? (
-                <img 
+                <BrandImage 
                   src={product.image_url} 
                   alt={product.name}
                   className="w-full h-full object-cover"
