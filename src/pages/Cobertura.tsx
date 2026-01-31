@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCoverage } from "@/hooks/useCoverage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import dogLicking from "@/assets/brand/dog-licking.png";
+import playPitbull from "@/assets/brand/play-pitbull.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -45,17 +45,17 @@ export default function Cobertura() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Dog licking (partial) - bottom right, eagerly waiting */}
+        {/* Pitbull B&W (partial, looking forward) - bottom left corner */}
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 right-0 md:right-8 lg:right-16 z-10 pointer-events-none hidden lg:block"
+          className="absolute -bottom-8 -left-8 md:-left-20 lg:-left-28 z-10 pointer-events-none hidden lg:block"
         >
           <img 
-            src={dogLicking} 
-            alt="Perro esperando ansioso" 
-            className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
+            src={playPitbull} 
+            alt="Perro atento mirando" 
+            className="w-44 md:w-56 lg:w-72 object-contain drop-shadow-xl"
           />
         </motion.div>
 

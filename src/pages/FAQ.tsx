@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import dogPeeking from "@/assets/brand/dog-peeking.png";
+import playHound from "@/assets/brand/play-hound.png";
 
 const faqs = [
   {
@@ -57,17 +57,17 @@ export default function FAQ() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Dog peeking (partial, looking right) - positioned on LEFT side */}
+        {/* Hound (partial, looking RIGHT) - peeking from LEFT side */}
         <motion.div 
           initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-24 -left-8 md:-left-16 lg:-left-24 z-10 pointer-events-none hidden md:block"
+          className="absolute top-24 -left-8 md:-left-20 lg:-left-32 z-10 pointer-events-none hidden md:block"
         >
           <img 
-            src={dogPeeking} 
+            src={playHound} 
             alt="Perro curioso mirando las preguntas" 
-            className="w-32 md:w-44 lg:w-56 object-contain drop-shadow-xl -scale-x-100"
+            className="w-40 md:w-52 lg:w-64 object-contain drop-shadow-xl"
           />
         </motion.div>
 

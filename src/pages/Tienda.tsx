@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Clock, Check } from "lucide-react";
 import { motion } from "framer-motion";
-import decoPuppy from "@/assets/brand/deco-puppy.png";
+import playPomeranian from "@/assets/brand/play-pomeranian.png";
 
 type ProteinFilter = "all" | "pollo" | "res";
 
@@ -36,17 +36,17 @@ export default function Tienda() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Puppy (full body) - bottom right, sitting cutely watching products */}
+        {/* Pomeranian (full body) - bottom right corner, sitting happily */}
         <motion.div 
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-6 right-4 md:right-8 lg:right-16 z-10 pointer-events-none hidden md:block"
+          className="absolute -bottom-8 right-4 md:right-12 lg:right-20 z-10 pointer-events-none hidden md:block"
         >
           <img 
-            src={decoPuppy} 
-            alt="Cachorro feliz observando los productos" 
-            className="w-28 md:w-36 lg:w-44 object-contain drop-shadow-xl"
+            src={playPomeranian} 
+            alt="Pomeranian feliz" 
+            className="w-32 md:w-40 lg:w-52 object-contain drop-shadow-xl"
           />
         </motion.div>
 

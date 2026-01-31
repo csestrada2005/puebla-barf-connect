@@ -274,7 +274,7 @@ export default function Suscripcion() {
           </div>
 
           {/* Summary & Benefits - Sticky container */}
-          <div className="lg:sticky lg:top-24 space-y-6">
+          <div className="lg:sticky lg:top-24 space-y-6 h-fit">
             {/* Price Card */}
             <Card className="border-primary border-2">
               <CardHeader>

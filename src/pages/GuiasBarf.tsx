@@ -5,23 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, Book, Calculator, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
-import heroDogtongue from "@/assets/brand/hero-dog-tongue.png";
+import playLabrador from "@/assets/brand/play-labrador.png";
 
 export default function GuiasBarf() {
   return (
     <Layout>
       <div className="container py-12 relative overflow-visible">
-        {/* Dog with tongue (partial) - peeking from bottom left */}
+        {/* Labrador (partial, looking forward) - bottom right, happy face peeking */}
         <motion.div 
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -left-4 md:-left-12 lg:-left-20 z-10 pointer-events-none hidden lg:block"
+          className="absolute -bottom-8 right-0 md:right-4 lg:right-12 z-10 pointer-events-none hidden lg:block"
         >
           <img 
-            src={heroDogtongue} 
-            alt="Perro ansioso por aprender" 
-            className="w-36 md:w-44 lg:w-52 object-contain drop-shadow-xl"
+            src={playLabrador} 
+            alt="Labrador sonriente" 
+            className="w-44 md:w-56 lg:w-72 object-contain drop-shadow-xl"
           />
         </motion.div>
 
