@@ -44,12 +44,12 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-12 lg:py-16">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-8">
+      <div className="container py-6 lg:py-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-4">
           {/* Left side - Content */}
-          <div className="w-full lg:w-1/2 lg:pr-8">
+          <div className="w-full lg:w-[45%] lg:pr-4">
             <div className="max-w-lg">
-              <div className="text-center lg:text-left mb-8">
+              <div className="text-center lg:text-left mb-6">
                 <h1 className="text-4xl font-bold mb-4">Verifica tu cobertura</h1>
               </div>
 
@@ -76,7 +76,7 @@ export default function Cobertura() {
                 </Card>}
               </>}
 
-              {zones && zones.length > 0 && !hasSearched && <div className="mt-8">
+              {zones && zones.length > 0 && !hasSearched && <div className="mt-6">
                 <h3 className="font-medium mb-4">Zonas con cobertura:</h3>
                 <div className="flex flex-wrap gap-2">
                   {zones.map(z => <Button key={z.id} variant="outline" size="sm" onClick={() => {
@@ -93,14 +93,14 @@ export default function Cobertura() {
           </div>
 
           {/* Right side - Pitbull B&W */}
-          <div className="hidden lg:flex lg:w-1/2 lg:justify-center lg:items-end">
+          <div className="hidden lg:flex lg:w-[55%] lg:justify-end lg:items-start lg:-mr-8">
             <motion.img 
               src={playPitbull} 
               alt="Perro atento mirando" 
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              className="w-full max-w-md lg:max-w-lg xl:max-w-xl object-contain drop-shadow-2xl pointer-events-none"
+              className="w-full max-w-lg lg:max-w-xl xl:max-w-2xl object-contain drop-shadow-2xl pointer-events-none"
             />
           </div>
         </div>
