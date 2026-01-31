@@ -38,7 +38,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
-      {/* Pomeranian (looking right) - LEFT side, reactive to input height */}
+      {/* Pomeranian (looking right) - LEFT side, standing on input bar */}
       <AnimatePresence>
         <motion.img 
           src={playPomeranian}
@@ -49,12 +49,12 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             x: 0
           }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none hidden md:block w-44 md:w-56 lg:w-64 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight + 8 }}
+          className="fixed left-0 z-10 pointer-events-none hidden md:block w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
+          style={{ bottom: inputHeight - 8 }}
         />
       </AnimatePresence>
 
-      {/* Hound (looking LEFT) - RIGHT side, reactive to input height */}
+      {/* Hound (looking LEFT) - RIGHT side, standing on input bar */}
       <AnimatePresence>
         <motion.img 
           src={aiHoundRight}
@@ -65,8 +65,8 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             x: 0
           }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed right-0 z-10 pointer-events-none hidden md:block w-48 md:w-60 lg:w-72 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight + 8 }}
+          className="fixed z-10 pointer-events-none hidden md:block w-44 md:w-52 lg:w-64 object-contain drop-shadow-xl"
+          style={{ bottom: inputHeight - 8, right: -16 }}
         />
       </AnimatePresence>
 
