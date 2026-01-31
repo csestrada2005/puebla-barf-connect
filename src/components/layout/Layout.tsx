@@ -43,9 +43,9 @@ export function Layout({
           </AnimatePresence>
 
           {/* FAB Button */}
-          <Link to="/ai" className="group flex items-center gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-1 sm:p-1.5 pr-1 sm:pr-1.5 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-              <img src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-contain p-1" />
+          <Link to="/ai" className="group flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full pl-1 pr-1 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="w-12 h-12 sm:w-11 sm:h-11 flex items-center justify-center">
+              <img src={dogtorAvatar} alt="El Dogtor" className="w-full h-full object-contain" />
             </div>
             <span className="hidden md:block font-medium pr-1">
               Asistente Nutricional
