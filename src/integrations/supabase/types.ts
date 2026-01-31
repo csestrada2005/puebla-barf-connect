@@ -260,6 +260,7 @@ export type Database = {
           delivery_date: string | null
           delivery_fee: number | null
           delivery_notes: string | null
+          dog_profile_id: string | null
           id: string
           items: Json
           order_number: string
@@ -282,6 +283,7 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          dog_profile_id?: string | null
           id?: string
           items?: Json
           order_number: string
@@ -304,6 +306,7 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          dog_profile_id?: string | null
           id?: string
           items?: Json
           order_number?: string
@@ -322,6 +325,13 @@ export type Database = {
             columns: ["coverage_zone_id"]
             isOneToOne: false
             referencedRelation: "coverage_zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_dog_profile_id_fkey"
+            columns: ["dog_profile_id"]
+            isOneToOne: false
+            referencedRelation: "dog_profiles"
             referencedColumns: ["id"]
           },
         ]
