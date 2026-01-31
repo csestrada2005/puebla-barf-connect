@@ -7,6 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Clock, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import dogPeeking from "@/assets/brand/dog-peeking.png";
+import decoPuppy from "@/assets/brand/deco-puppy.png";
 
 type ProteinFilter = "all" | "pollo" | "res";
 
@@ -33,7 +36,21 @@ export default function Tienda() {
 
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 relative overflow-visible">
+        {/* Playful dog peeking from top-right */}
+        <motion.div 
+          initial={{ opacity: 0, x: 50, rotate: 5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="absolute -top-4 -right-4 md:right-0 z-10 pointer-events-none hidden md:block"
+        >
+          <img 
+            src={dogPeeking} 
+            alt="Perro curioso asomándose" 
+            className="w-32 md:w-40 lg:w-48 object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <Badge variant="secondary" className="mb-4">
@@ -89,31 +106,48 @@ export default function Tienda() {
         </div>
 
         {/* Products Grid */}
-        {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-[380px] rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts?.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                slug={product.slug}
-                shortDescription={product.short_description || undefined}
-                price={Number(product.price)}
-                originalPrice={product.original_price ? Number(product.original_price) : undefined}
-                imageUrl={product.image_url || undefined}
-                proteinLine={product.protein_line || undefined}
-                presentation={product.presentation || undefined}
-                isSubscription={product.is_subscription || false}
-              />
-            ))}
-          </div>
-        )}
+        <div className="relative">
+          {/* Decorative puppy at bottom-left of products grid */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="absolute -bottom-8 -left-4 md:-left-8 z-10 pointer-events-none hidden lg:block"
+          >
+            <img 
+              src={decoPuppy} 
+              alt="" 
+              className="w-28 md:w-36 object-contain opacity-80 drop-shadow-lg"
+              aria-hidden="true"
+            />
+          </motion.div>
+
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-[380px] rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  slug={product.slug}
+                  shortDescription={product.short_description || undefined}
+                  price={Number(product.price)}
+                  originalPrice={product.original_price ? Number(product.original_price) : undefined}
+                  imageUrl={product.image_url || undefined}
+                  proteinLine={product.protein_line || undefined}
+                  presentation={product.presentation || undefined}
+                  isSubscription={product.is_subscription || false}
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Empty State */}
         {!isLoading && filteredProducts?.length === 0 && (

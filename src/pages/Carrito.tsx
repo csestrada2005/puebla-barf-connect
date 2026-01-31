@@ -6,6 +6,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
+import { motion } from "framer-motion";
+import dogPeeking from "@/assets/brand/dog-peeking.png";
+import decoFluffy from "@/assets/brand/deco-fluffy.png";
 
 export default function Carrito() {
   const { items, updateQuantity, removeItem, getSubtotal, clearCart } = useCart();
@@ -17,7 +20,21 @@ export default function Carrito() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20">
+        <div className="container py-20 relative overflow-visible">
+          {/* Sad dog peeking when cart is empty */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="absolute bottom-8 right-8 md:right-16 z-10 pointer-events-none hidden md:block"
+          >
+            <img 
+              src={dogPeeking} 
+              alt="Perro esperando" 
+              className="w-24 md:w-32 object-contain opacity-70 drop-shadow-lg"
+            />
+          </motion.div>
+
           <div className="max-w-md mx-auto text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
               <ShoppingCart className="h-12 w-12 text-muted-foreground" />
@@ -42,7 +59,21 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 relative overflow-visible">
+        {/* Happy fluffy dog when cart has items */}
+        <motion.div 
+          initial={{ opacity: 0, x: 40, rotate: 5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="absolute -top-2 -right-4 md:right-0 z-10 pointer-events-none hidden lg:block"
+        >
+          <img 
+            src={decoFluffy} 
+            alt="Perro feliz" 
+            className="w-28 md:w-36 object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Tu Carrito</h1>

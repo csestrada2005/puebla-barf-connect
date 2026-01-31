@@ -10,6 +10,9 @@ import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info } fro
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { motion } from "framer-motion";
+import decoFluffy from "@/assets/brand/deco-fluffy.png";
+import dogLicking from "@/assets/brand/dog-licking.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -117,7 +120,21 @@ export default function Suscripcion() {
 
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 relative overflow-visible">
+        {/* Happy fluffy dog excited about subscription */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50, rotate: -5 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="absolute top-16 -left-4 md:left-0 z-10 pointer-events-none hidden lg:block"
+        >
+          <img 
+            src={decoFluffy} 
+            alt="Perro feliz" 
+            className="w-32 md:w-40 object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
         {/* Hero */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <Badge variant="secondary" className="mb-4 gap-1">
@@ -260,7 +277,22 @@ export default function Suscripcion() {
           {/* Summary & Benefits - Sticky container */}
           <div className="lg:sticky lg:top-24 space-y-6">
             {/* Price Card */}
-            <Card className="border-primary border-2">
+            <Card className="border-primary border-2 relative overflow-visible">
+              {/* Dog licking excited about the subscription */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="absolute -top-8 -right-4 md:-right-8 z-10 pointer-events-none hidden md:block"
+              >
+                <img 
+                  src={dogLicking} 
+                  alt="" 
+                  className="w-20 md:w-24 object-contain opacity-90 drop-shadow-lg"
+                  aria-hidden="true"
+                />
+              </motion.div>
+
               <CardHeader>
                 <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>
