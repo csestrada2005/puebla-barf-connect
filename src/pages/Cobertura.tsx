@@ -44,7 +44,7 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-4 lg:py-6">
+      <div className="container py-4 lg:py-6 relative">
         <div className="flex flex-col lg:flex-row lg:items-center lg:gap-4">
           {/* Left side - Content */}
           <div className="w-full lg:w-[55%]">
@@ -92,15 +92,15 @@ export default function Cobertura() {
             </div>
           </div>
 
-          {/* Right side - Pitbull B&W - positioned lower */}
+          {/* Right side - Pitbull B&W - positioned absolutely within container */}
           <motion.img 
             src={coberturaPitbull} 
             alt="Perro atento mirando" 
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="hidden lg:block fixed z-10 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
-            style={{ bottom: '117px', right: '140px' }}
+            className="hidden lg:block absolute w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
+            style={{ bottom: '-117px', right: '140px' }}
           />
         </div>
       </div>
