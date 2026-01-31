@@ -40,7 +40,7 @@ export default function Nosotros() {
           initial={{ opacity: 0, x: 50, rotate: 5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-12 right-0 z-20 pointer-events-none"
+          className="absolute -top-4 right-0 z-20 pointer-events-none"
         >
           <img 
             src={nosotrosBrownDog} 
