@@ -99,8 +99,8 @@ export default function Cobertura() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="hidden lg:block fixed right-0 bottom-0 z-10 w-72 lg:w-80 xl:w-96 object-contain drop-shadow-xl pointer-events-none"
-            style={{ bottom: 40 }}
+            className="hidden lg:block fixed right-0 bottom-0 z-10 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
+            style={{ bottom: 80 }}
           />
         </div>
       </div>
