@@ -7,8 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Clock, Check } from "lucide-react";
-import { motion } from "framer-motion";
-import playPomeranian from "@/assets/brand/play-pomeranian.png";
 
 type ProteinFilter = "all" | "pollo" | "res";
 
@@ -47,22 +45,8 @@ export default function Tienda() {
           </p>
         </div>
 
-        {/* Benefits Bar - with Pomeranian sitting on top left */}
+        {/* Benefits Bar */}
         <div className="relative mb-8">
-          {/* Pomeranian (full body) - sitting on top of "Envio Incluido" */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="absolute -top-16 md:-top-20 lg:-top-24 left-0 md:left-4 lg:left-8 z-20 pointer-events-none hidden md:block"
-          >
-            <img 
-              src={playPomeranian} 
-              alt="Pomeranian feliz" 
-              className="w-24 md:w-28 lg:w-36 object-contain drop-shadow-xl"
-            />
-          </motion.div>
-
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
               <Truck className="h-5 w-5 text-primary" />
