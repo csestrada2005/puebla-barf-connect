@@ -10,6 +10,7 @@ import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info } fro
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import dogPeeking from "@/assets/brand/dog-peeking.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -258,7 +259,14 @@ export default function Suscripcion() {
           </div>
 
           {/* Summary & Benefits - Sticky container */}
-          <div className="lg:sticky lg:top-24 space-y-6">
+          <div className="lg:sticky lg:top-24 space-y-6 relative">
+            {/* Subscription advisor dog - peeking behind the recommended plan */}
+            <img 
+              src={dogPeeking} 
+              alt="" 
+              aria-hidden="true"
+              className="peeking-dog -right-4 top-8 w-20 lg:w-28 opacity-50 rotate-6 hidden lg:block"
+            />
             {/* Price Card */}
             <Card className="border-primary border-2">
               <CardHeader>

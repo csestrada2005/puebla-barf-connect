@@ -198,4 +198,9 @@
   .btn-bounce:hover {
     animation: hoverBounce 0.4s ease-in-out;
   }
+
+  /* Peeking Dog Decorative Images - Global Rules */
+  .peeking-dog {
+    @apply absolute pointer-events-none z-30 select-none;
+  }
 }
