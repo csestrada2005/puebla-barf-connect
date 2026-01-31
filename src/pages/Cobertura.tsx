@@ -93,7 +93,7 @@ export default function Cobertura() {
           </div>
 
           {/* Right side - Pitbull B&W */}
-          <div className="hidden lg:flex lg:w-[45%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16 lg:mt-16">
+          <div className="hidden lg:flex lg:w-[45%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16">
             <motion.img 
               src={coberturaPitbull} 
               alt="Perro atento mirando" 
