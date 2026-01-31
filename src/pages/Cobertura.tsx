@@ -44,58 +44,65 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-12 pb-48 lg:pb-48 relative">
-        {/* Pitbull B&W - at bottom of section on the right */}
-        <motion.img 
-          src={playPitbull} 
-          alt="Perro atento mirando" 
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute bottom-0 right-0 z-10 pointer-events-none hidden lg:block w-48 md:w-56 lg:w-64 object-contain drop-shadow-xl"
-        />
+      <div className="container py-12 lg:py-16">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-8">
+          {/* Left side - Content */}
+          <div className="w-full lg:w-1/2 lg:pr-8">
+            <div className="max-w-lg">
+              <div className="text-center lg:text-left mb-8">
+                <h1 className="text-4xl font-bold mb-4">Verifica tu cobertura</h1>
+              </div>
 
-        <div className="max-w-lg mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Verifica tu cobertura</h1>
+              {hasSearched && <>
+                <CoverageResult status={selectedZone ? "covered" : "not-covered"} zoneName={selectedZone?.zone_name} deliveryFee={selectedZone?.delivery_fee} onJoinWaitlist={handleRequestCoverage} />
+
+                {/* Enhanced no-coverage CTA */}
+                {!selectedZone && <Card className="mt-6 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      ¿No está tu localidad?
+                    </CardTitle>
+                    <CardDescription>
+                      Estamos creciendo en Puebla. Escríbenos para cotizar envío a tu zona.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={handleRequestCoverage} className="w-full gap-2">
+                      <MessageCircle className="h-4 w-4" />
+                      Solicitar cobertura por WhatsApp
+                    </Button>
+                  </CardContent>
+                </Card>}
+              </>}
+
+              {zones && zones.length > 0 && !hasSearched && <div className="mt-8">
+                <h3 className="font-medium mb-4">Zonas con cobertura:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {zones.map(z => <Button key={z.id} variant="outline" size="sm" onClick={() => {
+                    setSearch(z.zone_name);
+                    setSelectedZone(z);
+                    setHasSearched(true);
+                    setCoverage(z.zone_name, z.zone_name, Number(z.delivery_fee) || 0);
+                  }}>
+                    {z.zone_name}
+                  </Button>)}
+                </div>
+              </div>}
+            </div>
           </div>
 
-          {hasSearched && <>
-            <CoverageResult status={selectedZone ? "covered" : "not-covered"} zoneName={selectedZone?.zone_name} deliveryFee={selectedZone?.delivery_fee} onJoinWaitlist={handleRequestCoverage} />
-
-            {/* Enhanced no-coverage CTA */}
-            {!selectedZone && <Card className="mt-6 border-primary/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-primary" />
-                  ¿No está tu localidad?
-                </CardTitle>
-                <CardDescription>
-                  Estamos creciendo en Puebla. Escríbenos para cotizar envío a tu zona.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={handleRequestCoverage} className="w-full gap-2">
-                  <MessageCircle className="h-4 w-4" />
-                  Solicitar cobertura por WhatsApp
-                </Button>
-              </CardContent>
-            </Card>}
-          </>}
-
-          {zones && zones.length > 0 && !hasSearched && <div className="mt-8">
-            <h3 className="font-medium mb-4">Zonas con cobertura:</h3>
-            <div className="flex flex-wrap gap-2">
-              {zones.map(z => <Button key={z.id} variant="outline" size="sm" onClick={() => {
-                setSearch(z.zone_name);
-                setSelectedZone(z);
-                setHasSearched(true);
-                setCoverage(z.zone_name, z.zone_name, Number(z.delivery_fee) || 0);
-              }}>
-                {z.zone_name}
-              </Button>)}
-            </div>
-            </div>}
+          {/* Right side - Pitbull B&W */}
+          <div className="hidden lg:flex lg:w-1/2 lg:justify-center lg:items-end">
+            <motion.img 
+              src={playPitbull} 
+              alt="Perro atento mirando" 
+              initial={{ opacity: 0, x: 60 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="w-full max-w-md lg:max-w-lg xl:max-w-xl object-contain drop-shadow-2xl pointer-events-none"
+            />
+          </div>
         </div>
       </div>
     </Layout>
