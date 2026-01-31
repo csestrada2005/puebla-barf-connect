@@ -1,5 +1,5 @@
-import { useRef, useEffect, ReactNode, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useEffect, ReactNode } from "react";
+import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import aiHoundRight from "@/assets/brand/ai-hound-right.png";
 import playPomeranian from "@/assets/brand/play-pomeranian.png";
@@ -14,8 +14,6 @@ interface ChatContainerProps {
 
 export function ChatContainer({ children, inputSection, scrollToEnd = true, hasActiveInput = true }: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputSectionRef = useRef<HTMLDivElement>(null);
-  const [inputHeight, setInputHeight] = useState(80);
 
   useEffect(() => {
     if (scrollToEnd) {
@@ -23,52 +21,28 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
     }
   }, [children, scrollToEnd]);
 
-  // Track input section height for reactive dog positioning
-  useEffect(() => {
-    if (inputSectionRef.current) {
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          setInputHeight(entry.contentRect.height + 32); // +32 for padding
-        }
-      });
-      observer.observe(inputSectionRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
-      {/* Pomeranian (looking right) - LEFT side, standing on input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={playPomeranian}
-          alt="Pomeranian mirando el chat"
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none hidden md:block w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight - 8 }}
-        />
-      </AnimatePresence>
+    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative overflow-hidden">
+      {/* Pomeranian (looking right) - LEFT side, peeking from bottom left */}
+      <motion.img 
+        src={playPomeranian}
+        alt="Pomeranian mirando el chat"
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+        className="absolute -bottom-4 -left-4 md:-left-8 w-40 sm:w-48 md:w-56 lg:w-64 object-contain z-10 pointer-events-none drop-shadow-2xl hidden md:block"
+      />
 
-      {/* Hound (looking LEFT) - RIGHT side, standing on input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={aiHoundRight}
-          alt="Perro atento mirando el chat"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed z-10 pointer-events-none hidden md:block w-44 md:w-52 lg:w-64 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight - 8, right: -16 }}
-        />
-      </AnimatePresence>
+      {/* Hound (looking LEFT) - RIGHT side, peeking from bottom right */}
+      <motion.img 
+        src={aiHoundRight}
+        alt="Perro atento mirando el chat"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+        className="absolute -bottom-4 -right-4 md:-right-8 w-44 sm:w-52 md:w-60 lg:w-72 object-contain z-10 pointer-events-none drop-shadow-2xl hidden md:block"
+      />
 
       {/* Header Badge */}
       <div className="flex-shrink-0 text-center py-4">
@@ -93,7 +67,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
       </div>
 
       {/* Fixed Input Section at Bottom */}
-      <div ref={inputSectionRef} className="flex-shrink-0 border-t bg-background/95 backdrop-blur-sm p-4">
+      <div className="flex-shrink-0 border-t bg-background/95 backdrop-blur-sm p-4">
         <div className="max-w-2xl mx-auto">
           {inputSection}
         </div>
