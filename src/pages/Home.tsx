@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, CheckCircle2, User, LogIn } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { BenefitsSection } from "@/components/home/BenefitsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
@@ -46,10 +45,6 @@ export default function Home() {
   } = useToast();
   const [email, setEmail] = useState("");
   const {
-    isAuthenticated,
-    loading: authLoading
-  } = useAuth();
-  const {
     data: testimonials
   } = useQuery({
     queryKey: ["testimonials"],
@@ -74,12 +69,12 @@ export default function Home() {
       {/* Hero - Full viewport */}
       <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top */}
-        <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className={`absolute left-1/2 -translate-x-1/2 w-64 sm:w-80 md:w-96 lg:w-[450px] z-10 pointer-events-none brightness-0 invert ${!authLoading && !isAuthenticated ? "top-4 sm:top-6 md:top-10" : "top-8 sm:top-12 md:top-16"}`} />
+        <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" />
 
         {/* Decorative dog */}
-        <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none opacity-90" />
+        <img src={heroDogLicking} alt="Perro feliz" className="absolute bottom-0 right-0 w-36 sm:w-48 md:w-64 lg:w-[340px] object-contain z-10 pointer-events-none opacity-90" />
 
-        <div className="container relative z-20 h-full flex flex-col justify-end pb-32 sm:pb-28 md:pb-20 pt-32 sm:pt-40 md:pt-48">
+        <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">
           <div className="flex-col text-left flex items-start justify-center">
             <motion.div initial={{
             opacity: 0,
@@ -125,15 +120,6 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-              {/* Auth Buttons */}
-              {!authLoading && !isAuthenticated && <div className="flex justify-start mt-8 pt-5 border-t border-white/20">
-                  <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/10 gap-2 text-base">
-                    <Link to="/login">
-                      <LogIn className="h-5 w-5" />
-                      Iniciar Sesión
-                    </Link>
-                  </Button>
-                </div>}
             </motion.div>
           </div>
         </div>
