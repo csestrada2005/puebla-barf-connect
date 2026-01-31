@@ -44,20 +44,20 @@ export default function Cobertura() {
 
   return (
     <Layout>
-      <div className="container py-6 lg:py-10">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-2">
+      <div className="container py-4 lg:py-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-4">
           {/* Left side - Content */}
-          <div className="w-full lg:w-[50%] lg:pl-8 xl:pl-16">
-            <div className="max-w-lg">
-              <div className="text-center lg:text-left mb-2">
-                <h1 className="text-2xl lg:text-3xl font-bold mb-1">Verifica tu cobertura</h1>
+          <div className="w-full lg:w-[55%]">
+            <div className="max-w-xl mx-auto lg:mx-0 lg:ml-auto lg:mr-8">
+              <div className="text-center mb-4">
+                <h1 className="text-3xl lg:text-4xl font-bold">Verifica tu cobertura</h1>
               </div>
 
               {hasSearched && <>
                 <CoverageResult status={selectedZone ? "covered" : "not-covered"} zoneName={selectedZone?.zone_name} deliveryFee={selectedZone?.delivery_fee} onJoinWaitlist={handleRequestCoverage} />
 
                 {/* Enhanced no-coverage CTA */}
-                {!selectedZone && <Card className="mt-2 border-primary/50">
+                {!selectedZone && <Card className="mt-3 border-primary/50">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <MessageCircle className="h-5 w-5 text-primary" />
@@ -76,10 +76,10 @@ export default function Cobertura() {
                 </Card>}
               </>}
 
-              {zones && zones.length > 0 && !hasSearched && <div className="mt-2">
-                <h3 className="font-medium mb-2 text-sm">Zonas con cobertura:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {zones.map(z => <Button key={z.id} variant="outline" size="sm" onClick={() => {
+              {zones && zones.length > 0 && !hasSearched && <div className="mt-3">
+                <h3 className="font-medium mb-3 text-base text-center">Zonas con cobertura:</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {zones.map(z => <Button key={z.id} variant="outline" size="default" className="text-base" onClick={() => {
                     setSearch(z.zone_name);
                     setSelectedZone(z);
                     setHasSearched(true);
@@ -93,7 +93,7 @@ export default function Cobertura() {
           </div>
 
           {/* Right side - Pitbull B&W */}
-          <div className="hidden lg:flex lg:w-[50%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16 lg:mt-12">
+          <div className="hidden lg:flex lg:w-[45%] lg:justify-end lg:items-end lg:-mr-12 xl:-mr-16">
             <motion.img 
               src={coberturaPitbull} 
               alt="Perro atento mirando" 
