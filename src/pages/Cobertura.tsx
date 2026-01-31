@@ -100,7 +100,7 @@ export default function Cobertura() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
             className="hidden lg:block fixed z-10 w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl pointer-events-none"
-            style={{ bottom: 117, right: 70 }}
+            style={{ bottom: 117, right: 110 }}
           />
         </div>
       </div>
