@@ -71,7 +71,7 @@ export default function Home() {
         {/* Centered Logo at Top */}
         <img src={logoTaglineBlack} alt="Raw Paw - La nueva forma de cuidarlos" className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" />
 
-        {/* Decorative dog */}
+        {/* Hero dog image */}
         <img src={heroDogTongue} alt="Perro feliz" className="absolute bottom-0 right-0 w-40 sm:w-52 md:w-72 lg:w-[380px] object-contain z-10 pointer-events-none" />
 
         <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">
