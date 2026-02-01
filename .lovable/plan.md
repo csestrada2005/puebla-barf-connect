@@ -1,239 +1,152 @@
 
+# Plan: Scroll al Inicio, Eliminar Loaders, y Estilizar Chatbot
 
-# Performance Overhaul: Feasibility Analysis & Implementation Plan
+## Resumen de Cambios
 
-## Executive Summary
-
-Your 3-step plan is **largely feasible** with a few modifications needed for optimal results.
-
----
-
-## Step 1: BrandImage Smart Component
-
-**Verdict: Fully Feasible**
-
-### What Will Work
-
-| Feature | Feasibility | Notes |
-|---------|-------------|-------|
-| `priority` prop for eager/lazy loading | YES | Native browser attributes work well |
-| `loading="eager/lazy"` | YES | Widely supported |
-| `decoding="sync/async"` | YES | Good for perceived performance |
-| `fetchPriority="high/low"` | YES | Chromium-based browsers, graceful fallback |
-| Blur-up placeholder effect | YES | Via CSS `filter: blur()` + transition |
-
-### Implementation Details
-
-```text
-src/components/ui/BrandImage.tsx
-├── Props: src, alt, className, priority (default: false)
-├── Eager mode: loading="eager", decoding="sync", fetchPriority="high"  
-├── Lazy mode: loading="lazy", decoding="async"
-└── Blur effect: CSS-based transition from blurred placeholder to sharp
-```
-
-### Files to Update
-
-| File | Changes | Priority Images |
-|------|---------|-----------------|
-| `src/pages/Home.tsx` | 13 images total | `heroBorderCollie`, `logoTaglineBlack` = priority |
-| `src/components/layout/Header.tsx` | 2 images | `logoChoco` = priority |
-| `src/components/layout/Layout.tsx` | 1 image | `dogtorAvatar` = priority (FAB always visible) |
-| `src/pages/Nosotros.tsx` | 1 image | `nosotrosBrownDog` = priority (hero) |
-| `src/components/home/BenefitsSection.tsx` | 1 image | `benefitsDog` = lazy (below fold) |
-| Other pages | Various | All lazy (not initial route) |
+Tres mejoras de UX solicitadas:
+1. Scroll automático al inicio al cambiar de página (con excepción para `/ai` cuando hay consulta activa)
+2. Eliminar las pantallas de carga visibles (spinners)
+3. Agregar borde negro al contenedor del chatbot en `/ai`
 
 ---
 
-## Step 2: Vite Build Optimization
+## Cambio 1: Scroll al Inicio en Navegación
 
-**Verdict: Partially Feasible - Needs Modification**
+### Problema Actual
+Cuando se navega entre páginas, la posición del scroll se mantiene, lo que confunde al usuario.
 
-### What Works
+### Solución
+Crear un componente `ScrollToTop` que detecte cambios de ruta y haga scroll al inicio, con lógica especial para `/ai`.
 
-```text
-manualChunks: {
-  'vendor': ['react', 'react-dom', 'framer-motion']
-}
-```
-
-This is valid and will create a separate vendor bundle for better caching.
-
-### What Doesn't Work
+### Archivo a Crear
+`src/components/layout/ScrollToTop.tsx`
 
 ```text
-'ui': ['./src/components/ui']      // INVALID - not a module path
-'brand': ['./src/assets/brand']    // INVALID - images are not JS modules
+Lógica:
+├── Usa useLocation() de react-router-dom
+├── En cada cambio de pathname:
+│   ├── Si pathname === "/ai":
+│   │   └── Verificar localStorage "ai-recommender-state"
+│   │       ├── Si step === "result" → NO hacer scroll (consulta activa)
+│   │       └── Si no → SÍ hacer scroll al inicio
+│   └── Cualquier otra ruta → SÍ hacer scroll al inicio
+└── Ejecutar window.scrollTo(0, 0)
 ```
 
-**Problem:** Rollup's `manualChunks` only works with JavaScript/TypeScript modules, not directories or static assets.
-
-### Corrected Approach
-
-```text
-build: {
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        'vendor': ['react', 'react-dom', 'react-router-dom'],
-        'motion': ['framer-motion'],
-        'query': ['@tanstack/react-query'],
-        'supabase': ['@supabase/supabase-js']
-      }
-    }
-  }
-}
-```
-
-### Image Optimization Options
-
-| Option | Effort | Effect |
-|--------|--------|--------|
-| `vite-plugin-imagemin` | Medium | Auto-compress at build time |
-| Manual WebP conversion | Low | Pre-convert `.png` to `.webp` |
-| Use `<picture>` element | Low | Serve WebP with PNG fallback |
-
-**Recommendation:** For simplest implementation, I'll add basic chunk splitting. Image optimization plugins add complexity and can be done later.
+### Archivo a Modificar
+`src/App.tsx` - Insertar `<ScrollToTop />` dentro del `<BrowserRouter>`
 
 ---
 
-## Step 3: Route-Based Lazy Loading
+## Cambio 2: Eliminar Pantallas de Carga
 
-**Verdict: Fully Feasible**
+### Problema Actual
+Los `<Suspense fallback={<PageLoader />}>` muestran spinners que resultan "jarring" (bruscos).
 
-### Current State (All Eager)
+### Solución
+Reemplazar el fallback con un componente invisible que reserve espacio mínimo sin mostrar spinner.
+
+### Archivos a Modificar
+
+**`src/App.tsx`**
+- Cambiar todos los `fallback={<PageLoader />}` a `fallback={null}`
+- Esto permite que el lazy loading sea "invisible" - la página simplemente aparece
+
+**`src/components/layout/Layout.tsx`**
+- Quitar el `<Suspense fallback={<PageLoader />}>` del children
+- Los children ya vienen envueltos en Suspense desde App.tsx
+
+---
+
+## Cambio 3: Borde Negro en Chatbot
+
+### Referencia Visual
+La imagen muestra un borde negro delineando el área central del chat, creando una separación visual clara entre el contenido y los perros decorativos.
+
+### Archivo a Modificar
+`src/components/ai/ChatContainer.tsx`
+
+### Cambios Específicos
+
+```text
+Estructura actual:
+<div className="flex flex-col h-[calc(100vh-80px)]...">
+  {/* Header Badge */}
+  {/* Messages Area */}
+  {/* Input Section */}
+</div>
+
+Nueva estructura:
+<div className="flex flex-col h-[calc(100vh-80px)]...">
+  {/* Contenedor central con borde */}
+  <div className="max-w-2xl mx-auto w-full flex flex-col h-full 
+                  border-2 border-foreground/80 rounded-2xl 
+                  bg-background/50 backdrop-blur-sm overflow-hidden">
+    {/* Header Badge */}
+    {/* Messages Area */}
+    {/* Input Section */}
+  </div>
+</div>
+```
+
+### Estilos del Borde
+- `border-2 border-foreground/80` - Borde oscuro (negro en modo claro)
+- `rounded-2xl` - Esquinas redondeadas consistentes con el design system
+- `bg-background/50 backdrop-blur-sm` - Fondo semi-transparente
+- `mx-4 md:mx-auto` - Margen en móvil, centrado en desktop
+
+---
+
+## Resumen de Archivos
+
+| Archivo | Acción |
+|---------|--------|
+| `src/components/layout/ScrollToTop.tsx` | CREAR |
+| `src/App.tsx` | MODIFICAR (agregar ScrollToTop, cambiar fallbacks) |
+| `src/components/layout/Layout.tsx` | MODIFICAR (quitar Suspense interno) |
+| `src/components/ai/ChatContainer.tsx` | MODIFICAR (agregar borde) |
+
+---
+
+## Sección Técnica
+
+### ScrollToTop - Implementación
 
 ```typescript
-import Home from "./pages/Home";
-import Tienda from "./pages/Tienda";
-import Admin from "./pages/Admin";
-// ... all 15+ pages loaded immediately
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Excepción para /ai con consulta activa
+    if (pathname === "/ai") {
+      const savedState = localStorage.getItem("ai-recommender-state");
+      if (savedState) {
+        try {
+          const parsed = JSON.parse(savedState);
+          if (parsed.step === "result") {
+            return; // No hacer scroll si hay consulta activa
+          }
+        } catch {}
+      }
+    }
+    
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 ```
 
-### Proposed State (Smart Lazy)
+### ChatContainer - Nuevo Borde
 
-```text
-Eager (instant load):
-├── Home (initial route)
-└── Shared: AuthProvider, Layout, Header
+El contenedor central recibirá un borde visual que separa el área del chat de los elementos decorativos (perros). Esto mejora la legibilidad y crea una jerarquía visual clara.
 
-Lazy (loaded on demand):
-├── Tienda
-├── Producto  
-├── Cobertura
-├── AIRecomendador
-├── Carrito
-├── Checkout
-├── Suscripcion
-├── FAQ
-├── Login / Registro
-├── MiCuenta
-├── Admin
-├── Terminos / Privacidad
-├── GuiasBarf
-├── Nosotros
-└── NotFound
-```
+### Lazy Loading sin Spinner
 
-### Loading Fallback Component
-
-```text
-src/components/ui/PageLoader.tsx
-├── Centered spinner
-├── Brand-consistent styling
-└── Smooth fade-in animation
-```
-
----
-
-## Implementation Summary
-
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/ui/BrandImage.tsx` | Smart image component with priority loading |
-| `src/components/ui/PageLoader.tsx` | Loading spinner for lazy routes |
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/App.tsx` | Add lazy imports + Suspense wrapper |
-| `src/pages/Home.tsx` | Replace 13 `<img>` tags with `<BrandImage>` |
-| `src/components/layout/Header.tsx` | Replace 2 `<img>` tags with `<BrandImage>` |
-| `src/components/layout/Layout.tsx` | Replace 1 `<img>` tag with `<BrandImage>` |
-| `src/components/home/BenefitsSection.tsx` | Replace 1 `<img>` tag with `<BrandImage>` |
-| `vite.config.ts` | Add build chunk optimization |
-
-### Priority Mapping
-
-| Image | Location | Priority |
-|-------|----------|----------|
-| `heroBorderCollie` | Home hero | HIGH |
-| `logoTaglineBlack` | Home hero | HIGH |
-| `logoChoco` | Header | HIGH |
-| `dogtorAvatar` | FAB (Layout) | HIGH |
-| All decorative icons | Home sections | LOW |
-| `benefitsDog` | BenefitsSection | LOW |
-| Route-specific dogs | Other pages | LOW (lazy loaded anyway) |
-
----
-
-## Technical Notes
-
-### BrandImage Component Logic
-
-```text
-if (priority):
-  - loading="eager"
-  - decoding="sync" 
-  - fetchPriority="high"
-else:
-  - loading="lazy"
-  - decoding="async"
-
-Blur effect:
-  - Initial state: filter blur(10px), opacity 0.8
-  - On load: transition to filter blur(0), opacity 1
-  - Uses onLoad event to detect when image is ready
-```
-
-### Lazy Loading Pattern
-
-```text
-const Tienda = lazy(() => import('./pages/Tienda'));
-
-<Suspense fallback={<PageLoader />}>
-  <Routes>
-    <Route path="/" element={<Home />} />  {/* NOT lazy */}
-    <Route path="/tienda" element={<Tienda />} />  {/* Lazy */}
-  </Routes>
-</Suspense>
-```
-
----
-
-## Expected Performance Gains
-
-| Metric | Before | After (Expected) |
-|--------|--------|------------------|
-| Initial JS bundle | ~800KB+ | ~300KB (Home only) |
-| Image blocking | All images compete | Priority images first |
-| Route change | Already loaded (wasted) | Load on demand |
-| LCP (Largest Contentful Paint) | Delayed by non-critical | Improved via priority |
-| CLS (Cumulative Layout Shift) | Possible shifts | Reduced via blur placeholder |
-
----
-
-## Order of Implementation
-
-1. Create `BrandImage.tsx` component
-2. Create `PageLoader.tsx` component  
-3. Update `vite.config.ts` with chunk splitting
-4. Convert `App.tsx` to lazy loading pattern
-5. Replace `<img>` tags in Home.tsx (13 images)
-6. Replace `<img>` tags in Header.tsx (2 images)
-7. Replace `<img>` tags in Layout.tsx (1 image)
-8. Replace `<img>` tags in BenefitsSection.tsx (1 image)
-
+Al usar `fallback={null}`, el contenido simplemente aparece cuando está listo. La transición es más suave porque:
+1. El Header y Footer permanecen visibles (ya están en Layout)
+2. El contenido aparece sin parpadeos
+3. La experiencia es más fluida que un spinner
