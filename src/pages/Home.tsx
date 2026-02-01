@@ -70,7 +70,7 @@ export default function Home() {
         <BrandImage 
           src={logoTaglineBlack} 
           alt="Raw Paw - La nueva forma de cuidarlos" 
-          className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-8 md:top-12 w-56 sm:w-72 md:w-80 lg:w-96 z-10 pointer-events-none brightness-0 invert" 
+          className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-6 md:top-8 w-48 sm:w-60 md:w-72 lg:w-80 z-10 pointer-events-none brightness-0 invert" 
           priority 
         />
 
@@ -79,7 +79,7 @@ export default function Home() {
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 w-56 sm:w-72 md:w-96 lg:w-[480px] xl:w-[550px] z-10 pointer-events-none"
+          className="absolute -bottom-4 -right-4 md:-right-8 w-64 sm:w-80 md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
         >
           <BrandImage 
             src={heroBorderCollie} 
@@ -89,7 +89,7 @@ export default function Home() {
           />
         </motion.div>
 
-        <div className="container relative z-20 h-full flex flex-col justify-end pb-16 sm:pb-20 md:pb-24 pt-40 sm:pt-44 md:pt-48">
+        <div className="container relative z-20 h-full flex flex-col justify-center pt-20 sm:pt-24 md:pt-28">
           <div className="flex-col text-left flex items-start justify-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
