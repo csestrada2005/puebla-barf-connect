@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info } from "lucide-react";
+import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info, ShoppingCart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,6 +15,8 @@ import { BrandImage } from "@/components/ui/BrandImage";
 import playBulldogs from "@/assets/brand/play-bulldogs.png";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginDialog } from "@/components/ai/LoginDialog";
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/hooks/use-toast";
 const WHATSAPP_NUMBER = "5212213606464";
 const proteinOptions = [{
   value: "pollo",
@@ -59,6 +61,9 @@ const frequencyOptions = [{
   description: "Entregas cada 2 semanas"
 }];
 export default function Suscripcion() {
+  const navigate = useNavigate();
+  const { addItem } = useCart();
+  const { toast } = useToast();
   const [protein, setProtein] = useState("pollo");
   const [presentation, setPresentation] = useState("500g");
   const [billing, setBilling] = useState("mensual");
@@ -90,12 +95,32 @@ export default function Suscripcion() {
       setShowLoginDialog(true);
       return;
     }
-    
-    const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
-    const billingName = billing === "anual" ? "Anual" : "Mensual";
-    const freqName = frequency === "semanal" ? "Semanal" : "Cada 15 días";
-    const message = encodeURIComponent(`Hola! Quiero suscribirme a Raw Paw:\n\n` + `*Producto:* ${productName}\n` + `*Plan:* ${billingName}\n` + `*Frecuencia de entrega:* ${freqName}\n` + `*Precio:* $${finalPrice.toLocaleString("es-MX")}/mes\n\n` + `¿Cómo puedo continuar?`);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+
+    const planType = billing === "anual" ? "annual" : "monthly";
+    const discountPercent = billing === "anual" ? 15 : 0;
+
+    const subscriptionItem = {
+      id: `subscription-${planType}-${protein}-${presentation}`,
+      name: `Suscripción ${billing === "anual" ? "Anual" : "Mensual"} - BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`,
+      price: finalPrice,
+      isSubscription: true,
+      subscriptionDetails: {
+        planType: planType as "monthly" | "annual",
+        proteinLine: protein,
+        presentation,
+        frequency: billing,
+        discountPercent,
+      },
+    };
+
+    addItem(subscriptionItem);
+
+    toast({
+      title: "Plan agregado al carrito 🛒",
+      description: `Tu suscripción ${billing === "anual" ? "anual" : "mensual"} está lista para pagar.`,
+    });
+
+    navigate("/carrito");
   };
   return <Layout>
       <div className="container py-4 pt-12 md:pt-14 relative">
@@ -170,7 +195,7 @@ export default function Suscripcion() {
                 {billing === "anual" && <Alert className="mt-3">
                     <CreditCard className="h-4 w-4" />
                     <AlertDescription className="text-xs">
-                      El plan anual requiere pago con tarjeta. Próximamente disponible.
+                      El plan anual requiere pago con tarjeta.
                     </AlertDescription>
                   </Alert>}
               </CardContent>
@@ -277,9 +302,9 @@ export default function Suscripcion() {
                   </div>
                 </div>
 
-                <Button onClick={handleSubscribe} className="w-full gap-2" size="default" disabled={billing === "anual"}>
-                  <MessageCircle className="h-4 w-4" />
-                  {billing === "anual" ? "Próximamente" : "Suscribirme por WhatsApp"}
+                <Button onClick={handleSubscribe} className="w-full gap-2" size="default">
+                  <ShoppingCart className="h-4 w-4" />
+                  Agregar al carrito
                 </Button>
 
                 <p className="text-[10px] text-center text-muted-foreground">
