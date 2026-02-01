@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers } from "@/components/ai";
+import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker } from "@/components/ai";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
@@ -919,7 +919,7 @@ export default function AIRecomendador() {
       return;
     }
 
-    await addBotMessage("Para calcular su etapa, ¿cuándo es su cumpleaños? 🎂 (YYYY-MM-DD o DD/MM/AAAA)");
+    await addBotMessage("Para calcular su etapa, ¿cuándo es su cumpleaños? 🎂");
     setStep("profile_birthday");
     setIsProcessing(false);
   };
@@ -1492,7 +1492,7 @@ export default function AIRecomendador() {
       case "profile_name":
         return <ChatInput placeholder="Nombre del perrito…" onSubmit={handleProfileNameSubmit} disabled={isProcessing} />;
       case "profile_birthday":
-        return <ChatInput placeholder="YYYY-MM-DD (o DD/MM/AAAA)" onSubmit={handleProfileBirthdaySubmit} disabled={isProcessing} />;
+        return <BirthdayPicker onSubmit={handleProfileBirthdaySubmit} disabled={isProcessing} />;
       case "profile_weight":
         return <ChatInput placeholder="Peso en kg…" onSubmit={handleProfileWeightSubmit} disabled={isProcessing} />;
       case "profile_activity":

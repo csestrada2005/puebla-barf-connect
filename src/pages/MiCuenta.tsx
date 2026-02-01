@@ -413,16 +413,27 @@ export default function MiCuenta() {
                 <CardHeader>
                   <CardTitle>Contacto</CardTitle>
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      defaultValue={profile?.email}
-                      onChange={handleChange}
-                    />
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="family_name">Apellido de la Familia</Label>
+                      <Input
+                        id="family_name"
+                        name="family_name"
+                        defaultValue={profile?.family_name}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        defaultValue={profile?.email}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Teléfono WhatsApp</Label>
