@@ -2,13 +2,12 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   CreditCard, Banknote, MessageCircle, 
-  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus 
+  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar 
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +18,10 @@ import { useRecommendation } from "@/hooks/useRecommendation";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+
+// Product images
+import productoRes from "@/assets/products/producto-res.png";
+import productoPollo from "@/assets/products/producto-pollo.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
@@ -59,7 +62,15 @@ export default function Checkout() {
     address: address || "",
     notes: "",
     deliveryWindow: "",
+    preferredDeliveryDay: "" as "" | "monday" | "sunday",
   });
+
+  const getProductImage = (itemName: string) => {
+    const nameLower = itemName.toLowerCase();
+    if (nameLower.includes("res") || nameLower.includes("beef")) return productoRes;
+    if (nameLower.includes("pollo") || nameLower.includes("chicken")) return productoPollo;
+    return productoRes; // default
+  };
 
   const subtotal = getSubtotal();
   const total = subtotal + (isConfirmed ? deliveryFee : 0);
@@ -133,6 +144,7 @@ export default function Checkout() {
         `*Dirección:* ${formData.address}\n` +
         (formData.notes ? `*Referencias:* ${formData.notes}\n` : "") +
         (formData.deliveryWindow ? `*Ventana horaria:* ${formData.deliveryWindow}\n` : "") +
+        (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "monday" ? "Lunes" : "Domingo"}\n` : "") +
         `\n*Entrega:* 24-48h`
       );
       
@@ -314,6 +326,35 @@ export default function Checkout() {
                         />
                       </div>
                     </div>
+
+                    {/* Preferred Delivery Day */}
+                    <div className="space-y-3 pt-2">
+                      <Label className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        Día de entrega preferencial
+                      </Label>
+                      <RadioGroup
+                        value={formData.preferredDeliveryDay}
+                        onValueChange={(v) => setFormData({ ...formData, preferredDeliveryDay: v as "monday" | "sunday" })}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="monday" id="delivery-monday" />
+                          <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">
+                            Lunes
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="sunday" id="delivery-sunday" />
+                          <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">
+                            Domingo
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                      <p className="text-xs text-muted-foreground">
+                        Selecciona el día que prefieres recibir tus entregas
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -369,11 +410,17 @@ export default function Checkout() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {items.map((item) => (
-                      <div key={item.id} className="flex justify-between text-sm">
-                        <span>
-                          {item.name} <span className="text-muted-foreground">x{item.quantity}</span>
-                        </span>
-                        <span>${(item.price * item.quantity).toLocaleString("es-MX")}</span>
+                      <div key={item.id} className="flex items-center gap-3 text-sm">
+                        <img 
+                          src={getProductImage(item.name)} 
+                          alt={item.name}
+                          className="h-10 w-10 rounded-lg object-cover bg-secondary/30"
+                        />
+                        <div className="flex-1">
+                          <span className="font-medium">{item.name}</span>
+                          <span className="text-muted-foreground ml-1">x{item.quantity}</span>
+                        </div>
+                        <span className="font-medium">${(item.price * item.quantity).toLocaleString("es-MX")}</span>
                       </div>
                     ))}
                     
