@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, ProtectedRoute } from "@/components/auth";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { PromoPopup } from "./components/PromoPopup";
+import { RouteSkeleton } from "@/components/ui/RouteSkeleton";
 
 // Eager load: Home (initial route)
 import Home from "./pages/Home";
@@ -44,93 +45,93 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tienda" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Tienda />
               </Suspense>
             } />
             <Route path="/producto/:slug" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Producto />
               </Suspense>
             } />
             <Route path="/cobertura" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Cobertura />
               </Suspense>
             } />
             <Route path="/ai" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <AIRecomendador />
               </Suspense>
             } />
             <Route path="/carrito" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Carrito />
               </Suspense>
             } />
             <Route path="/checkout" element={
               <ProtectedRoute>
-                <Suspense fallback={null}>
+                <Suspense fallback={<RouteSkeleton />}>
                   <Checkout />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/suscripcion" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Suscripcion />
               </Suspense>
             } />
             <Route path="/faq" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <FAQ />
               </Suspense>
             } />
             <Route path="/login" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Login />
               </Suspense>
             } />
             <Route path="/registro" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Registro />
               </Suspense>
             } />
             <Route path="/mi-cuenta" element={
               <ProtectedRoute>
-                <Suspense fallback={null}>
+                <Suspense fallback={<RouteSkeleton />}>
                   <MiCuenta />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/admin" element={
               <ProtectedRoute>
-                <Suspense fallback={null}>
+                <Suspense fallback={<RouteSkeleton />}>
                   <Admin />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/terminos" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Terminos />
               </Suspense>
             } />
             <Route path="/privacidad" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Privacidad />
               </Suspense>
             } />
             <Route path="/guias-barf" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <GuiasBarf />
               </Suspense>
             } />
             <Route path="/nosotros" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <Nosotros />
               </Suspense>
             } />
             <Route path="*" element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteSkeleton />}>
                 <NotFound />
               </Suspense>
             } />
