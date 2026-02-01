@@ -195,7 +195,7 @@ export default function Suscripcion() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                className="absolute -top-12 md:-top-14 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+                className="absolute -top-28 md:-top-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
               >
                 <BrandImage 
                   src={playBulldogs} 
