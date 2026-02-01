@@ -49,7 +49,7 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
     <Link to={`/producto/${slug}`} className="block h-full">
       <Card className="group hover:shadow-xl transition-all duration-300 h-full overflow-hidden border-2 hover:border-primary/20">
         {/* Visual Header */}
-        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-6">
+        <div className="relative aspect-square bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-4">
           <img 
             src={image} 
             alt={name}
