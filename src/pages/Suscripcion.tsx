@@ -89,9 +89,9 @@ export default function Suscripcion() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
   return <Layout>
-      <div className="container py-6 pt-16 md:pt-20 relative">
+      <div className="container py-4 pt-12 md:pt-14 relative">
         {/* Hero */}
-        <div className="text-center max-w-2xl mx-auto mb-6">
+        <div className="text-center max-w-2xl mx-auto mb-4">
           <Badge variant="secondary" className="mb-2 gap-1">
             <Repeat className="h-3 w-3" />
             Suscripción mensual
@@ -101,7 +101,7 @@ export default function Suscripcion() {
           </h1>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
           {/* Configurator */}
           <div className="space-y-4">
             {/* Protein Line */}
@@ -187,15 +187,15 @@ export default function Suscripcion() {
           </div>
 
           {/* Summary & Benefits - Sticky container */}
-          <div className="lg:sticky lg:top-20 space-y-4 h-fit">
-            {/* Price Card with Bulldogs standing on top - outside/above the card */}
-            <div className="relative pt-20 md:pt-24">
-              {/* Bulldogs (full body pair) - standing ON TOP of the card, completely visible */}
+          <div className="lg:sticky lg:top-16 space-y-3 h-fit">
+            {/* Price Card with Bulldogs inside */}
+            <div className="relative">
+              {/* Bulldogs - positioned lower, overlapping the card */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                className="absolute top-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+                className="absolute -top-12 md:-top-14 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
               >
                 <BrandImage 
                   src={playBulldogs} 
