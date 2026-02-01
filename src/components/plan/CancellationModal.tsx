@@ -29,7 +29,7 @@ const CANCELLATION_REASONS = [
   { id: "no_need", label: "Ya no lo necesito", emoji: "📦" },
   { id: "delivery", label: "Problemas con la entrega", emoji: "🚚" },
   { id: "diet_change", label: "Cambio de dieta", emoji: "🥗" },
-  { id: "deceased", label: "Mi perro ya no está conmigo", emoji: "🌈", sensitive: true },
+  { id: "deceased", label: "Mi perro ya no está conmigo", emoji: "🕊️", sensitive: true },
   { id: "other", label: "Otro motivo", emoji: "💬" },
 ];
 
