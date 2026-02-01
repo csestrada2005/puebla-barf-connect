@@ -1331,7 +1331,7 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
-  const handleSelectSubscription = async (planType: "monthly" | "semestral" | "annual") => {
+  const handleSelectSubscription = async (planType: "monthly" | "annual") => {
     if (!isAuthenticated || !user) {
       setLoginDialogContext("edit");
       setShowLoginDialog(true);
@@ -1343,7 +1343,7 @@ export default function AIRecomendador() {
     }
 
     try {
-      const billingWeeks = planType === "monthly" ? 4 : planType === "semestral" ? 24 : 52;
+      const billingWeeks = planType === "monthly" ? 4 : 52;
       const nextBillingDate = new Date();
       nextBillingDate.setDate(nextBillingDate.getDate() + (billingWeeks * 7));
       
@@ -1352,16 +1352,16 @@ export default function AIRecomendador() {
 
       const subscriptionData = {
         user_id: user.id,
-        plan_type: planType,
+        plan_type: planType === "annual" ? "pro" : "basico",
         status: "active",
         protein_line: result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix",
         presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
         weekly_amount_kg: result?.weeklyKg || 0,
-        frequency: "weekly",
+        frequency: planType === "annual" ? "anual" : "mensual",
         next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
         next_billing_date: nextBillingDate.toISOString().split("T")[0],
         price_per_kg: 150,
-        discount_percent: planType === "monthly" ? 0 : planType === "semestral" ? 5 : 10,
+        discount_percent: planType === "annual" ? 15 : 0,
       };
 
       // Check if active subscription exists
