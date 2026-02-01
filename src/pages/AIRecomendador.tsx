@@ -1464,7 +1464,7 @@ export default function AIRecomendador() {
         return <QuickReplies options={cancelReasonOptions} onSelect={handleCancelReasonSelect} columns={2} disabled={isProcessing} />;
 
       case "cancel_other_details":
-        return <ChatInput placeholder="Cuéntanos más (opcional)..." onSubmit={handleCancelOtherDetailsSubmit} disabled={isProcessing} />;
+        return <ChatInput placeholder="Cuéntanos más (opcional)..." onSubmit={handleCancelOtherDetailsSubmit} disabled={isProcessing} allowEmpty />;
 
       case "guest_save_prompt":
         return (

@@ -9,18 +9,23 @@ interface ChatInputProps {
   onSubmit: (value: string) => void;
   type?: "text" | "number";
   disabled?: boolean;
+  allowEmpty?: boolean;
 }
 
-export function ChatInput({ placeholder, onSubmit, type = "text", disabled }: ChatInputProps) {
+export function ChatInput({ placeholder, onSubmit, type = "text", disabled, allowEmpty = false }: ChatInputProps) {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value.trim() && !disabled) {
+    if (disabled) return;
+    
+    if (allowEmpty || value.trim()) {
       onSubmit(value.trim());
       setValue("");
     }
   };
+
+  const canSubmit = allowEmpty || value.trim();
 
   return (
     <motion.form
@@ -41,7 +46,7 @@ export function ChatInput({ placeholder, onSubmit, type = "text", disabled }: Ch
       <Button 
         type="submit" 
         size="icon" 
-        disabled={!value.trim() || disabled}
+        disabled={!canSubmit || disabled}
         className="h-12 w-12 rounded-xl"
       >
         <Send className="h-5 w-5" />
