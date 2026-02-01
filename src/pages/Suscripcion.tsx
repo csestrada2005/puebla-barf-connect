@@ -34,21 +34,7 @@ const presentationOptions = [{
   label: "1kg",
   description: "Perros medianos y grandes"
 }];
-const planTypes = [{
-  id: "basico",
-  name: "Plan Básico",
-  description: "Recibe cada mes sin complicaciones",
-  benefits: ["Precio igual al producto individual", "No requiere re-ingresar tarjeta", "Status de cliente fiel", "Regalos sorpresa mensuales", "Cambia línea cada mes si quieres"],
-  badge: null
-}, {
-  id: "pro",
-  name: "Plan Pro",
-  description: "Beneficios exclusivos para los más comprometidos",
-  benefits: ["Sistema de puntos acumulables", "Prioridad en entregas", "Acceso a productos exclusivos", "Descuentos en productos adicionales", "Soporte prioritario por WhatsApp"],
-  badge: "Recomendado",
-  priceMultiplier: 1.15
-}];
-const frequencyOptions = [{
+const billingOptions = [{
   value: "mensual",
   label: "Mensual",
   description: "Pago cada mes, puedes iniciar con efectivo",
@@ -60,11 +46,21 @@ const frequencyOptions = [{
   discount: 15,
   requiresCard: true
 }];
+
+const frequencyOptions = [{
+  value: "semanal",
+  label: "Semanal",
+  description: "Entregas cada 7 días"
+}, {
+  value: "quincenal",
+  label: "Cada 15 días",
+  description: "Entregas cada 2 semanas"
+}];
 export default function Suscripcion() {
   const [protein, setProtein] = useState("pollo");
   const [presentation, setPresentation] = useState("500g");
-  const [planType, setPlanType] = useState("basico");
-  const [frequency, setFrequency] = useState("mensual");
+  const [billing, setBilling] = useState("mensual");
+  const [frequency, setFrequency] = useState("semanal");
   const {
     data: products
   } = useQuery({
@@ -82,14 +78,14 @@ export default function Suscripcion() {
 
   // Calculate price
   const basePrice = selectedProduct ? Number(selectedProduct.price) : 0;
-  const planMultiplier = planType === "pro" ? 1.15 : 1;
-  const frequencyDiscount = frequency === "anual" ? 0.85 : 1;
-  const finalPrice = Math.round(basePrice * planMultiplier * frequencyDiscount);
+  const billingDiscount = billing === "anual" ? 0.85 : 1;
+  const finalPrice = Math.round(basePrice * billingDiscount);
+  
   const handleSubscribe = () => {
     const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
-    const planName = planType === "pro" ? "Pro" : "Básico";
-    const freqName = frequency === "anual" ? "Anual" : "Mensual";
-    const message = encodeURIComponent(`Hola! Quiero suscribirme a Raw Paw:\n\n` + `*Producto:* ${productName}\n` + `*Plan:* ${planName}\n` + `*Frecuencia:* ${freqName}\n` + `*Precio:* $${finalPrice.toLocaleString("es-MX")}/mes\n\n` + `¿Cómo puedo continuar?`);
+    const billingName = billing === "anual" ? "Anual" : "Mensual";
+    const freqName = frequency === "semanal" ? "Semanal" : "Cada 15 días";
+    const message = encodeURIComponent(`Hola! Quiero suscribirme a Raw Paw:\n\n` + `*Producto:* ${productName}\n` + `*Plan:* ${billingName}\n` + `*Frecuencia de entrega:* ${freqName}\n` + `*Precio:* $${finalPrice.toLocaleString("es-MX")}/mes\n\n` + `¿Cómo puedo continuar?`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
   return <Layout>
@@ -146,45 +142,16 @@ export default function Suscripcion() {
               </CardContent>
             </Card>
 
-            {/* Plan Type */}
+            {/* Billing Plan */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">3. Tipo de plan</CardTitle>
+                <CardTitle className="text-lg">3. Plan</CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup value={planType} onValueChange={setPlanType} className="space-y-3">
-                  {planTypes.map(plan => <div key={plan.id} className="relative">
-                      <RadioGroupItem value={plan.id} id={`plan-${plan.id}`} className="peer sr-only" />
-                      <Label htmlFor={`plan-${plan.id}`} className="flex items-start gap-4 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{plan.name}</span>
-                            {plan.badge && <Badge variant="default" className="text-xs">{plan.badge}</Badge>}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">{plan.description}</p>
-                          <ul className="space-y-1">
-                            {plan.benefits.slice(0, 3).map((b, i) => <li key={i} className="flex items-center gap-2 text-xs">
-                                <Check className="h-3 w-3 text-primary" />
-                                <span>{b}</span>
-                              </li>)}
-                          </ul>
-                        </div>
-                      </Label>
-                    </div>)}
-                </RadioGroup>
-              </CardContent>
-            </Card>
-
-            {/* Frequency */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">4. Frecuencia</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-3">
-                  {frequencyOptions.map(option => <div key={option.value}>
-                      <RadioGroupItem value={option.value} id={`freq-${option.value}`} className="peer sr-only" />
-                      <Label htmlFor={`freq-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                <RadioGroup value={billing} onValueChange={setBilling} className="grid grid-cols-2 gap-3">
+                  {billingOptions.map(option => <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={`billing-${option.value}`} className="peer sr-only" />
+                      <Label htmlFor={`billing-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
                         <span className="font-semibold">{option.label}</span>
                         {option.discount > 0 && <Badge variant="secondary" className="text-xs">-{option.discount}%</Badge>}
                         <span className="text-xs text-muted-foreground text-center">{option.description}</span>
@@ -192,12 +159,30 @@ export default function Suscripcion() {
                     </div>)}
                 </RadioGroup>
 
-                {frequency === "anual" && <Alert className="mt-4">
+                {billing === "anual" && <Alert className="mt-4">
                     <CreditCard className="h-4 w-4" />
                     <AlertDescription>
                       El plan anual requiere pago con tarjeta. Próximamente disponible.
                     </AlertDescription>
                   </Alert>}
+              </CardContent>
+            </Card>
+
+            {/* Frequency */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">4. Frecuencia de entrega</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-3">
+                  {frequencyOptions.map(option => <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={`freq-${option.value}`} className="peer sr-only" />
+                      <Label htmlFor={`freq-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                        <span className="font-semibold">{option.label}</span>
+                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      </Label>
+                    </div>)}
+                </RadioGroup>
               </CardContent>
             </Card>
           </div>
@@ -225,7 +210,7 @@ export default function Suscripcion() {
                 <CardHeader>
                   <CardTitle className="text-xl">Tu suscripción</CardTitle>
                 <CardDescription>
-                  BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - Plan {planType === "pro" ? "Pro" : "Básico"}
+                  BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - {billing === "anual" ? "Anual" : "Mensual"} - {frequency === "semanal" ? "Semanal" : "Cada 15 días"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -240,17 +225,29 @@ export default function Suscripcion() {
                 </div>
 
                 <div className="space-y-2">
-                  {planTypes.find(p => p.id === planType)?.benefits.map((benefit, i) => <div key={i} className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Check className="h-3 w-3 text-primary" />
-                      </div>
-                      <span className="text-sm">{benefit}</span>
-                    </div>)}
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
+                    <span className="text-sm">Entrega automática {frequency === "semanal" ? "cada semana" : "cada 15 días"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
+                    <span className="text-sm">Sin compromiso, cancela cuando quieras</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
+                    <span className="text-sm">Regalos sorpresa cada mes</span>
+                  </div>
                 </div>
 
-                <Button onClick={handleSubscribe} className="w-full gap-2" size="lg" disabled={frequency === "anual"}>
+                <Button onClick={handleSubscribe} className="w-full gap-2" size="lg" disabled={billing === "anual"}>
                   <MessageCircle className="h-4 w-4" />
-                  {frequency === "anual" ? "Próximamente" : "Suscribirme por WhatsApp"}
+                  {billing === "anual" ? "Próximamente" : "Suscribirme por WhatsApp"}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
