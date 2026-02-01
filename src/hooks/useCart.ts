@@ -1,6 +1,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface SubscriptionDetails {
+  planType: "monthly" | "annual";
+  proteinLine: string;
+  presentation: string;
+  frequency: string;
+  weeklyKg?: number;
+  discountPercent: number;
+}
+
 export interface CartItem {
   id: string;
   name: string;
@@ -8,6 +17,7 @@ export interface CartItem {
   quantity: number;
   isSubscription?: boolean;
   imageUrl?: string;
+  subscriptionDetails?: SubscriptionDetails;
 }
 
 interface CartState {
@@ -25,6 +35,12 @@ export const useCart = create<CartState>()(
       items: [],
       addItem: (item) =>
         set((state) => {
+          // For subscriptions, replace any existing subscription
+          if (item.isSubscription) {
+            const nonSubItems = state.items.filter((i) => !i.isSubscription);
+            return { items: [...nonSubItems, { ...item, quantity: 1 }] };
+          }
+          
           const existingItem = state.items.find((i) => i.id === item.id);
           if (existingItem) {
             return {

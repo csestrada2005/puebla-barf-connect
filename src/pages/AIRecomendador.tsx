@@ -1331,7 +1331,7 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
-  const handleSelectSubscription = async (planType: "monthly" | "annual") => {
+  const handleSelectSubscription = (planType: "monthly" | "annual") => {
     if (!isAuthenticated || !user) {
       setLoginDialogContext("edit");
       setShowLoginDialog(true);
@@ -1342,66 +1342,40 @@ export default function AIRecomendador() {
       return;
     }
 
-    try {
-      const billingWeeks = planType === "monthly" ? 4 : 52;
-      const nextBillingDate = new Date();
-      nextBillingDate.setDate(nextBillingDate.getDate() + (billingWeeks * 7));
-      
-      const nextDeliveryDate = new Date();
-      nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 3);
+    const proteinLine = result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix";
+    const presentation = result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g";
+    const discountPercent = planType === "annual" ? 15 : 0;
+    const pricePerKg = 150;
+    const weeklyKg = result?.weeklyKg || 1;
+    
+    // Calculate monthly price (4 weeks)
+    const baseMonthlyPrice = weeklyKg * pricePerKg * 4;
+    const finalPrice = Math.round(baseMonthlyPrice * (1 - discountPercent / 100));
 
-      const subscriptionData = {
-        user_id: user.id,
-        plan_type: planType === "annual" ? "pro" : "basico",
-        status: "active",
-        protein_line: result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix",
-        presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
-        weekly_amount_kg: result?.weeklyKg || 0,
-        frequency: planType === "annual" ? "anual" : "mensual",
-        next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
-        next_billing_date: nextBillingDate.toISOString().split("T")[0],
-        price_per_kg: 150,
-        discount_percent: planType === "annual" ? 15 : 0,
-      };
+    const subscriptionItem = {
+      id: `subscription-${planType}-${proteinLine}-${presentation}`,
+      name: `Suscripción ${planType === "annual" ? "Anual" : "Mensual"} - BARF ${proteinLine === "pollo" ? "Pollo" : "Res"} ${presentation}`,
+      price: finalPrice,
+      isSubscription: true,
+      subscriptionDetails: {
+        planType,
+        proteinLine,
+        presentation,
+        frequency: "mensual",
+        weeklyKg,
+        discountPercent,
+      },
+    };
 
-      // Check if active subscription exists
-      const { data: existingSub } = await supabase
-        .from("subscriptions")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .maybeSingle();
+    addItem(subscriptionItem);
+    
+    toast({
+      title: "Plan agregado al carrito 🛒",
+      description: `Tu suscripción ${planType === "annual" ? "anual" : "mensual"} está lista para pagar.`,
+    });
 
-      let error;
-      if (existingSub) {
-        const result = await supabase
-          .from("subscriptions")
-          .update(subscriptionData)
-          .eq("id", existingSub.id);
-        error = result.error;
-      } else {
-        const result = await supabase
-          .from("subscriptions")
-          .insert(subscriptionData);
-        error = result.error;
-      }
-
-      if (error) throw error;
-
-      toast({
-        title: "¡Suscripción creada! 🎉",
-        description: `Tu plan ${planType} está activo. Primera entrega en 3 días.`,
-      });
-
-      setIsResultOpen(false);
-      navigate("/mi-cuenta");
-    } catch (error: any) {
-      toast({
-        title: "Error al crear suscripción",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    setIsResultOpen(false);
+    navigate("/carrito");
   };
 
   const handleViewProduct = (productSlug: string) => {
