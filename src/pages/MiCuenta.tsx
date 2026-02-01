@@ -10,14 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles, Plus, XCircle } from "lucide-react";
+import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles, Plus, XCircle, Camera } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { BirthdayBanner, CancellationModal } from "@/components/plan";
-import { isBirthday, calculateAge } from "@/hooks/usePlanCalculator";
+import { BirthdayBanner, CancellationModal, DogCard } from "@/components/plan";
+import { isBirthday } from "@/hooks/usePlanCalculator";
 
 export default function MiCuenta() {
   const { user, signOut } = useAuthContext();
@@ -346,45 +346,29 @@ export default function MiCuenta() {
               {activeDogs.length > 0 ? (
                 <div className="grid gap-4">
                   {activeDogs.map((dog: any) => (
-                    <Card key={dog.id} className="overflow-hidden">
-                      <CardContent className="p-0">
-                        <div className="flex items-stretch">
-                          {/* Dog Avatar */}
-                          <div className="w-24 bg-secondary/30 flex items-center justify-center">
-                            <div className="text-4xl">🐕</div>
-                          </div>
-                          
-                          {/* Dog Info */}
-                          <div className="flex-1 p-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="font-bold text-lg">{dog.name}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {dog.weight_kg}kg • {dog.age_stage === "puppy" ? "Cachorro" : dog.age_stage === "senior" ? "Senior" : "Adulto"}
-                                  {dog.birthday && ` • ${calculateAge(dog.birthday)}`}
-                                </p>
-                              </div>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link to="/ai">Actualizar</Link>
-                              </Button>
-                            </div>
-                            
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              <Badge className="bg-primary/10 text-primary border-0">
-                                {dog.daily_grams}g/día
-                              </Badge>
-                              <Badge variant="outline">
-                                {dog.recommended_protein === "chicken" ? "Pollo" : dog.recommended_protein === "beef" ? "Res" : "Mix"}
-                              </Badge>
-                              <Badge variant="outline">
-                                {dog.activity_level === "high" ? "Alta actividad" : 
-                                 dog.activity_level === "low" ? "Baja actividad" : "Actividad normal"}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <DogCard 
+                      key={dog.id} 
+                      dog={dog} 
+                      onImageUpdate={async (imageUrl) => {
+                        try {
+                          await supabase
+                            .from("dog_profiles")
+                            .update({ image_url: imageUrl })
+                            .eq("id", dog.id);
+                          queryClient.invalidateQueries({ queryKey: ["my-dogs"] });
+                          toast({
+                            title: "Foto actualizada",
+                            description: `La foto de ${dog.name} ha sido guardada`,
+                          });
+                        } catch (error: any) {
+                          toast({
+                            title: "Error",
+                            description: "No se pudo guardar la foto",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    />
                   ))}
                 </div>
               ) : (

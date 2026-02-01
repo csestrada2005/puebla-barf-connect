@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker } from "@/components/ai";
+import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker, ImageUploadStep } from "@/components/ai";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
@@ -39,6 +39,7 @@ type Step =
   | "profile_activity"
   | "profile_bodyCondition"
   | "profile_allergies"
+  | "profile_image"
   | "profile_done"
   | "guest_save_prompt";
 
@@ -76,6 +77,7 @@ interface ProfileDraft {
   activity: "low" | "normal" | "high";
   bodyCondition: "underweight" | "ideal" | "overweight";
   allergy: Allergy;
+  imageUrl: string | null;
 }
 
 interface ExtendedPetData extends PetData {
@@ -242,6 +244,7 @@ export default function AIRecomendador() {
     activity: "normal",
     bodyCondition: "ideal",
     allergy: "none",
+    imageUrl: null,
   });
   const [selectedDog, setSelectedDog] = useState<DogProfileRow | null>(null);
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
@@ -381,6 +384,7 @@ export default function AIRecomendador() {
           activity: "normal",
           bodyCondition: "ideal",
           allergy: "none",
+          imageUrl: null,
         });
         setResult(null);
         setIsResultOpen(false);
@@ -456,6 +460,7 @@ export default function AIRecomendador() {
           activity: (dogToEdit.activity_level as any) || "normal",
           bodyCondition: (dogToEdit.body_condition as any) || "ideal",
           allergy: "none",
+          imageUrl: (dogToEdit as any).image_url || null,
         }
       : {
           name: "",
@@ -464,6 +469,7 @@ export default function AIRecomendador() {
           activity: "normal",
           bodyCondition: "ideal",
           allergy: "none",
+          imageUrl: null,
         };
 
     setEditingDogId(dogToEdit?.id ?? null);
@@ -522,6 +528,7 @@ export default function AIRecomendador() {
       recommended_plan_type: "standard",
       recommended_protein: recommendedProtein,
       status: "active",
+      image_url: draft.imageUrl,
     };
 
     if (editingDogId) payload.id = editingDogId;
@@ -645,6 +652,7 @@ export default function AIRecomendador() {
             activity: (dog.activity_level as any) || "normal",
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
+            imageUrl: (dog as any).image_url || null,
           });
           addMessage(`¿Qué quieres hacer con ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -880,6 +888,7 @@ export default function AIRecomendador() {
             activity: (dog.activity_level as any) || "normal",
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
+            imageUrl: (dog as any).image_url || null,
           });
           addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -1036,6 +1045,25 @@ export default function AIRecomendador() {
 
     const nextDraft = { ...profileDraft, allergy: value as Allergy };
     setProfileDraft(nextDraft);
+
+    // Ask for photo
+    await addBotMessage("¿Quieres añadir una foto de tu peludito? 📸 (Opcional - puedes saltar este paso)");
+    setStep("profile_image");
+    setIsProcessing(false);
+  };
+
+  const handleProfileImageSubmit = async (imageUrl: string | null) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    
+    const nextDraft = { ...profileDraft, imageUrl };
+    setProfileDraft(nextDraft);
+    
+    if (imageUrl) {
+      addMessage("📸 Foto añadida", false);
+    } else {
+      addMessage("Sin foto (lo añadiré después)", false);
+    }
 
     try {
       const saved = await upsertDogProfileFromDraft(nextDraft);
@@ -1515,6 +1543,8 @@ export default function AIRecomendador() {
         );
       case "profile_allergies":
         return <QuickReplies options={allergyOptions} onSelect={handleProfileAllergySelect} columns={3} disabled={isProcessing} />;
+      case "profile_image":
+        return <ImageUploadStep onSubmit={handleProfileImageSubmit} disabled={isProcessing} />;
       case "profile_done":
         return (
           <QuickReplies
