@@ -70,32 +70,35 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         />
       </AnimatePresence>
 
-      {/* Header Badge */}
-      <div className="flex-shrink-0 text-center py-4">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
-          <Sparkles className="h-4 w-4" />
-          Asistente Raw Paw
+      {/* Central Chat Container with Border */}
+      <div className="max-w-2xl mx-4 md:mx-auto w-auto md:w-full flex flex-col h-full border-2 border-foreground/80 rounded-2xl bg-background/50 backdrop-blur-sm overflow-hidden">
+        {/* Header Badge */}
+        <div className="flex-shrink-0 text-center py-4">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+            <Sparkles className="h-4 w-4" />
+            Asistente Raw Paw
+          </div>
         </div>
-      </div>
 
-      {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col gap-4"
-          >
-            {children}
-            <div ref={messagesEndRef} />
-          </motion.div>
+        {/* Messages Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          <div className="max-w-full mx-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col gap-4"
+            >
+              {children}
+              <div ref={messagesEndRef} />
+            </motion.div>
+          </div>
         </div>
-      </div>
 
-      {/* Fixed Input Section at Bottom */}
-      <div ref={inputSectionRef} className="flex-shrink-0 border-t bg-background/95 backdrop-blur-sm p-4">
-        <div className="max-w-2xl mx-auto">
-          {inputSection}
+        {/* Fixed Input Section at Bottom */}
+        <div ref={inputSectionRef} className="flex-shrink-0 border-t bg-background/95 backdrop-blur-sm p-4">
+          <div className="max-w-full mx-auto">
+            {inputSection}
+          </div>
         </div>
       </div>
     </div>

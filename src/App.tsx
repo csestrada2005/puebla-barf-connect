@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, ProtectedRoute } from "@/components/auth";
-import { PageLoader } from "@/components/ui/PageLoader";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { PromoPopup } from "./components/PromoPopup";
 
 // Eager load: Home (initial route)
@@ -38,98 +38,99 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <AuthProvider>
           <PromoPopup />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tienda" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Tienda />
               </Suspense>
             } />
             <Route path="/producto/:slug" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Producto />
               </Suspense>
             } />
             <Route path="/cobertura" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Cobertura />
               </Suspense>
             } />
             <Route path="/ai" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <AIRecomendador />
               </Suspense>
             } />
             <Route path="/carrito" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Carrito />
               </Suspense>
             } />
             <Route path="/checkout" element={
               <ProtectedRoute>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={null}>
                   <Checkout />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/suscripcion" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Suscripcion />
               </Suspense>
             } />
             <Route path="/faq" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <FAQ />
               </Suspense>
             } />
             <Route path="/login" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Login />
               </Suspense>
             } />
             <Route path="/registro" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Registro />
               </Suspense>
             } />
             <Route path="/mi-cuenta" element={
               <ProtectedRoute>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={null}>
                   <MiCuenta />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/admin" element={
               <ProtectedRoute>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={null}>
                   <Admin />
                 </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/terminos" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Terminos />
               </Suspense>
             } />
             <Route path="/privacidad" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Privacidad />
               </Suspense>
             } />
             <Route path="/guias-barf" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <GuiasBarf />
               </Suspense>
             } />
             <Route path="/nosotros" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <Nosotros />
               </Suspense>
             } />
             <Route path="*" element={
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <NotFound />
               </Suspense>
             } />
