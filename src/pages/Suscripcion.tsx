@@ -89,35 +89,34 @@ export default function Suscripcion() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
   return <Layout>
-      <div className="container py-12 pt-20 md:pt-24 lg:pt-28 relative">
+      <div className="container py-6 pt-16 md:pt-20 relative">
         {/* Hero */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <Badge variant="secondary" className="mb-4 gap-1">
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <Badge variant="secondary" className="mb-2 gap-1">
             <Repeat className="h-3 w-3" />
             Suscripción mensual
           </Badge>
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold">
             Nunca más te preocupes por la comida de tu perro
           </h1>
-          
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {/* Configurator */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Protein Line */}
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2 pt-4">
                 <CardTitle className="text-lg">1. Elige tu línea</CardTitle>
               </CardHeader>
-              <CardContent>
-                <RadioGroup value={protein} onValueChange={setProtein} className="grid grid-cols-2 gap-3">
+              <CardContent className="pb-4">
+                <RadioGroup value={protein} onValueChange={setProtein} className="grid grid-cols-2 gap-2">
                   {proteinOptions.map(option => <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`protein-${option.value}`} className="peer sr-only" />
-                      <Label htmlFor={`protein-${option.value}`} className="flex flex-col items-center gap-2 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                        <span className="text-3xl">{option.emoji}</span>
-                        <span className="font-semibold">{option.label}</span>
-                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      <Label htmlFor={`protein-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                        <span className="text-2xl">{option.emoji}</span>
+                        <span className="font-semibold text-sm">{option.label}</span>
+                        <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
                     </div>)}
                 </RadioGroup>
@@ -126,16 +125,16 @@ export default function Suscripcion() {
 
             {/* Presentation */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">2. Presentación</CardTitle>
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-base">2. Presentación</CardTitle>
               </CardHeader>
-              <CardContent>
-                <RadioGroup value={presentation} onValueChange={setPresentation} className="grid grid-cols-2 gap-3">
+              <CardContent className="pb-4">
+                <RadioGroup value={presentation} onValueChange={setPresentation} className="grid grid-cols-2 gap-2">
                   {presentationOptions.map(option => <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`pres-${option.value}`} className="peer sr-only" />
-                      <Label htmlFor={`pres-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                        <span className="text-xl font-bold">{option.label}</span>
-                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      <Label htmlFor={`pres-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                        <span className="text-lg font-bold">{option.label}</span>
+                        <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
                     </div>)}
                 </RadioGroup>
@@ -144,24 +143,24 @@ export default function Suscripcion() {
 
             {/* Billing Plan */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">3. Plan</CardTitle>
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-base">3. Plan</CardTitle>
               </CardHeader>
-              <CardContent>
-                <RadioGroup value={billing} onValueChange={setBilling} className="grid grid-cols-2 gap-3">
+              <CardContent className="pb-4">
+                <RadioGroup value={billing} onValueChange={setBilling} className="grid grid-cols-2 gap-2">
                   {billingOptions.map(option => <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`billing-${option.value}`} className="peer sr-only" />
-                      <Label htmlFor={`billing-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                        <span className="font-semibold">{option.label}</span>
-                        {option.discount > 0 && <Badge variant="secondary" className="text-xs">-{option.discount}%</Badge>}
-                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      <Label htmlFor={`billing-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                        <span className="font-semibold text-sm">{option.label}</span>
+                        {option.discount > 0 && <Badge variant="secondary" className="text-[10px]">-{option.discount}%</Badge>}
+                        <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
                     </div>)}
                 </RadioGroup>
 
-                {billing === "anual" && <Alert className="mt-4">
+                {billing === "anual" && <Alert className="mt-3">
                     <CreditCard className="h-4 w-4" />
-                    <AlertDescription>
+                    <AlertDescription className="text-xs">
                       El plan anual requiere pago con tarjeta. Próximamente disponible.
                     </AlertDescription>
                   </Alert>}
@@ -170,16 +169,16 @@ export default function Suscripcion() {
 
             {/* Frequency */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">4. Frecuencia de entrega</CardTitle>
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-base">4. Frecuencia de entrega</CardTitle>
               </CardHeader>
-              <CardContent>
-                <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-3">
+              <CardContent className="pb-4">
+                <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-2">
                   {frequencyOptions.map(option => <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`freq-${option.value}`} className="peer sr-only" />
-                      <Label htmlFor={`freq-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-4 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                        <span className="font-semibold">{option.label}</span>
-                        <span className="text-xs text-muted-foreground text-center">{option.description}</span>
+                      <Label htmlFor={`freq-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                        <span className="font-semibold text-sm">{option.label}</span>
+                        <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
                     </div>)}
                 </RadioGroup>
@@ -188,9 +187,9 @@ export default function Suscripcion() {
           </div>
 
           {/* Summary & Benefits - Sticky container */}
-          <div className="lg:sticky lg:top-24 space-y-6 h-fit">
+          <div className="lg:sticky lg:top-20 space-y-4 h-fit">
             {/* Price Card with Bulldogs standing on top - outside/above the card */}
-            <div className="relative pt-28 md:pt-32 lg:pt-36">
+            <div className="relative pt-20 md:pt-24">
               {/* Bulldogs (full body pair) - standing ON TOP of the card, completely visible */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -201,37 +200,37 @@ export default function Suscripcion() {
                 <BrandImage 
                   src={playBulldogs} 
                   alt="Bulldogs felices" 
-                  className="w-52 md:w-60 lg:w-72 object-contain drop-shadow-xl"
+                  className="w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
                   priority
                 />
               </motion.div>
               
               <Card className="border-primary border-2 relative z-10">
-                <CardHeader>
-                  <CardTitle className="text-xl">Tu suscripción</CardTitle>
-                <CardDescription>
+                <CardHeader className="pb-2 pt-4">
+                  <CardTitle className="text-lg">Tu suscripción</CardTitle>
+                <CardDescription className="text-xs">
                   BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - {billing === "anual" ? "Anual" : "Mensual"} - {frequency === "semanal" ? "Semanal" : "Cada 15 días"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 pb-4">
                 {/* Package Summary */}
-                <div className="bg-secondary/50 rounded-xl p-4 space-y-3">
+                <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Paquetes al mes</span>
-                    <span className="text-2xl font-bold">{frequency === "semanal" ? "4" : "2"} × {presentation}</span>
+                    <span className="text-xs text-muted-foreground">Paquetes al mes</span>
+                    <span className="text-xl font-bold">{frequency === "semanal" ? "4" : "2"} × {presentation}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total mensual</span>
-                    <span className="text-sm font-medium">
+                    <span className="text-xs text-muted-foreground">Total mensual</span>
+                    <span className="text-xs font-medium">
                       {frequency === "semanal" 
                         ? (presentation === "500g" ? "2 kg" : "4 kg")
                         : (presentation === "500g" ? "1 kg" : "2 kg")
                       }
                     </span>
                   </div>
-                  <div className="border-t pt-3 flex items-center justify-between">
-                    <span className="text-sm font-medium">Precio por entrega</span>
-                    <span className="text-lg font-bold text-primary">
+                  <div className="border-t pt-2 flex items-center justify-between">
+                    <span className="text-xs font-medium">Precio por entrega</span>
+                    <span className="text-base font-bold text-primary">
                       ${Math.round(finalPrice / (frequency === "semanal" ? 4 : 2)).toLocaleString("es-MX")}
                     </span>
                   </div>
@@ -239,42 +238,42 @@ export default function Suscripcion() {
 
                 {/* Total Price */}
                 <div className="flex items-baseline gap-2">
-                  {basePrice !== finalPrice && <span className="text-xl text-muted-foreground line-through">
+                  {basePrice !== finalPrice && <span className="text-lg text-muted-foreground line-through">
                       ${basePrice.toLocaleString("es-MX")}
                     </span>}
-                  <span className="text-4xl font-bold text-primary">
+                  <span className="text-3xl font-bold text-primary">
                     ${finalPrice.toLocaleString("es-MX")}
                   </span>
-                  <span className="text-muted-foreground">/mes</span>
+                  <span className="text-sm text-muted-foreground">/mes</span>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-primary" />
+                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-2.5 w-2.5 text-primary" />
                     </div>
-                    <span className="text-sm">Entrega automática {frequency === "semanal" ? "cada semana" : "cada 15 días"}</span>
+                    <span className="text-xs">Entrega automática {frequency === "semanal" ? "cada semana" : "cada 15 días"}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-primary" />
+                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-2.5 w-2.5 text-primary" />
                     </div>
-                    <span className="text-sm">Sin compromiso, cancela cuando quieras</span>
+                    <span className="text-xs">Sin compromiso, cancela cuando quieras</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-primary" />
+                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Check className="h-2.5 w-2.5 text-primary" />
                     </div>
-                    <span className="text-sm">Regalos sorpresa cada mes</span>
+                    <span className="text-xs">Regalos sorpresa cada mes</span>
                   </div>
                 </div>
 
-                <Button onClick={handleSubscribe} className="w-full gap-2" size="lg" disabled={billing === "anual"}>
+                <Button onClick={handleSubscribe} className="w-full gap-2" size="default" disabled={billing === "anual"}>
                   <MessageCircle className="h-4 w-4" />
                   {billing === "anual" ? "Próximamente" : "Suscribirme por WhatsApp"}
                 </Button>
 
-                <p className="text-xs text-center text-muted-foreground">
+                <p className="text-[10px] text-center text-muted-foreground">
                   Sin compromiso. Cancela cuando quieras.
                 </p>
               </CardContent>
@@ -283,26 +282,26 @@ export default function Suscripcion() {
 
             {/* Extra Benefits */}
             <Card>
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex gap-3">
-                  <Gift className="h-5 w-5 text-primary flex-shrink-0" />
+              <CardContent className="pt-4 pb-4 space-y-3">
+                <div className="flex gap-2">
+                  <Gift className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Regalos sorpresa</p>
-                    <p className="text-xs text-muted-foreground">Cada mes incluimos algo especial para tu perro</p>
+                    <p className="font-medium text-xs">Regalos sorpresa</p>
+                    <p className="text-[10px] text-muted-foreground">Cada mes incluimos algo especial</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <Truck className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="flex gap-2">
+                  <Truck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Entrega automática</p>
-                    <p className="text-xs text-muted-foreground">Te avisamos 2 días antes de cada entrega</p>
+                    <p className="font-medium text-xs">Entrega automática</p>
+                    <p className="text-[10px] text-muted-foreground">Te avisamos 2 días antes</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <Star className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="flex gap-2">
+                  <Star className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Sin permanencia</p>
-                    <p className="text-xs text-muted-foreground">Pausa o cancela cuando quieras sin penalización</p>
+                    <p className="font-medium text-xs">Sin permanencia</p>
+                    <p className="text-[10px] text-muted-foreground">Pausa o cancela cuando quieras</p>
                   </div>
                 </div>
               </CardContent>
@@ -310,16 +309,16 @@ export default function Suscripcion() {
 
             {/* Policies */}
             <Card className="bg-muted/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Info className="h-4 w-4" />
+              <CardHeader className="pb-1 pt-3">
+                <CardTitle className="text-xs flex items-center gap-2">
+                  <Info className="h-3 w-3" />
                   Políticas de suscripción
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground space-y-2">
+              <CardContent className="text-[10px] text-muted-foreground space-y-1 pb-3">
                 <p>• <strong>Mensual:</strong> Puedes cambiar de línea cada mes y pagar con efectivo.</p>
-                <p>• <strong>Anual:</strong> Línea fija durante el año, solo pago con tarjeta. Cancelación disponible 2 semanas después del pago.</p>
-                <p>• Pausar la suscripción está disponible en cualquier momento sin costo.</p>
+                <p>• <strong>Anual:</strong> Línea fija durante el año, solo tarjeta.</p>
+                <p>• Pausar está disponible en cualquier momento sin costo.</p>
               </CardContent>
             </Card>
           </div>
