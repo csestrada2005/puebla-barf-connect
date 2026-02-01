@@ -7,5 +7,6 @@ export { ProductRecommendation } from "./ProductRecommendation";
 export { DualRecommendation } from "./DualRecommendation";
 export { SubscriptionTiers } from "./SubscriptionTiers";
 export { BirthdayPicker } from "./BirthdayPicker";
+export { WeightPicker } from "./WeightPicker";
 export { DogImageUpload } from "./DogImageUpload";
 export { ImageUploadStep } from "./ImageUploadStep";
