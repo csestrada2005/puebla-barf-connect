@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, Clock, Check, ArrowRight } from "lucide-react";
+import productoRes from "@/assets/products/producto-res.png";
+import productoPollo from "@/assets/products/producto-pollo.png";
 
 const proteinProducts = [
   {
@@ -11,7 +13,7 @@ const proteinProducts = [
     name: "Res Premium",
     tagline: "Nutrición superior",
     description: "Variedad de órganos y carne de res de primera calidad",
-    emoji: "🥩",
+    image: productoRes,
     badge: "✨ Premium",
     priceFrom: 349,
     slug: "barf-res-500g",
@@ -22,7 +24,7 @@ const proteinProducts = [
     name: "Pollo Esencial",
     tagline: "Digestión ligera",
     description: "Fórmula balanceada y suave para el estómago",
-    emoji: "🐔",
+    image: productoPollo,
     badge: "💚 Recomendado",
     priceFrom: 299,
     slug: "barf-pollo-500g",
@@ -35,22 +37,24 @@ interface ProteinCardProps {
   name: string;
   tagline: string;
   description: string;
-  emoji: string;
+  image: string;
   badge: string;
   priceFrom: number;
   slug: string;
   benefits: string[];
 }
 
-function ProteinCard({ name, tagline, emoji, badge, priceFrom, slug, benefits }: ProteinCardProps) {
+function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }: ProteinCardProps) {
   return (
     <Link to={`/producto/${slug}`} className="block h-full">
       <Card className="group hover:shadow-xl transition-all duration-300 h-full overflow-hidden border-2 hover:border-primary/20">
         {/* Visual Header */}
-        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/50 to-muted flex items-center justify-center overflow-hidden">
-          <span className="text-[120px] group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
-            {emoji}
-          </span>
+        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-6">
+          <img 
+            src={image} 
+            alt={name}
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          />
           <Badge className="absolute top-4 left-4 text-sm font-semibold">
             {badge}
           </Badge>
