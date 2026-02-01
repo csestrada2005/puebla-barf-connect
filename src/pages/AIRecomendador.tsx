@@ -1350,7 +1350,7 @@ export default function AIRecomendador() {
       const nextDeliveryDate = new Date();
       nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 3);
 
-      const { error } = await supabase.from("subscriptions").upsert({
+      const subscriptionData = {
         user_id: user.id,
         plan_type: planType,
         status: "active",
@@ -1362,9 +1362,29 @@ export default function AIRecomendador() {
         next_billing_date: nextBillingDate.toISOString().split("T")[0],
         price_per_kg: 150,
         discount_percent: planType === "monthly" ? 0 : planType === "semestral" ? 5 : 10,
-      }, {
-        onConflict: "user_id"
-      });
+      };
+
+      // Check if active subscription exists
+      const { data: existingSub } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      let error;
+      if (existingSub) {
+        const result = await supabase
+          .from("subscriptions")
+          .update(subscriptionData)
+          .eq("id", existingSub.id);
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("subscriptions")
+          .insert(subscriptionData);
+        error = result.error;
+      }
 
       if (error) throw error;
 

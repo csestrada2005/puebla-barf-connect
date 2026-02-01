@@ -13,6 +13,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import { BrandImage } from "@/components/ui/BrandImage";
 import playBulldogs from "@/assets/brand/play-bulldogs.png";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginDialog } from "@/components/ai/LoginDialog";
 const WHATSAPP_NUMBER = "5212213606464";
 const proteinOptions = [{
   value: "pollo",
@@ -61,6 +63,8 @@ export default function Suscripcion() {
   const [presentation, setPresentation] = useState("500g");
   const [billing, setBilling] = useState("mensual");
   const [frequency, setFrequency] = useState("semanal");
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const { isAuthenticated } = useAuth();
   const {
     data: products
   } = useQuery({
@@ -82,6 +86,11 @@ export default function Suscripcion() {
   const finalPrice = Math.round(basePrice * billingDiscount);
   
   const handleSubscribe = () => {
+    if (!isAuthenticated) {
+      setShowLoginDialog(true);
+      return;
+    }
+    
     const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
     const billingName = billing === "anual" ? "Anual" : "Mensual";
     const freqName = frequency === "semanal" ? "Semanal" : "Cada 15 días";
@@ -324,5 +333,12 @@ export default function Suscripcion() {
           </div>
         </div>
       </div>
+      
+      <LoginDialog
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+        title="Regístrate para suscribirte"
+        description="Para crear tu suscripción mensual, primero necesitas una cuenta Raw Paw."
+      />
     </Layout>;
 }
