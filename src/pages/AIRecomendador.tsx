@@ -114,9 +114,9 @@ const bodyConditionOptions = [
 ];
 
 const sensitivityOptions = [
-  { value: "high", label: "Sí", emoji: "🚨" },
-  { value: "medium", label: "A veces", emoji: "🤔" },
-  { value: "low", label: "No", emoji: "💪" },
+  { value: "chicken", label: "Pollo", emoji: "🍗" },
+  { value: "beef", label: "Res", emoji: "🥩" },
+  { value: "none", label: "Ninguna", emoji: "✅" },
 ];
 
 const goalOptions = [
@@ -1187,7 +1187,7 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, bodyCondition: value }));
     addMessage(label, false);
     setTimeout(async () => {
-      await addBotMessage(`Entendido. ¿${petData.name} tiene alguna sensibilidad digestiva o alergias alimentarias? 🤧`);
+      await addBotMessage(`Entendido. ¿${petData.name} tiene alergias conocidas? 🤧`);
       setStep("sensitivity");
       setIsProcessing(false);
     }, 400);
@@ -1196,10 +1196,12 @@ export default function AIRecomendador() {
   const handleSensitivitySelect = (value: string, label: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    setPetData(prev => ({ ...prev, sensitivity: value }));
+    // Map allergy value to sensitivity for petData
+    const sensitivityValue = value === "none" ? "low" : "high";
+    setPetData(prev => ({ ...prev, sensitivity: sensitivityValue }));
     addMessage(label, false);
     setTimeout(async () => {
-      await addBotMessage(`¡Excelente! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`);
+      await addBotMessage(`¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`);
       setStep("goal");
       setIsProcessing(false);
     }, 400);
