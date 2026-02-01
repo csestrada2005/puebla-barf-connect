@@ -1,182 +1,212 @@
 
-# Plan: Corregir Inconsistencias de Suscripción entre /ai y /suscripcion
 
-## Problemas Identificados
+# Plan: Unificar el Flujo del AI Recommender
 
-### Problema 1: Error de Constraint en Base de Datos
-La tabla `subscriptions` tiene estos constraints:
+## Objetivo
 
-| Campo | Valores Permitidos | Código Actual |
-|-------|-------------------|---------------|
-| `frequency` | 'mensual', 'anual' | ❌ 'weekly' |
-| `plan_type` | 'basico', 'pro' | ❌ 'monthly', 'semestral', 'annual' |
+Unificar ambos flujos (Guest y Profile) para que sigan el mismo patrón del Profile Flow, pero **sin la opción de foto**. Esto significa:
 
-El código en AIRecomendador.tsx envía valores que violan estos constraints.
-
-### Problema 2: Plan Semestral No Debería Existir
-- `/suscripcion` solo ofrece: Mensual y Anual
-- `/ai` (SubscriptionTiers.tsx) ofrece: Mensual, **Semestral**, y Anual
-
-Se debe eliminar la opción Semestral del AI.
-
-### Problema 3: Precios Diferentes
-- `/suscripcion`: Usa precios de la base de datos ($549 por 1kg pollo, $649 por 1kg res)
-- `/ai`: Usa precio fijo hardcodeado de `$150/kg` que no coincide
+1. **Cumpleaños**: Usar `BirthdayPicker` (selector con dropdowns) en lugar de QuickReplies
+2. **Peso**: Crear un nuevo `WeightPicker` (selector similar al BirthdayPicker) en lugar de QuickReplies
+3. **Sin foto**: Eliminar el paso de imagen del flujo unificado
+4. **Preguntas consistentes**: Unificar todos los mensajes entre ambos flujos
 
 ---
 
-## Solución
+## Flujo Actual vs Flujo Unificado
 
-### Cambio 1: Corregir Valores de Frequency y Plan Type
-
-Mapear los valores del UI a los valores que acepta la base de datos:
-
-```typescript
-// AIRecomendador.tsx línea 1353-1365
-const subscriptionData = {
-  // CORREGIR plan_type: mapear a valores de DB
-  plan_type: planType === "monthly" ? "basico" : "pro",
-  
-  // CORREGIR frequency: mapear a valores de DB  
-  frequency: planType === "annual" ? "anual" : "mensual",
-  
-  // ... resto igual
-};
-```
-
-### Cambio 2: Eliminar Plan Semestral del AI
-
-En `SubscriptionTiers.tsx`, eliminar el tier "semestral":
-
-```typescript
-const tiers: SubscriptionTier[] = [
-  {
-    id: "monthly",
-    name: "Plan Mensual", 
-    // ...
-  },
-  // ❌ ELIMINAR plan semestral
-  {
-    id: "annual",
-    name: "Plan Anual",
-    badge: "Mejor Valor",
-    isRecommended: true,
-    // ...
-  },
-];
-```
-
-También actualizar el tipo:
-```typescript
-interface SubscriptionTiersProps {
-  onSelectPlan: (planType: "monthly" | "annual") => void; // Quitar "semestral"
-}
-```
-
-### Cambio 3: Corregir Handler de Suscripción en AIRecomendador
-
-Actualizar la función `handleSelectSubscription` para aceptar solo monthly o annual:
-
-```typescript
-const handleSelectSubscription = async (planType: "monthly" | "annual") => {
-  // Ya no acepta "semestral"
-  // ...
-};
-```
-
-### Cambio 4: Alinear Lógica de Descuentos
-
-Actualizar el cálculo de descuento para reflejar solo 2 planes:
-
-```typescript
-discount_percent: planType === "annual" ? 15 : 0,
-```
-
-Esto coincide con `/suscripcion` que ofrece 15% descuento en plan anual.
+| Paso | Guest Flow (Actual) | Profile Flow (Actual) | Flujo Unificado |
+|------|---------------------|----------------------|-----------------|
+| Nombre | ChatInput ✓ | ChatInput ✓ | ChatInput |
+| Cumpleaños | QuickReplies (Cachorro/Adulto/Senior) | BirthdayPicker | **BirthdayPicker** |
+| Peso | QuickReplies (0-5kg, 5-15kg...) | ChatInput (texto libre) | **WeightPicker** (nuevo) |
+| Actividad | QuickReplies | QuickReplies | QuickReplies |
+| Condición | QuickReplies | QuickReplies | QuickReplies |
+| Alergias | QuickReplies | QuickReplies | QuickReplies |
+| Objetivo | QuickReplies | No existe | **QuickReplies** (añadir a profile) |
+| Foto | No existe | ImageUploadStep | **Eliminar** |
 
 ---
 
-## Archivos a Modificar
+## Cambios a Implementar
 
-| Archivo | Cambio |
-|---------|--------|
-| `src/components/ai/SubscriptionTiers.tsx` | Eliminar tier "semestral", actualizar tipos |
-| `src/pages/AIRecomendador.tsx` | Corregir valores de frequency/plan_type, quitar semestral |
+### 1. Crear Componente `WeightPicker`
+
+Nuevo componente similar a `BirthdayPicker` con un slider o selector de peso:
+
+```
+WeightPicker
+├── Slider de 1-80 kg
+├── Input numérico para ajuste fino
+└── Botón "Confirmar"
+```
+
+### 2. Modificar Guest Flow
+
+| Paso | Antes | Después |
+|------|-------|---------|
+| `weight` | QuickReplies | **WeightPicker** |
+| `age` | QuickReplies (Cachorro/Adulto/Senior) | **BirthdayPicker** → calcular edad |
+
+### 3. Modificar Profile Flow
+
+| Paso | Antes | Después |
+|------|-------|---------|
+| `profile_weight` | ChatInput | **WeightPicker** |
+| `profile_allergies` → siguiente | profile_image | **profile_goal** |
+| `profile_goal` | No existe | **QuickReplies** (objetivo) |
+| `profile_image` | ImageUploadStep | **Eliminar** |
+
+### 4. Eliminar el Paso de Foto
+
+- Después de alergias, ir directo a objetivo
+- Después de objetivo, guardar perfil y mostrar resultado
+- Eliminar `profile_image` del flujo
 
 ---
 
 ## Sección Técnica
 
-### SubscriptionTiers.tsx
+### Archivos a Crear
 
-**Cambio de tipos (líneas 8-9, 23):**
+| Archivo | Descripción |
+|---------|-------------|
+| `src/components/ai/WeightPicker.tsx` | Selector de peso con slider/input |
+
+### Archivos a Modificar
+
+| Archivo | Cambios |
+|---------|---------|
+| `src/components/ai/index.ts` | Exportar WeightPicker |
+| `src/pages/AIRecomendador.tsx` | Unificar flujos, eliminar foto, añadir profile_goal |
+
+---
+
+### WeightPicker.tsx (Nuevo)
+
 ```typescript
-interface SubscriptionTier {
-  id: "monthly" | "annual";  // Quitar "semestral"
-  // ...
+interface WeightPickerProps {
+  onSubmit: (weight: number) => void;
+  disabled?: boolean;
+  initialValue?: number;
 }
 
-interface SubscriptionTiersProps {
-  onSelectPlan: (planType: "monthly" | "annual") => void;  // Quitar "semestral"
-}
+// Componente con:
+// - Slider de 1-80 kg
+// - Display del valor actual
+// - Botón "Confirmar"
 ```
 
-**Eliminar tier semestral (líneas 27-52):**
+### AIRecomendador.tsx - Cambios en Steps
+
+**Agregar nuevo step:**
 ```typescript
-const tiers: SubscriptionTier[] = [
-  {
-    id: "monthly",
-    name: "Plan Mensual",
-    description: "Flexibilidad total, pago en efectivo disponible",
-    billingWeeks: 4,
-    discountPercent: 0,
-  },
-  {
-    id: "annual",
-    name: "Plan Anual",
-    description: "15% de descuento, solo tarjeta",
-    billingWeeks: 52,
-    discountPercent: 15,
-    badge: "15% OFF",
-    isRecommended: true,
-  },
-];
+type Step = 
+  | ...
+  | "profile_goal"  // NUEVO
+  // Eliminar: | "profile_image"
 ```
 
-### AIRecomendador.tsx
-
-**Actualizar tipo de función (línea 1334):**
+**Agregar handler `handleProfileGoalSelect`:**
 ```typescript
-const handleSelectSubscription = async (planType: "monthly" | "annual") => {
-```
-
-**Corregir subscriptionData (líneas 1353-1365):**
-```typescript
-const subscriptionData = {
-  user_id: user.id,
-  // Mapear a valores que acepta la DB
-  plan_type: planType === "annual" ? "pro" : "basico",
-  status: "active",
-  protein_line: result?.recommendedProtein === "chicken" ? "pollo" : "res",
-  presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
-  weekly_amount_kg: result?.weeklyKg || 0,
-  // Mapear a valores que acepta la DB
-  frequency: planType === "annual" ? "anual" : "mensual",
-  next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
-  next_billing_date: nextBillingDate.toISOString().split("T")[0],
-  price_per_kg: 150,
-  // 15% para anual, 0 para mensual
-  discount_percent: planType === "annual" ? 15 : 0,
+const handleProfileGoalSelect = async (value: string, label: string) => {
+  if (isProcessing) return;
+  setIsProcessing(true);
+  addMessage(label, false);
+  
+  const nextDraft = { ...profileDraft };
+  
+  try {
+    const saved = await upsertDogProfileFromDraft(nextDraft, value);
+    await addBotMessage(`¡Listo! Perfil de ${saved.name} guardado. ✅`);
+    setEditingDogId(null);
+    setStep("profile_done");
+  } catch (error: any) {
+    toast({ title: "Error", description: error.message, variant: "destructive" });
+  } finally {
+    setIsProcessing(false);
+  }
 };
+```
+
+**Modificar `handleProfileAllergySelect`:**
+```typescript
+// ANTES: Ir a profile_image
+// DESPUÉS: Ir a profile_goal
+await addBotMessage(`¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${profileDraft.name}? 🎯`);
+setStep("profile_goal");
+```
+
+**Modificar Guest Flow handlers:**
+```typescript
+// handleWeightSelect → handleWeightSubmit (usar WeightPicker)
+const handleWeightSubmit = (weight: number) => {
+  setPetData(prev => ({ ...prev, weight }));
+  addMessage(`${weight} kg`, false);
+  // Ir a birthday picker
+  await addBotMessage(`¿Cuándo nació ${petData.name}? 🎂`);
+  setStep("birthday");  // NUEVO: reemplaza "age"
+};
+
+// handleAgeSelect → handleBirthdaySubmit
+const handleBirthdaySubmit = (date: string) => {
+  const ageStage = getAgeStageFromBirthday(date);
+  setPetData(prev => ({ ...prev, age: ageStage, birthday: date }));
+  // Continuar con actividad...
+};
+```
+
+**Cambios en renderInputSection:**
+```typescript
+case "weight":
+  return <WeightPicker onSubmit={handleWeightSubmit} disabled={isProcessing} />;
+
+case "birthday":  // Antes era "age"
+  return <BirthdayPicker onSubmit={handleBirthdaySubmit} disabled={isProcessing} />;
+
+case "profile_weight":
+  return <WeightPicker onSubmit={handleProfileWeightSubmit} disabled={isProcessing} />;
+
+case "profile_goal":
+  return <QuickReplies options={goalOptions} onSelect={handleProfileGoalSelect} columns={3} disabled={isProcessing} />;
+
+// ELIMINAR case "profile_image"
 ```
 
 ---
 
-## Resumen de Mapeos
+## Flujo Final Unificado
 
-| UI Value | DB frequency | DB plan_type | Descuento |
-|----------|--------------|--------------|-----------|
-| monthly | mensual | basico | 0% |
-| annual | anual | pro | 15% |
+```
+1. Nombre (ChatInput)
+   ↓
+2. Cumpleaños (BirthdayPicker) → calcula edad automáticamente
+   ↓
+3. Peso (WeightPicker)
+   ↓
+4. Actividad (QuickReplies: Tranquilo/Normal/Activo)
+   ↓
+5. Condición corporal (QuickReplies: Flaco/Ideal/Gordito)
+   ↓
+6. Alergias (QuickReplies: Pollo/Res/Ninguna)
+   ↓
+7. Objetivo (QuickReplies: Probar/Rutina/Variedad)
+   ↓
+→ Resultado (sin paso de foto)
+```
 
-Esto alinea el flujo del AI con la página `/suscripcion` y los constraints de la base de datos.
+Este flujo será idéntico tanto para usuarios guest como para usuarios registrados creando un nuevo perfil.
+
+---
+
+## Mensajes Unificados
+
+| Transición | Mensaje |
+|------------|---------|
+| Nombre → Cumpleaños | `¡Encantado de conocer a ${name}! 🐾 ¿Cuándo nació?` |
+| Cumpleaños → Peso | `Perfecto, anotado. ¿Cuánto pesa ${name}? ⚖️` |
+| Peso → Actividad | `Muy bien. ¿Qué tan activo es ${name}? 🏃` |
+| Actividad → Condición | `¿Cómo describirías la condición corporal de ${name}? ⚖️` |
+| Condición → Alergias | `Entendido. ¿${name} tiene alergias conocidas? 🤧` |
+| Alergias → Objetivo | `¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${name}? 🎯` |
+
