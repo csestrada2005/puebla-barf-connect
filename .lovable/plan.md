@@ -1,52 +1,147 @@
 
-# Plan: Optimización de Performance - Carga Ultrarrápida
+# Plan: Rediseño de Tienda - Solo Res y Pollo con Presentaciones
 
-## Diagnóstico del Problema
+## Resumen
 
-El "blank white screen" ocurre porque:
-1. Las rutas son lazy-loaded (correcto para bundle size)
-2. El fallback muestra Layout vacío (mejor que spinner, pero aún visible)
-3. **No hay prefetching agresivo** - el chunk se descarga solo al hacer click
+Simplificar la tienda para mostrar únicamente 2 productos principales:
+- **🥩 Res Premium** - Posicionado como la opción de alta calidad
+- **🐔 Pollo Esencial** - Opción económica pero completa
 
-## Estrategia de Solución
+Al hacer click en cada producto, el usuario puede elegir la presentación (500g o 1kg). Esta elección es solo preferencia de almacenamiento, no afecta la nutrición.
 
-### Fase 1: Eliminar el Skeleton Visible
+---
 
-**Archivo a modificar:** `src/components/ui/RouteSkeleton.tsx`
+## Diseño de la Nueva Tienda
 
-Cambiar de un contenedor vacío visible a `null` - el contenido simplemente aparece cuando está listo. Esto funciona porque:
-- Header/Footer ya están en `<Layout>` de cada página
-- El usuario ve la página anterior hasta que la nueva esté lista
-- Sin "flash" de contenido vacío
+```text
+┌─────────────────────────────────────────────┐
+│         🐾 Alimentación Natural BARF        │
+│              Nuestra Tienda                 │
+│   Solo 2 productos, infinitas posibilidades │
+├─────────────────────────────────────────────┤
+│                                             │
+│  ┌─────────────────┐  ┌─────────────────┐  │
+│  │    🥩 RES       │  │   🐔 POLLO      │  │
+│  │    PREMIUM      │  │    ESENCIAL     │  │
+│  │                 │  │                 │  │
+│  │  ✨ Variedad    │  │  💚 Ligero      │  │
+│  │  de órganos     │  │  y digestivo    │  │
+│  │                 │  │                 │  │
+│  │  Desde $349     │  │  Desde $299     │  │
+│  │                 │  │                 │  │
+│  │  [Ver opciones] │  │  [Ver opciones] │  │
+│  └─────────────────┘  └─────────────────┘  │
+│                                             │
+│  💡 Tip: Para perros grandes (+20kg)       │
+│     recomendamos la presentación de 1kg    │
+│     para mejor almacenamiento              │
+│                                             │
+└─────────────────────────────────────────────┘
+```
 
-### Fase 2: Prefetching Agresivo en Navegación
+---
 
-**Archivo a modificar:** `src/components/layout/Header.tsx`
+## Flujo de Usuario
 
-El prefetching actual (`onMouseEnter`) es bueno pero reactivo. Agregaremos:
-- Prefetch en **viewport** para links visibles (mobile touch)
-- Prefetch en **hover** ya implementado
-- Chunks de alta prioridad para rutas principales
+1. Usuario entra a `/tienda`
+2. Ve 2 tarjetas grandes: Res Premium y Pollo Esencial
+3. Al hacer click → Modal o página de producto con selector de presentación
+4. Elige 500g o 1kg → Agrega al carrito
 
-### Fase 3: Eager Load de Rutas Críticas
+---
 
-**Archivo a modificar:** `src/App.tsx`
+## Cambios por Archivo
 
-Convertir las 3-4 rutas más visitadas de lazy a eager:
-- `/` (Home) - Ya es eager
-- `/tienda` - Convertir a eager (segunda ruta más visitada)
-- `/ai` - Convertir a eager (CTA principal del sitio)
+### 1. `src/pages/Tienda.tsx` - Rediseño Completo
 
-Esto aumenta el bundle inicial pero elimina la latencia en las rutas de conversión.
+**Eliminar:**
+- Filtros de proteína (ya no necesarios con solo 2 productos)
+- Query a base de datos (será estática)
+- Grid de múltiples productos
 
-### Fase 4: Optimización de Vite Chunks
+**Agregar:**
+- 2 tarjetas grandes de producto (Res Premium, Pollo Esencial)
+- Descripción atractiva para cada proteína
+- Precio "desde $X" (mostrando el menor)
+- Botón "Ver opciones" que lleva a la página de producto
 
-**Archivo a modificar:** `vite.config.ts`
+**Nuevo diseño:**
+```typescript
+// Productos hardcoded para control total del diseño
+const proteinProducts = [
+  {
+    protein: "res",
+    name: "Res Premium",
+    tagline: "Nutrición superior",
+    description: "Variedad de órganos y carne de res de primera calidad",
+    emoji: "🥩",
+    badge: "✨ Premium",
+    priceFrom: 349,
+    slug: "barf-res-500g",
+    benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"]
+  },
+  {
+    protein: "pollo",
+    name: "Pollo Esencial",
+    tagline: "Digestión ligera",
+    description: "Fórmula balanceada y suave para el estómago",
+    emoji: "🐔",
+    badge: "💚 Recomendado",
+    priceFrom: 299,
+    slug: "barf-pollo-500g",
+    benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"]
+  }
+];
+```
 
-Crear chunks más granulares:
-- Separar UI components (radix, shadcn)
-- Separar Framer Motion (ya existe)
-- Agrupar páginas relacionadas
+### 2. `src/pages/Producto.tsx` - Mejoras en Selector de Presentación
+
+**Agregar:**
+- Tooltip/texto que explique que la presentación es preferencia de almacenamiento
+- Recomendación visual: "1kg recomendado para perros grandes"
+- Mantener el flujo actual de selección
+
+**Cambio en la sección de presentación:**
+```typescript
+<div>
+  <p className="text-sm font-medium mb-2">
+    Presentación <span className="text-muted-foreground">(solo preferencia de almacenamiento)</span>
+  </p>
+  <div className="flex gap-2">
+    {/* 500g y 1kg buttons */}
+  </div>
+  <p className="text-xs text-muted-foreground mt-2">
+    💡 Tip: Para perros grandes, el empaque de 1kg es más práctico
+  </p>
+</div>
+```
+
+---
+
+## Nombres de Producto Propuestos
+
+| Proteína | Nombre Actual | Nombre Nuevo | Justificación |
+|----------|---------------|--------------|---------------|
+| Res | BARF Res 500g/1kg | **Res Premium** | Suena más exclusivo, la res es naturalmente más cara |
+| Pollo | BARF Pollo 500g/1kg | **Pollo Esencial** | Sugiere que es completo pero accesible, no "básico" |
+
+Alternativas consideradas:
+- Res: "Res Selecta", "Res Gourmet", "Res Gold"
+- Pollo: "Pollo Natural", "Pollo Clásico", "Pollo Balance"
+
+---
+
+## Impacto Visual
+
+**Antes:**
+- 4 tarjetas pequeñas (500g y 1kg de cada proteína)
+- Filtros de proteína innecesarios
+- Confusión sobre qué elegir
+
+**Después:**
+- 2 tarjetas grandes y atractivas
+- Diseño limpio y enfocado
+- Flujo claro: elige proteína → elige tamaño → compra
 
 ---
 
@@ -54,86 +149,78 @@ Crear chunks más granulares:
 
 | Archivo | Acción |
 |---------|--------|
-| `src/components/ui/RouteSkeleton.tsx` | Cambiar a retorno invisible |
-| `src/App.tsx` | Eager load rutas críticas |
-| `src/components/layout/Header.tsx` | Mejorar prefetching |
-| `vite.config.ts` | Optimizar chunk splitting |
+| `src/pages/Tienda.tsx` | Reescribir con diseño de 2 productos |
+| `src/pages/Producto.tsx` | Agregar texto explicativo en selector de presentación |
 
 ---
 
 ## Sección Técnica
 
-### RouteSkeleton - Cambio a Invisible
+### Nueva Estructura de Tienda.tsx
 
 ```typescript
-export function RouteSkeleton() {
+// Componente de tarjeta de proteína grande
+function ProteinCard({ protein, name, tagline, emoji, badge, priceFrom, slug, benefits }) {
   return (
-    <Layout>
-      <div className="min-h-[60vh]" />
-    </Layout>
+    <Link to={`/producto/${slug}`}>
+      <Card className="group hover:shadow-xl transition-all h-full">
+        {/* Imagen/Emoji grande */}
+        <div className="aspect-video bg-gradient-to-br from-secondary/50 to-muted flex items-center justify-center">
+          <span className="text-8xl group-hover:scale-110 transition-transform">
+            {emoji}
+          </span>
+          <Badge className="absolute top-4 left-4">{badge}</Badge>
+        </div>
+        
+        {/* Info */}
+        <CardContent className="p-6 space-y-4">
+          <div>
+            <h3 className="text-2xl font-bold">{name}</h3>
+            <p className="text-muted-foreground">{tagline}</p>
+          </div>
+          
+          <ul className="space-y-2">
+            {benefits.map(b => <li key={b}>✓ {b}</li>)}
+          </ul>
+          
+          <div className="flex items-baseline justify-between">
+            <span className="text-3xl font-bold text-primary">
+              Desde ${priceFrom}
+            </span>
+            <Button>Ver opciones →</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 ```
 
-El Layout ya contiene Header y Footer. Al tener el `min-h-[60vh]` vacío, el usuario:
-1. Ve el Header/Footer (bien)
-2. Ve un área central blanca (problema)
+### Cambio en Producto.tsx (líneas ~217-237)
 
-La solución es mantener la estructura pero sin el contenedor vacío visual - el `<Layout>` mismo puede ser el fallback mínimo sin el div interno.
-
-### App.tsx - Eager Loading Estratégico
+El selector de presentación se mantiene igual funcionalmente, solo se agrega contexto:
 
 ```typescript
-// Eager load: Rutas de conversión críticas
-import Home from "./pages/Home";
-import Tienda from "./pages/Tienda";        // NUEVO
-import AIRecomendador from "./pages/AIRecomendador"; // NUEVO
-
-// Lazy load: Resto de rutas
-const Producto = lazy(() => import("./pages/Producto"));
-// ...
+<div>
+  <div className="flex items-center gap-2 mb-2">
+    <p className="text-sm font-medium">Presentación</p>
+    <Badge variant="outline" className="text-xs">
+      Solo almacenamiento
+    </Badge>
+  </div>
+  <div className="flex gap-2">
+    {/* Botones 500g y 1kg existentes */}
+  </div>
+  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+    <span>💡</span>
+    <span>Perros grandes (+20kg): recomendamos 1kg para mejor almacenamiento</span>
+  </p>
+</div>
 ```
 
-### Header.tsx - Prefetch Mejorado
+### No se necesitan cambios en base de datos
 
-Agregar prefetch más agresivo aprovechando el tiempo de hover antes del click:
-
-```typescript
-// Importar todas las rutas críticas al inicio de la sesión
-useEffect(() => {
-  // Prefetch después de que la página principal cargue
-  const timer = setTimeout(() => {
-    import("@/pages/Tienda");
-    import("@/pages/AIRecomendador");
-    import("@/pages/Suscripcion");
-  }, 1000);
-  return () => clearTimeout(timer);
-}, []);
-```
-
-### vite.config.ts - Chunk Optimization
-
-```typescript
-manualChunks: {
-  vendor: ["react", "react-dom", "react-router-dom"],
-  motion: ["framer-motion"],
-  query: ["@tanstack/react-query"],
-  supabase: ["@supabase/supabase-js"],
-  // Agregar:
-  ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", ...],
-}
-```
-
----
-
-## Impacto Esperado
-
-| Métrica | Antes | Después |
-|---------|-------|---------|
-| Transición entre páginas | 200-500ms visible | ~0ms (imperceptible) |
-| Bundle inicial | ~150KB | ~200KB (+rutas críticas) |
-| Rutas secundarias | Lazy (correcto) | Lazy + prefetched |
-| LCP Home | OK | Sin cambio |
-| TTI Tienda/AI | ~300ms | ~0ms (pre-cargado) |
-
-El trade-off es un bundle inicial ligeramente más grande a cambio de transiciones instantáneas en las rutas de conversión.
+Los productos actuales ya tienen la estructura correcta:
+- `protein_line`: "res" o "pollo"
+- `presentation`: "500g" o "1kg"
+- El flujo de variantes en Producto.tsx ya funciona bien
