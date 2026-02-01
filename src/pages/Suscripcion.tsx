@@ -214,6 +214,30 @@ export default function Suscripcion() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Package Summary */}
+                <div className="bg-secondary/50 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Paquetes al mes</span>
+                    <span className="text-2xl font-bold">{frequency === "semanal" ? "4" : "2"} × {presentation}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Total mensual</span>
+                    <span className="text-sm font-medium">
+                      {frequency === "semanal" 
+                        ? (presentation === "500g" ? "2 kg" : "4 kg")
+                        : (presentation === "500g" ? "1 kg" : "2 kg")
+                      }
+                    </span>
+                  </div>
+                  <div className="border-t pt-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">Precio por entrega</span>
+                    <span className="text-lg font-bold text-primary">
+                      ${Math.round(finalPrice / (frequency === "semanal" ? 4 : 2)).toLocaleString("es-MX")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Total Price */}
                 <div className="flex items-baseline gap-2">
                   {basePrice !== finalPrice && <span className="text-xl text-muted-foreground line-through">
                       ${basePrice.toLocaleString("es-MX")}
