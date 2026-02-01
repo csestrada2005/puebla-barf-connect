@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker, ImageUploadStep } from "@/components/ai";
+import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker, WeightPicker } from "@/components/ai";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
@@ -22,8 +22,8 @@ type Step =
   | "guest_greeting"
   | "smart_menu"
   | "name"
+  | "birthday"
   | "weight"
-  | "age"
   | "activity"
   | "bodyCondition"
   | "sensitivity"
@@ -39,7 +39,7 @@ type Step =
   | "profile_activity"
   | "profile_bodyCondition"
   | "profile_allergies"
-  | "profile_image"
+  | "profile_goal"
   | "profile_done"
   | "guest_save_prompt";
 
@@ -77,7 +77,7 @@ interface ProfileDraft {
   activity: "low" | "normal" | "high";
   bodyCondition: "underweight" | "ideal" | "overweight";
   allergy: Allergy;
-  imageUrl: string | null;
+  goal: string;
 }
 
 interface ExtendedPetData extends PetData {
@@ -87,19 +87,6 @@ interface ExtendedPetData extends PetData {
 }
 
 // ==================== STATIC OPTIONS ====================
-
-const weightOptions = [
-  { value: "3", label: "0-5 kg", emoji: "🐕" },
-  { value: "10", label: "5-15 kg", emoji: "🦮" },
-  { value: "22", label: "15-30 kg", emoji: "🐕‍🦺" },
-  { value: "40", label: "30+ kg", emoji: "🐺" },
-];
-
-const ageOptions = [
-  { value: "puppy", label: "Cachorro", emoji: "🐶" },
-  { value: "adult", label: "Adulto", emoji: "🐕" },
-  { value: "senior", label: "Senior", emoji: "🦴" },
-];
 
 const activityOptions = [
   { value: "low", label: "Tranquilo", emoji: "😴" },
@@ -244,7 +231,7 @@ export default function AIRecomendador() {
     activity: "normal",
     bodyCondition: "ideal",
     allergy: "none",
-    imageUrl: null,
+    goal: "routine",
   });
   const [selectedDog, setSelectedDog] = useState<DogProfileRow | null>(null);
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
@@ -384,7 +371,7 @@ export default function AIRecomendador() {
           activity: "normal",
           bodyCondition: "ideal",
           allergy: "none",
-          imageUrl: null,
+          goal: "routine",
         });
         setResult(null);
         setIsResultOpen(false);
@@ -460,7 +447,7 @@ export default function AIRecomendador() {
           activity: (dogToEdit.activity_level as any) || "normal",
           bodyCondition: (dogToEdit.body_condition as any) || "ideal",
           allergy: "none",
-          imageUrl: (dogToEdit as any).image_url || null,
+          goal: dogToEdit.goal || "routine",
         }
       : {
           name: "",
@@ -469,7 +456,7 @@ export default function AIRecomendador() {
           activity: "normal",
           bodyCondition: "ideal",
           allergy: "none",
-          imageUrl: null,
+          goal: "routine",
         };
 
     setEditingDogId(dogToEdit?.id ?? null);
@@ -498,7 +485,7 @@ export default function AIRecomendador() {
 
   // ==================== DATABASE OPERATIONS ====================
 
-  const upsertDogProfileFromDraft = async (draft: ProfileDraft) => {
+  const upsertDogProfileFromDraft = async (draft: ProfileDraft, goalOverride?: string) => {
     if (!isAuthenticated || !user) throw new Error("User not authenticated");
 
     const ageStage = draft.birthday ? getAgeStageFromBirthday(draft.birthday) : "adult";
@@ -522,13 +509,12 @@ export default function AIRecomendador() {
       activity_level: draft.activity,
       body_condition: draft.bodyCondition,
       sensitivity: draft.allergy === "none" ? "low" : "high",
-      goal: "routine",
+      goal: goalOverride || draft.goal || "routine",
       daily_grams: dailyGrams,
       weekly_kg: weeklyKg,
       recommended_plan_type: "standard",
       recommended_protein: recommendedProtein,
       status: "active",
-      image_url: draft.imageUrl,
     };
 
     if (editingDogId) payload.id = editingDogId;
@@ -652,7 +638,7 @@ export default function AIRecomendador() {
             activity: (dog.activity_level as any) || "normal",
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
-            imageUrl: (dog as any).image_url || null,
+            goal: dog.goal || "routine",
           });
           addMessage(`¿Qué quieres hacer con ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -888,7 +874,7 @@ export default function AIRecomendador() {
             activity: (dog.activity_level as any) || "normal",
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
-            imageUrl: (dog as any).image_url || null,
+            goal: dog.goal || "routine",
           });
           addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -933,21 +919,13 @@ export default function AIRecomendador() {
     setIsProcessing(false);
   };
 
-  const handleProfileBirthdaySubmit = async (input: string) => {
+  const handleProfileBirthdaySubmit = async (dateStr: string) => {
     if (isProcessing) return;
-    const raw = input.trim();
-    const isKeep = !!editingDogId && /^igual$/i.test(raw);
-
-    const parsed = isKeep ? profileDraft.birthday : parseBirthdayInput(raw);
-    if (!parsed && !isKeep) {
-      addMessage(raw, false);
-      addMessage("No pude leer esa fecha 😅. Prueba con YYYY-MM-DD (ej: 2020-05-14) o DD/MM/AAAA.", true);
-      return;
-    }
+    if (!dateStr) return;
 
     setIsProcessing(true);
-    addMessage(isKeep ? `igual (${profileDraft.birthday || "sin fecha"})` : parsed!, false);
-    const updatedDraft = { ...profileDraft, birthday: parsed };
+    addMessage(dateStr, false);
+    const updatedDraft = { ...profileDraft, birthday: dateStr };
     setProfileDraft(updatedDraft);
 
     if (singleFieldEdit === "birthday") {
@@ -965,26 +943,19 @@ export default function AIRecomendador() {
       return;
     }
 
-    await addBotMessage("¿Cuánto pesa actualmente? (kg) ⚖️");
+    await addBotMessage(`Perfecto, anotado. ¿Cuánto pesa ${profileDraft.name}? ⚖️`);
     setStep("profile_weight");
     setIsProcessing(false);
   };
 
-  const handleProfileWeightSubmit = async (input: string) => {
+  const handleProfileWeightSubmit = async (weight: number) => {
     if (isProcessing) return;
-    const raw = input.trim();
-    const isKeep = !!editingDogId && /^igual$/i.test(raw);
-    const weight = isKeep ? profileDraft.weightKg : parseWeightKg(raw);
-    if (!weight || weight <= 0) {
-      addMessage(raw, false);
-      addMessage("Dime el peso en kg (ej: 12.5).", true);
-      return;
-    }
+    if (!weight || weight <= 0) return;
 
     setIsProcessing(true);
     const updatedDraft = { ...profileDraft, weightKg: weight };
     setProfileDraft(updatedDraft);
-    addMessage(isKeep ? `igual (${profileDraft.weightKg} kg)` : `${weight} kg`, false);
+    addMessage(`${weight} kg`, false);
 
     if (singleFieldEdit === "weight") {
       try {
@@ -1001,7 +972,7 @@ export default function AIRecomendador() {
       return;
     }
 
-    await addBotMessage("¿Es muy activo o prefiere el sofá?");
+    await addBotMessage(`Muy bien. ¿Qué tan activo es ${profileDraft.name}? 🏃`);
     setStep("profile_activity");
     setIsProcessing(false);
   };
@@ -1016,7 +987,7 @@ export default function AIRecomendador() {
       addMessage(`igual (${profileDraft.activity})`, false);
     }
     setTimeout(async () => {
-      await addBotMessage("¿Cómo ves su cintura?");
+      await addBotMessage(`Ahora una pregunta importante. ¿Cómo describirías la condición corporal de ${profileDraft.name}? ⚖️`);
       setStep("profile_bodyCondition");
       setIsProcessing(false);
     }, 350);
@@ -1032,7 +1003,7 @@ export default function AIRecomendador() {
       addMessage(`igual (${profileDraft.bodyCondition})`, false);
     }
     setTimeout(async () => {
-      await addBotMessage("¿Tiene alergias conocidas?");
+      await addBotMessage(`Entendido. ¿${profileDraft.name} tiene alergias conocidas? 🤧`);
       setStep("profile_allergies");
       setIsProcessing(false);
     }, 350);
@@ -1046,27 +1017,22 @@ export default function AIRecomendador() {
     const nextDraft = { ...profileDraft, allergy: value as Allergy };
     setProfileDraft(nextDraft);
 
-    // Ask for photo
-    await addBotMessage("¿Quieres añadir una foto de tu peludito? 📸 (Opcional - puedes saltar este paso)");
-    setStep("profile_image");
+    // Go to goal selection instead of photo
+    await addBotMessage(`¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${profileDraft.name}? 🎯`);
+    setStep("profile_goal");
     setIsProcessing(false);
   };
 
-  const handleProfileImageSubmit = async (imageUrl: string | null) => {
+  const handleProfileGoalSelect = async (value: string, label: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    
-    const nextDraft = { ...profileDraft, imageUrl };
+    addMessage(label, false);
+
+    const nextDraft = { ...profileDraft, goal: value };
     setProfileDraft(nextDraft);
-    
-    if (imageUrl) {
-      addMessage("📸 Foto añadida", false);
-    } else {
-      addMessage("Sin foto (lo añadiré después)", false);
-    }
 
     try {
-      const saved = await upsertDogProfileFromDraft(nextDraft);
+      const saved = await upsertDogProfileFromDraft(nextDraft, value);
       await addBotMessage(`¡Listo! Perfil de ${saved.name} guardado con éxito. ✅`);
       setEditingDogId(null);
       setStep("profile_done");
@@ -1096,7 +1062,7 @@ export default function AIRecomendador() {
         activity: profileDraft.activity,
         bodyCondition: profileDraft.bodyCondition,
         sensitivity: profileDraft.allergy === "none" ? "low" : "high",
-        goal: "routine",
+        goal: profileDraft.goal || "routine",
         zoneId: "",
         zoneName: "",
         deliveryFee: 0,
@@ -1138,30 +1104,30 @@ export default function AIRecomendador() {
     setPetData(prev => ({ ...prev, name }));
     addMessage(name, false);
     setTimeout(async () => {
-      await addBotMessage(`¡Encantado de conocer a ${name}! 🐾 Ahora vamos a revisar sus medidas. ¿Cuánto pesa aproximadamente?`);
+      await addBotMessage(`¡Encantado de conocer a ${name}! 🐾 ¿Cuándo nació?`);
+      setStep("birthday");
+      setIsProcessing(false);
+    }, 400);
+  };
+
+  const handleBirthdaySubmit = (dateStr: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    const ageStage = getAgeStageFromBirthday(dateStr);
+    setPetData(prev => ({ ...prev, age: ageStage }));
+    addMessage(dateStr, false);
+    setTimeout(async () => {
+      await addBotMessage(`Perfecto, anotado. ¿Cuánto pesa ${petData.name}? ⚖️`);
       setStep("weight");
       setIsProcessing(false);
     }, 400);
   };
 
-  const handleWeightSelect = (value: string, label: string) => {
+  const handleWeightSubmit = (weight: number) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    const weight = parseInt(value);
     setPetData(prev => ({ ...prev, weight }));
-    addMessage(label, false);
-    setTimeout(async () => {
-      await addBotMessage(`Perfecto, anotado. ¿En qué etapa de vida está ${petData.name}? 🎂`);
-      setStep("age");
-      setIsProcessing(false);
-    }, 400);
-  };
-
-  const handleAgeSelect = (value: string, label: string) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    setPetData(prev => ({ ...prev, age: value }));
-    addMessage(label, false);
+    addMessage(`${weight} kg`, false);
     setTimeout(async () => {
       await addBotMessage(`Muy bien. ¿Qué tan activo es ${petData.name}? 🏃`);
       setStep("activity");
@@ -1518,7 +1484,7 @@ export default function AIRecomendador() {
       case "profile_birthday":
         return <BirthdayPicker onSubmit={handleProfileBirthdaySubmit} disabled={isProcessing} />;
       case "profile_weight":
-        return <ChatInput placeholder="Peso en kg…" onSubmit={handleProfileWeightSubmit} disabled={isProcessing} />;
+        return <WeightPicker onSubmit={handleProfileWeightSubmit} disabled={isProcessing} initialValue={profileDraft.weightKg || 10} />;
       case "profile_activity":
         return (
           <QuickReplies
@@ -1539,8 +1505,8 @@ export default function AIRecomendador() {
         );
       case "profile_allergies":
         return <QuickReplies options={allergyOptions} onSelect={handleProfileAllergySelect} columns={3} disabled={isProcessing} />;
-      case "profile_image":
-        return <ImageUploadStep onSubmit={handleProfileImageSubmit} disabled={isProcessing} />;
+      case "profile_goal":
+        return <QuickReplies options={goalOptions} onSelect={handleProfileGoalSelect} columns={3} disabled={isProcessing} />;
       case "profile_done":
         return (
           <QuickReplies
@@ -1555,10 +1521,10 @@ export default function AIRecomendador() {
         );
       case "name":
         return <ChatInput placeholder="Nombre de tu perro..." onSubmit={handleNameSubmit} disabled={isProcessing} />;
+      case "birthday":
+        return <BirthdayPicker onSubmit={handleBirthdaySubmit} disabled={isProcessing} />;
       case "weight":
-        return <QuickReplies options={weightOptions} onSelect={handleWeightSelect} columns={4} disabled={isProcessing} />;
-      case "age":
-        return <QuickReplies options={ageOptions} onSelect={handleAgeSelect} columns={3} disabled={isProcessing} />;
+        return <WeightPicker onSubmit={handleWeightSubmit} disabled={isProcessing} />;
       case "activity":
         return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} disabled={isProcessing} />;
       case "bodyCondition":
