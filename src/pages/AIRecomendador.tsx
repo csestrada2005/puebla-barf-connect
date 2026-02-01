@@ -261,7 +261,7 @@ export default function AIRecomendador() {
     enabled: !!user?.id,
   });
 
-  const activeDogs = dogProfiles.filter(d => d.status === "active" || d.status === "paused");
+  const activeDogs = dogProfiles.filter(d => d.status === "active");
 
   const { data: products } = useQuery({
     queryKey: ["products-for-recommendation"],
@@ -764,7 +764,7 @@ export default function AIRecomendador() {
       // Other cancel reasons - pause dog and show farewell message
       try {
         if (dog) {
-          await updateDogStatus(dog.id, "paused");
+          await updateDogStatus(dog.id, "archived");
         }
         
         // Save cancellation to database
@@ -812,7 +812,7 @@ export default function AIRecomendador() {
 
     try {
       if (dog) {
-        await updateDogStatus(dog.id, "paused");
+        await updateDogStatus(dog.id, "archived");
       }
       
       // Save cancellation with details to database
