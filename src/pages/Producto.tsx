@@ -216,7 +216,12 @@ export default function Producto() {
 
               {/* Presentation Selector */}
               <div>
-                <p className="text-sm font-medium mb-2">Presentación</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-sm font-medium">Presentación</p>
+                  <Badge variant="outline" className="text-xs">
+                    Solo almacenamiento
+                  </Badge>
+                </div>
                 <div className="flex gap-2">
                   {["500g", "1kg"].map((presentation) => {
                     const variant = findProductByVariant(currentLine, presentation);
@@ -233,6 +238,10 @@ export default function Producto() {
                     );
                   })}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                  <span>💡</span>
+                  <span>Perros grandes (+20kg): recomendamos 1kg para mejor almacenamiento</span>
+                </p>
               </div>
             </div>
 

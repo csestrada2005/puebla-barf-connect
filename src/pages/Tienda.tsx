@@ -1,39 +1,99 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { ProductCard } from "@/components";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Truck, Clock, Check } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Truck, Clock, Check, ArrowRight } from "lucide-react";
 
-type ProteinFilter = "all" | "pollo" | "res";
+const proteinProducts = [
+  {
+    protein: "res",
+    name: "Res Premium",
+    tagline: "Nutrición superior",
+    description: "Variedad de órganos y carne de res de primera calidad",
+    emoji: "🥩",
+    badge: "✨ Premium",
+    priceFrom: 349,
+    slug: "barf-res-500g",
+    benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"],
+  },
+  {
+    protein: "pollo",
+    name: "Pollo Esencial",
+    tagline: "Digestión ligera",
+    description: "Fórmula balanceada y suave para el estómago",
+    emoji: "🐔",
+    badge: "💚 Recomendado",
+    priceFrom: 299,
+    slug: "barf-pollo-500g",
+    benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"],
+  },
+];
+
+interface ProteinCardProps {
+  protein: string;
+  name: string;
+  tagline: string;
+  description: string;
+  emoji: string;
+  badge: string;
+  priceFrom: number;
+  slug: string;
+  benefits: string[];
+}
+
+function ProteinCard({ name, tagline, emoji, badge, priceFrom, slug, benefits }: ProteinCardProps) {
+  return (
+    <Link to={`/producto/${slug}`} className="block h-full">
+      <Card className="group hover:shadow-xl transition-all duration-300 h-full overflow-hidden border-2 hover:border-primary/20">
+        {/* Visual Header */}
+        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/50 to-muted flex items-center justify-center overflow-hidden">
+          <span className="text-[120px] group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+            {emoji}
+          </span>
+          <Badge className="absolute top-4 left-4 text-sm font-semibold">
+            {badge}
+          </Badge>
+        </div>
+
+        {/* Content */}
+        <CardContent className="p-6 space-y-4">
+          <div>
+            <h3 className="text-2xl font-bold">{name}</h3>
+            <p className="text-muted-foreground">{tagline}</p>
+          </div>
+
+          <ul className="space-y-2">
+            {benefits.map((benefit) => (
+              <li key={benefit} className="flex items-center gap-2 text-sm">
+                <Check className="h-4 w-4 text-primary shrink-0" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center justify-between pt-2">
+            <div>
+              <p className="text-xs text-muted-foreground">Desde</p>
+              <span className="text-3xl font-bold text-primary">
+                ${priceFrom.toLocaleString("es-MX")}
+              </span>
+            </div>
+            <Button className="gap-2 group-hover:gap-3 transition-all">
+              Ver opciones
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
 
 export default function Tienda() {
-  const [proteinFilter, setProteinFilter] = useState<ProteinFilter>("all");
-
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .eq("category", "barf")
-        .order("sort_order");
-      return data || [];
-    },
-  });
-
-  const filteredProducts = products?.filter((product) => {
-    if (proteinFilter === "all") return true;
-    return product.protein_line === proteinFilter;
-  });
-
   return (
     <Layout>
-      <div className="container py-12 relative">
+      <div className="container py-12">
         {/* Header */}
         <div className="text-center mb-8">
           <Badge variant="secondary" className="mb-4">
@@ -41,12 +101,12 @@ export default function Tienda() {
           </Badge>
           <h1 className="text-4xl font-bold mb-4">Nuestra Tienda</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Alimento natural premium para tu mejor amigo. Elaborado con ingredientes frescos y de alta calidad.
+            Solo 2 productos, infinitas posibilidades. Elige la proteína que mejor se adapte a tu mejor amigo.
           </p>
         </div>
 
         {/* Benefits Bar */}
-        <div className="relative mb-8">
+        <div className="mb-10">
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
               <Truck className="h-5 w-5 text-primary" />
@@ -63,68 +123,22 @@ export default function Tienda() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          <Button
-            variant={proteinFilter === "all" ? "default" : "outline"}
-            onClick={() => setProteinFilter("all")}
-            size="sm"
-          >
-            Todos
-          </Button>
-          <Button
-            variant={proteinFilter === "pollo" ? "default" : "outline"}
-            onClick={() => setProteinFilter("pollo")}
-            size="sm"
-            className="gap-2"
-          >
-            🐔 Pollo
-          </Button>
-          <Button
-            variant={proteinFilter === "res" ? "default" : "outline"}
-            onClick={() => setProteinFilter("res")}
-            size="sm"
-            className="gap-2"
-          >
-            🥩 Res
-          </Button>
+        {/* Products Grid - 2 Large Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {proteinProducts.map((product) => (
+            <ProteinCard key={product.protein} {...product} />
+          ))}
         </div>
 
-        {/* Products Grid */}
-        <div className="relative">
-          {isLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-[380px] rounded-lg" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProducts?.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  slug={product.slug}
-                  shortDescription={product.short_description || undefined}
-                  price={Number(product.price)}
-                  originalPrice={product.original_price ? Number(product.original_price) : undefined}
-                  imageUrl={product.image_url || undefined}
-                  proteinLine={product.protein_line || undefined}
-                  presentation={product.presentation || undefined}
-                  isSubscription={product.is_subscription || false}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Empty State */}
-        {!isLoading && filteredProducts?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No se encontraron productos</p>
+        {/* Tip Section */}
+        <div className="mt-10 text-center">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted/50 text-sm text-muted-foreground">
+            <span>💡</span>
+            <span>
+              <strong>Tip:</strong> Para perros grandes (+20kg) recomendamos la presentación de 1kg para mejor almacenamiento
+            </span>
           </div>
-        )}
+        </div>
       </div>
     </Layout>
   );
