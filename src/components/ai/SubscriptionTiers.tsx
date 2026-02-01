@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 interface SubscriptionTier {
-  id: "monthly" | "semestral" | "annual";
+  id: "monthly" | "annual";
   name: string;
   description: string;
   billingWeeks: number;
@@ -20,7 +20,7 @@ interface SubscriptionTiersProps {
   dailyGrams: number;
   weeklyKg: number;
   pricePerKg: number;
-  onSelectPlan: (planType: "monthly" | "semestral" | "annual") => void;
+  onSelectPlan: (planType: "monthly" | "annual") => void;
   onRestart: () => void;
 }
 
@@ -28,25 +28,17 @@ const tiers: SubscriptionTier[] = [
   {
     id: "monthly",
     name: "Plan Mensual",
-    description: "Flexibilidad total",
+    description: "Flexibilidad total, pago en efectivo disponible",
     billingWeeks: 4,
     discountPercent: 0,
   },
   {
-    id: "semestral",
-    name: "Plan Semestral",
-    description: "Compromiso medio",
-    billingWeeks: 24,
-    discountPercent: 5,
-    badge: "Popular",
-  },
-  {
     id: "annual",
     name: "Plan Anual",
-    description: "Mejor precio garantizado",
+    description: "15% de descuento, solo tarjeta",
     billingWeeks: 52,
-    discountPercent: 10,
-    badge: "Mejor Valor",
+    discountPercent: 15,
+    badge: "15% OFF",
     isRecommended: true,
   },
 ];
