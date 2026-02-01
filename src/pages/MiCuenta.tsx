@@ -408,36 +408,6 @@ export default function MiCuenta() {
 
             {/* Profile Tab */}
             <TabsContent value="perfil" className="space-y-6">
-              {/* Pet Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Dog className="h-5 w-5 text-primary" />
-                    Mi Mejor Amigo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="pet_name">Nombre de la mascota</Label>
-                    <Input
-                      id="pet_name"
-                      name="pet_name"
-                      defaultValue={profile?.pet_name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="family_name">Apellido de la familia</Label>
-                    <Input
-                      id="family_name"
-                      name="family_name"
-                      defaultValue={profile?.family_name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Contact Info */}
               <Card>
                 <CardHeader>
