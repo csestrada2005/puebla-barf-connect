@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BrandImage } from "@/components/ui/BrandImage";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -21,6 +20,14 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+import productoRes from "@/assets/products/producto-res.png";
+import productoPollo from "@/assets/products/producto-pollo.png";
+
+// Product images by protein line
+const productImages: Record<string, string> = {
+  res: productoRes,
+  pollo: productoPollo,
+};
 
 const benefitIcons: Record<string, React.ReactNode> = {
   "Mejora digestión y aliento": <Sparkles className="h-5 w-5" />,
@@ -154,18 +161,12 @@ export default function Producto() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Image */}
           <div className="relative">
-            <div className="aspect-square rounded-2xl bg-muted overflow-hidden">
-              {product.image_url ? (
-                <BrandImage 
-                  src={product.image_url} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-8xl">🥩</span>
-                </div>
-              )}
+            <div className="aspect-square rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
+              <img 
+                src={productImages[product.protein_line || "res"]} 
+                alt={product.name}
+                className="w-full h-full object-contain"
+              />
             </div>
             <Badge className="absolute top-4 left-4 text-sm">
               {product.protein_line === "pollo" ? "🐔 Pollo" : "🥩 Res"}
