@@ -18,11 +18,20 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
+manualChunks: {
           vendor: ["react", "react-dom", "react-router-dom"],
           motion: ["framer-motion"],
           query: ["@tanstack/react-query"],
           supabase: ["@supabase/supabase-js"],
+          ui: [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-select",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-toast",
+            "@radix-ui/react-tooltip",
+          ],
         },
       },
     },

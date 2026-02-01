@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, ShoppingCart, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { BrandImage } from "@/components/ui/BrandImage";
@@ -9,17 +9,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import logoChoco from "@/assets/brand/logo-choco.png";
 
-// Prefetch functions for route preloading
-const prefetchTienda = () => import("@/pages/Tienda");
+// Prefetch functions for route preloading (hover-based)
 const prefetchSuscripcion = () => import("@/pages/Suscripcion");
-const prefetchAI = () => import("@/pages/AIRecomendador");
 const prefetchGuiasBarf = () => import("@/pages/GuiasBarf");
 const prefetchNosotros = () => import("@/pages/Nosotros");
 
 const navLinksLeft = [
-  { href: "/tienda", label: "Tienda", prefetch: prefetchTienda },
+  { href: "/tienda", label: "Tienda" },
   { href: "/suscripcion", label: "Suscripción", prefetch: prefetchSuscripcion },
-  { href: "/ai", label: "Recomendador AI", prefetch: prefetchAI },
+  { href: "/ai", label: "Recomendador AI" },
 ];
 
 const navLinksRight = [

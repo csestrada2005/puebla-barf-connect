@@ -9,14 +9,14 @@ import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { PromoPopup } from "./components/PromoPopup";
 import { RouteSkeleton } from "@/components/ui/RouteSkeleton";
 
-// Eager load: Home (initial route)
+// Eager load: Critical conversion routes
 import Home from "./pages/Home";
+import Tienda from "./pages/Tienda";
+import AIRecomendador from "./pages/AIRecomendador";
 
-// Lazy load: All other routes
-const Tienda = lazy(() => import("./pages/Tienda"));
+// Lazy load: Secondary routes
 const Producto = lazy(() => import("./pages/Producto"));
 const Cobertura = lazy(() => import("./pages/Cobertura"));
-const AIRecomendador = lazy(() => import("./pages/AIRecomendador"));
 const Carrito = lazy(() => import("./pages/Carrito"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Suscripcion = lazy(() => import("./pages/Suscripcion"));
@@ -44,11 +44,7 @@ const App = () => (
           <PromoPopup />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/tienda" element={
-              <Suspense fallback={<RouteSkeleton />}>
-                <Tienda />
-              </Suspense>
-            } />
+            <Route path="/tienda" element={<Tienda />} />
             <Route path="/producto/:slug" element={
               <Suspense fallback={<RouteSkeleton />}>
                 <Producto />
@@ -59,11 +55,7 @@ const App = () => (
                 <Cobertura />
               </Suspense>
             } />
-            <Route path="/ai" element={
-              <Suspense fallback={<RouteSkeleton />}>
-                <AIRecomendador />
-              </Suspense>
-            } />
+            <Route path="/ai" element={<AIRecomendador />} />
             <Route path="/carrito" element={
               <Suspense fallback={<RouteSkeleton />}>
                 <Carrito />
