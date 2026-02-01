@@ -1,226 +1,259 @@
 
-# Plan: Rediseño de Tienda - Solo Res y Pollo con Presentaciones
+
+# Plan: Corregir Errores de Suscripcion y Agregar Validacion de Usuario
 
 ## Resumen
 
-Simplificar la tienda para mostrar únicamente 2 productos principales:
-- **🥩 Res Premium** - Posicionado como la opción de alta calidad
-- **🐔 Pollo Esencial** - Opción económica pero completa
-
-Al hacer click en cada producto, el usuario puede elegir la presentación (500g o 1kg). Esta elección es solo preferencia de almacenamiento, no afecta la nutrición.
+Este plan corrige 3 problemas:
+1. El componente Badge esta roto y causa errores en toda la aplicacion
+2. El error de base de datos al crear suscripciones (ON CONFLICT)
+3. Usuarios no registrados pueden intentar suscribirse sin validacion
 
 ---
 
-## Diseño de la Nueva Tienda
+## Problema 1: Componente Badge Roto
+
+El archivo `src/components/ui/badge.tsx` tiene un error critico - la funcion Badge no retorna ningun JSX:
+
+```typescript
+// CODIGO ACTUAL (ROTO):
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return;  // No retorna nada!
+}
+```
+
+### Solucion
+
+Restaurar el componente Badge con el JSX correcto:
+
+```typescript
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  );
+}
+```
+
+---
+
+## Problema 2: Error ON CONFLICT en Suscripciones
+
+El codigo actual en `AIRecomendador.tsx` usa:
+```typescript
+.upsert({ ... }, { onConflict: "user_id" })
+```
+
+Pero la tabla `subscriptions` no tiene un constraint UNIQUE en `user_id`. Esto causa el error que ves.
+
+### Solucion
+
+Cambiar la logica de upsert a una verificacion manual:
+
+```typescript
+// 1. Verificar si existe suscripcion activa
+const { data: existingSub } = await supabase
+  .from("subscriptions")
+  .select("id")
+  .eq("user_id", user.id)
+  .eq("status", "active")
+  .maybeSingle();
+
+// 2. Actualizar o crear segun corresponda
+if (existingSub) {
+  const { error } = await supabase
+    .from("subscriptions")
+    .update(subscriptionData)
+    .eq("id", existingSub.id);
+} else {
+  const { error } = await supabase
+    .from("subscriptions")
+    .insert(subscriptionData);
+}
+```
+
+---
+
+## Problema 3: Popup para Usuarios No Registrados
+
+### En AIRecomendador.tsx (ya parcialmente implementado)
+
+La funcion `handleSelectSubscription` ya tiene validacion en lineas 1335-1342, pero muestra un toast Y abre el LoginDialog. Esto ya funciona correctamente.
+
+### En Suscripcion.tsx (FALTA implementar)
+
+La funcion `handleSubscribe` actualmente no verifica si el usuario esta autenticado. Necesitamos:
+
+1. Importar `useAuth` y `LoginDialog`
+2. Agregar estado para controlar el popup
+3. Verificar autenticacion antes de redirigir a WhatsApp
+
+```typescript
+// Importar
+import { useAuth } from "@/hooks/useAuth";
+import { LoginDialog } from "@/components/ai/LoginDialog";
+
+// Dentro del componente
+const { isAuthenticated } = useAuth();
+const [showLoginDialog, setShowLoginDialog] = useState(false);
+
+const handleSubscribe = () => {
+  // NUEVA VALIDACION
+  if (!isAuthenticated) {
+    setShowLoginDialog(true);
+    return;
+  }
+  
+  // Logica existente de WhatsApp...
+};
+
+// En el JSX, agregar el dialog:
+<LoginDialog
+  open={showLoginDialog}
+  onOpenChange={setShowLoginDialog}
+  title="Registrate para suscribirte"
+  description="Para crear tu suscripcion mensual, primero necesitas una cuenta."
+/>
+```
+
+---
+
+## Flujo del Usuario No Autenticado
 
 ```text
-┌─────────────────────────────────────────────┐
-│         🐾 Alimentación Natural BARF        │
-│              Nuestra Tienda                 │
-│   Solo 2 productos, infinitas posibilidades │
-├─────────────────────────────────────────────┤
-│                                             │
-│  ┌─────────────────┐  ┌─────────────────┐  │
-│  │    🥩 RES       │  │   🐔 POLLO      │  │
-│  │    PREMIUM      │  │    ESENCIAL     │  │
-│  │                 │  │                 │  │
-│  │  ✨ Variedad    │  │  💚 Ligero      │  │
-│  │  de órganos     │  │  y digestivo    │  │
-│  │                 │  │                 │  │
-│  │  Desde $349     │  │  Desde $299     │  │
-│  │                 │  │                 │  │
-│  │  [Ver opciones] │  │  [Ver opciones] │  │
-│  └─────────────────┘  └─────────────────┘  │
-│                                             │
-│  💡 Tip: Para perros grandes (+20kg)       │
-│     recomendamos la presentación de 1kg    │
-│     para mejor almacenamiento              │
-│                                             │
-└─────────────────────────────────────────────┘
+Usuario no registrado
+        |
+        v
+Hace clic en "Suscribirme"
+        |
+        v
++---------------------------+
+|    Popup de Login/Registro |
+|                           |
+|  Para suscribirte,        |
+|  primero crea una cuenta  |
+|                           |
+|  [Entrar] [Registrarse]   |
++---------------------------+
+        |
+        v
+Si se registra -> Popup se cierra
+Usuario puede intentar de nuevo
 ```
-
----
-
-## Flujo de Usuario
-
-1. Usuario entra a `/tienda`
-2. Ve 2 tarjetas grandes: Res Premium y Pollo Esencial
-3. Al hacer click → Modal o página de producto con selector de presentación
-4. Elige 500g o 1kg → Agrega al carrito
-
----
-
-## Cambios por Archivo
-
-### 1. `src/pages/Tienda.tsx` - Rediseño Completo
-
-**Eliminar:**
-- Filtros de proteína (ya no necesarios con solo 2 productos)
-- Query a base de datos (será estática)
-- Grid de múltiples productos
-
-**Agregar:**
-- 2 tarjetas grandes de producto (Res Premium, Pollo Esencial)
-- Descripción atractiva para cada proteína
-- Precio "desde $X" (mostrando el menor)
-- Botón "Ver opciones" que lleva a la página de producto
-
-**Nuevo diseño:**
-```typescript
-// Productos hardcoded para control total del diseño
-const proteinProducts = [
-  {
-    protein: "res",
-    name: "Res Premium",
-    tagline: "Nutrición superior",
-    description: "Variedad de órganos y carne de res de primera calidad",
-    emoji: "🥩",
-    badge: "✨ Premium",
-    priceFrom: 349,
-    slug: "barf-res-500g",
-    benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"]
-  },
-  {
-    protein: "pollo",
-    name: "Pollo Esencial",
-    tagline: "Digestión ligera",
-    description: "Fórmula balanceada y suave para el estómago",
-    emoji: "🐔",
-    badge: "💚 Recomendado",
-    priceFrom: 299,
-    slug: "barf-pollo-500g",
-    benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"]
-  }
-];
-```
-
-### 2. `src/pages/Producto.tsx` - Mejoras en Selector de Presentación
-
-**Agregar:**
-- Tooltip/texto que explique que la presentación es preferencia de almacenamiento
-- Recomendación visual: "1kg recomendado para perros grandes"
-- Mantener el flujo actual de selección
-
-**Cambio en la sección de presentación:**
-```typescript
-<div>
-  <p className="text-sm font-medium mb-2">
-    Presentación <span className="text-muted-foreground">(solo preferencia de almacenamiento)</span>
-  </p>
-  <div className="flex gap-2">
-    {/* 500g y 1kg buttons */}
-  </div>
-  <p className="text-xs text-muted-foreground mt-2">
-    💡 Tip: Para perros grandes, el empaque de 1kg es más práctico
-  </p>
-</div>
-```
-
----
-
-## Nombres de Producto Propuestos
-
-| Proteína | Nombre Actual | Nombre Nuevo | Justificación |
-|----------|---------------|--------------|---------------|
-| Res | BARF Res 500g/1kg | **Res Premium** | Suena más exclusivo, la res es naturalmente más cara |
-| Pollo | BARF Pollo 500g/1kg | **Pollo Esencial** | Sugiere que es completo pero accesible, no "básico" |
-
-Alternativas consideradas:
-- Res: "Res Selecta", "Res Gourmet", "Res Gold"
-- Pollo: "Pollo Natural", "Pollo Clásico", "Pollo Balance"
-
----
-
-## Impacto Visual
-
-**Antes:**
-- 4 tarjetas pequeñas (500g y 1kg de cada proteína)
-- Filtros de proteína innecesarios
-- Confusión sobre qué elegir
-
-**Después:**
-- 2 tarjetas grandes y atractivas
-- Diseño limpio y enfocado
-- Flujo claro: elige proteína → elige tamaño → compra
 
 ---
 
 ## Archivos a Modificar
 
-| Archivo | Acción |
+| Archivo | Cambio |
 |---------|--------|
-| `src/pages/Tienda.tsx` | Reescribir con diseño de 2 productos |
-| `src/pages/Producto.tsx` | Agregar texto explicativo en selector de presentación |
+| `src/components/ui/badge.tsx` | Restaurar el return con JSX correcto |
+| `src/pages/AIRecomendador.tsx` | Reemplazar upsert con logica de verificacion + insert/update |
+| `src/pages/Suscripcion.tsx` | Agregar validacion de autenticacion + LoginDialog |
 
 ---
 
-## Sección Técnica
+## Seccion Tecnica
 
-### Nueva Estructura de Tienda.tsx
+### Cambio 1: Badge.tsx (linea 18-24)
 
-```typescript
-// Componente de tarjeta de proteína grande
-function ProteinCard({ protein, name, tagline, emoji, badge, priceFrom, slug, benefits }) {
+```tsx
+function Badge({
+  className,
+  variant,
+  ...props
+}: BadgeProps) {
   return (
-    <Link to={`/producto/${slug}`}>
-      <Card className="group hover:shadow-xl transition-all h-full">
-        {/* Imagen/Emoji grande */}
-        <div className="aspect-video bg-gradient-to-br from-secondary/50 to-muted flex items-center justify-center">
-          <span className="text-8xl group-hover:scale-110 transition-transform">
-            {emoji}
-          </span>
-          <Badge className="absolute top-4 left-4">{badge}</Badge>
-        </div>
-        
-        {/* Info */}
-        <CardContent className="p-6 space-y-4">
-          <div>
-            <h3 className="text-2xl font-bold">{name}</h3>
-            <p className="text-muted-foreground">{tagline}</p>
-          </div>
-          
-          <ul className="space-y-2">
-            {benefits.map(b => <li key={b}>✓ {b}</li>)}
-          </ul>
-          
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-primary">
-              Desde ${priceFrom}
-            </span>
-            <Button>Ver opciones →</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
 ```
 
-### Cambio en Producto.tsx (líneas ~217-237)
+### Cambio 2: AIRecomendador.tsx (lineas 1353-1367)
 
-El selector de presentación se mantiene igual funcionalmente, solo se agrega contexto:
-
+Reemplazar:
 ```typescript
-<div>
-  <div className="flex items-center gap-2 mb-2">
-    <p className="text-sm font-medium">Presentación</p>
-    <Badge variant="outline" className="text-xs">
-      Solo almacenamiento
-    </Badge>
-  </div>
-  <div className="flex gap-2">
-    {/* Botones 500g y 1kg existentes */}
-  </div>
-  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-    <span>💡</span>
-    <span>Perros grandes (+20kg): recomendamos 1kg para mejor almacenamiento</span>
-  </p>
-</div>
+const { error } = await supabase.from("subscriptions").upsert({
+  user_id: user.id,
+  // ...data
+}, {
+  onConflict: "user_id"
+});
 ```
 
-### No se necesitan cambios en base de datos
+Con:
+```typescript
+const subscriptionData = {
+  user_id: user.id,
+  plan_type: planType,
+  status: "active",
+  protein_line: result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix",
+  presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
+  weekly_amount_kg: result?.weeklyKg || 0,
+  frequency: "weekly",
+  next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
+  next_billing_date: nextBillingDate.toISOString().split("T")[0],
+  price_per_kg: 150,
+  discount_percent: planType === "monthly" ? 0 : planType === "semestral" ? 5 : 10,
+};
 
-Los productos actuales ya tienen la estructura correcta:
-- `protein_line`: "res" o "pollo"
-- `presentation`: "500g" o "1kg"
-- El flujo de variantes en Producto.tsx ya funciona bien
+// Verificar si existe suscripcion activa
+const { data: existingSub } = await supabase
+  .from("subscriptions")
+  .select("id")
+  .eq("user_id", user.id)
+  .eq("status", "active")
+  .maybeSingle();
+
+let error;
+if (existingSub) {
+  const result = await supabase
+    .from("subscriptions")
+    .update(subscriptionData)
+    .eq("id", existingSub.id);
+  error = result.error;
+} else {
+  const result = await supabase
+    .from("subscriptions")
+    .insert(subscriptionData);
+  error = result.error;
+}
+```
+
+### Cambio 3: Suscripcion.tsx
+
+Agregar imports:
+```typescript
+import { useAuth } from "@/hooks/useAuth";
+import { LoginDialog } from "@/components/ai/LoginDialog";
+```
+
+Agregar estado dentro del componente:
+```typescript
+const { isAuthenticated } = useAuth();
+const [showLoginDialog, setShowLoginDialog] = useState(false);
+```
+
+Modificar handleSubscribe:
+```typescript
+const handleSubscribe = () => {
+  if (!isAuthenticated) {
+    setShowLoginDialog(true);
+    return;
+  }
+  
+  // Logica existente de WhatsApp
+  const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
+  // ... resto del codigo
+};
+```
+
+Agregar al final del JSX (antes de cerrar `</Layout>`):
+```tsx
+<LoginDialog
+  open={showLoginDialog}
+  onOpenChange={setShowLoginDialog}
+  title="Registrate para suscribirte"
+  description="Para crear tu suscripcion mensual, primero necesitas una cuenta Raw Paw."
+/>
+```
+
