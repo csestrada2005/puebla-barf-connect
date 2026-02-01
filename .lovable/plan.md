@@ -1,144 +1,98 @@
 
+# Plan: Corregir Inconsistencias de Suscripción entre /ai y /suscripcion
 
-# Plan: Corregir Errores de Suscripcion y Agregar Validacion de Usuario
+## Problemas Identificados
 
-## Resumen
+### Problema 1: Error de Constraint en Base de Datos
+La tabla `subscriptions` tiene estos constraints:
 
-Este plan corrige 3 problemas:
-1. El componente Badge esta roto y causa errores en toda la aplicacion
-2. El error de base de datos al crear suscripciones (ON CONFLICT)
-3. Usuarios no registrados pueden intentar suscribirse sin validacion
+| Campo | Valores Permitidos | Código Actual |
+|-------|-------------------|---------------|
+| `frequency` | 'mensual', 'anual' | ❌ 'weekly' |
+| `plan_type` | 'basico', 'pro' | ❌ 'monthly', 'semestral', 'annual' |
 
----
+El código en AIRecomendador.tsx envía valores que violan estos constraints.
 
-## Problema 1: Componente Badge Roto
+### Problema 2: Plan Semestral No Debería Existir
+- `/suscripcion` solo ofrece: Mensual y Anual
+- `/ai` (SubscriptionTiers.tsx) ofrece: Mensual, **Semestral**, y Anual
 
-El archivo `src/components/ui/badge.tsx` tiene un error critico - la funcion Badge no retorna ningun JSX:
+Se debe eliminar la opción Semestral del AI.
 
-```typescript
-// CODIGO ACTUAL (ROTO):
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return;  // No retorna nada!
-}
-```
-
-### Solucion
-
-Restaurar el componente Badge con el JSX correcto:
-
-```typescript
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  );
-}
-```
+### Problema 3: Precios Diferentes
+- `/suscripcion`: Usa precios de la base de datos ($549 por 1kg pollo, $649 por 1kg res)
+- `/ai`: Usa precio fijo hardcodeado de `$150/kg` que no coincide
 
 ---
 
-## Problema 2: Error ON CONFLICT en Suscripciones
+## Solución
 
-El codigo actual en `AIRecomendador.tsx` usa:
-```typescript
-.upsert({ ... }, { onConflict: "user_id" })
-```
+### Cambio 1: Corregir Valores de Frequency y Plan Type
 
-Pero la tabla `subscriptions` no tiene un constraint UNIQUE en `user_id`. Esto causa el error que ves.
-
-### Solucion
-
-Cambiar la logica de upsert a una verificacion manual:
+Mapear los valores del UI a los valores que acepta la base de datos:
 
 ```typescript
-// 1. Verificar si existe suscripcion activa
-const { data: existingSub } = await supabase
-  .from("subscriptions")
-  .select("id")
-  .eq("user_id", user.id)
-  .eq("status", "active")
-  .maybeSingle();
-
-// 2. Actualizar o crear segun corresponda
-if (existingSub) {
-  const { error } = await supabase
-    .from("subscriptions")
-    .update(subscriptionData)
-    .eq("id", existingSub.id);
-} else {
-  const { error } = await supabase
-    .from("subscriptions")
-    .insert(subscriptionData);
-}
-```
-
----
-
-## Problema 3: Popup para Usuarios No Registrados
-
-### En AIRecomendador.tsx (ya parcialmente implementado)
-
-La funcion `handleSelectSubscription` ya tiene validacion en lineas 1335-1342, pero muestra un toast Y abre el LoginDialog. Esto ya funciona correctamente.
-
-### En Suscripcion.tsx (FALTA implementar)
-
-La funcion `handleSubscribe` actualmente no verifica si el usuario esta autenticado. Necesitamos:
-
-1. Importar `useAuth` y `LoginDialog`
-2. Agregar estado para controlar el popup
-3. Verificar autenticacion antes de redirigir a WhatsApp
-
-```typescript
-// Importar
-import { useAuth } from "@/hooks/useAuth";
-import { LoginDialog } from "@/components/ai/LoginDialog";
-
-// Dentro del componente
-const { isAuthenticated } = useAuth();
-const [showLoginDialog, setShowLoginDialog] = useState(false);
-
-const handleSubscribe = () => {
-  // NUEVA VALIDACION
-  if (!isAuthenticated) {
-    setShowLoginDialog(true);
-    return;
-  }
+// AIRecomendador.tsx línea 1353-1365
+const subscriptionData = {
+  // CORREGIR plan_type: mapear a valores de DB
+  plan_type: planType === "monthly" ? "basico" : "pro",
   
-  // Logica existente de WhatsApp...
+  // CORREGIR frequency: mapear a valores de DB  
+  frequency: planType === "annual" ? "anual" : "mensual",
+  
+  // ... resto igual
 };
-
-// En el JSX, agregar el dialog:
-<LoginDialog
-  open={showLoginDialog}
-  onOpenChange={setShowLoginDialog}
-  title="Registrate para suscribirte"
-  description="Para crear tu suscripcion mensual, primero necesitas una cuenta."
-/>
 ```
 
----
+### Cambio 2: Eliminar Plan Semestral del AI
 
-## Flujo del Usuario No Autenticado
+En `SubscriptionTiers.tsx`, eliminar el tier "semestral":
 
-```text
-Usuario no registrado
-        |
-        v
-Hace clic en "Suscribirme"
-        |
-        v
-+---------------------------+
-|    Popup de Login/Registro |
-|                           |
-|  Para suscribirte,        |
-|  primero crea una cuenta  |
-|                           |
-|  [Entrar] [Registrarse]   |
-+---------------------------+
-        |
-        v
-Si se registra -> Popup se cierra
-Usuario puede intentar de nuevo
+```typescript
+const tiers: SubscriptionTier[] = [
+  {
+    id: "monthly",
+    name: "Plan Mensual", 
+    // ...
+  },
+  // ❌ ELIMINAR plan semestral
+  {
+    id: "annual",
+    name: "Plan Anual",
+    badge: "Mejor Valor",
+    isRecommended: true,
+    // ...
+  },
+];
 ```
+
+También actualizar el tipo:
+```typescript
+interface SubscriptionTiersProps {
+  onSelectPlan: (planType: "monthly" | "annual") => void; // Quitar "semestral"
+}
+```
+
+### Cambio 3: Corregir Handler de Suscripción en AIRecomendador
+
+Actualizar la función `handleSelectSubscription` para aceptar solo monthly o annual:
+
+```typescript
+const handleSelectSubscription = async (planType: "monthly" | "annual") => {
+  // Ya no acepta "semestral"
+  // ...
+};
+```
+
+### Cambio 4: Alinear Lógica de Descuentos
+
+Actualizar el cálculo de descuento para reflejar solo 2 planes:
+
+```typescript
+discount_percent: planType === "annual" ? 15 : 0,
+```
+
+Esto coincide con `/suscripcion` que ofrece 15% descuento en plan anual.
 
 ---
 
@@ -146,114 +100,83 @@ Usuario puede intentar de nuevo
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/components/ui/badge.tsx` | Restaurar el return con JSX correcto |
-| `src/pages/AIRecomendador.tsx` | Reemplazar upsert con logica de verificacion + insert/update |
-| `src/pages/Suscripcion.tsx` | Agregar validacion de autenticacion + LoginDialog |
+| `src/components/ai/SubscriptionTiers.tsx` | Eliminar tier "semestral", actualizar tipos |
+| `src/pages/AIRecomendador.tsx` | Corregir valores de frequency/plan_type, quitar semestral |
 
 ---
 
-## Seccion Tecnica
+## Sección Técnica
 
-### Cambio 1: Badge.tsx (linea 18-24)
+### SubscriptionTiers.tsx
 
-```tsx
-function Badge({
-  className,
-  variant,
-  ...props
-}: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  );
+**Cambio de tipos (líneas 8-9, 23):**
+```typescript
+interface SubscriptionTier {
+  id: "monthly" | "annual";  // Quitar "semestral"
+  // ...
+}
+
+interface SubscriptionTiersProps {
+  onSelectPlan: (planType: "monthly" | "annual") => void;  // Quitar "semestral"
 }
 ```
 
-### Cambio 2: AIRecomendador.tsx (lineas 1353-1367)
-
-Reemplazar:
+**Eliminar tier semestral (líneas 27-52):**
 ```typescript
-const { error } = await supabase.from("subscriptions").upsert({
-  user_id: user.id,
-  // ...data
-}, {
-  onConflict: "user_id"
-});
+const tiers: SubscriptionTier[] = [
+  {
+    id: "monthly",
+    name: "Plan Mensual",
+    description: "Flexibilidad total, pago en efectivo disponible",
+    billingWeeks: 4,
+    discountPercent: 0,
+  },
+  {
+    id: "annual",
+    name: "Plan Anual",
+    description: "15% de descuento, solo tarjeta",
+    billingWeeks: 52,
+    discountPercent: 15,
+    badge: "15% OFF",
+    isRecommended: true,
+  },
+];
 ```
 
-Con:
+### AIRecomendador.tsx
+
+**Actualizar tipo de función (línea 1334):**
+```typescript
+const handleSelectSubscription = async (planType: "monthly" | "annual") => {
+```
+
+**Corregir subscriptionData (líneas 1353-1365):**
 ```typescript
 const subscriptionData = {
   user_id: user.id,
-  plan_type: planType,
+  // Mapear a valores que acepta la DB
+  plan_type: planType === "annual" ? "pro" : "basico",
   status: "active",
-  protein_line: result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix",
+  protein_line: result?.recommendedProtein === "chicken" ? "pollo" : "res",
   presentation: result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g",
   weekly_amount_kg: result?.weeklyKg || 0,
-  frequency: "weekly",
+  // Mapear a valores que acepta la DB
+  frequency: planType === "annual" ? "anual" : "mensual",
   next_delivery_date: nextDeliveryDate.toISOString().split("T")[0],
   next_billing_date: nextBillingDate.toISOString().split("T")[0],
   price_per_kg: 150,
-  discount_percent: planType === "monthly" ? 0 : planType === "semestral" ? 5 : 10,
-};
-
-// Verificar si existe suscripcion activa
-const { data: existingSub } = await supabase
-  .from("subscriptions")
-  .select("id")
-  .eq("user_id", user.id)
-  .eq("status", "active")
-  .maybeSingle();
-
-let error;
-if (existingSub) {
-  const result = await supabase
-    .from("subscriptions")
-    .update(subscriptionData)
-    .eq("id", existingSub.id);
-  error = result.error;
-} else {
-  const result = await supabase
-    .from("subscriptions")
-    .insert(subscriptionData);
-  error = result.error;
-}
-```
-
-### Cambio 3: Suscripcion.tsx
-
-Agregar imports:
-```typescript
-import { useAuth } from "@/hooks/useAuth";
-import { LoginDialog } from "@/components/ai/LoginDialog";
-```
-
-Agregar estado dentro del componente:
-```typescript
-const { isAuthenticated } = useAuth();
-const [showLoginDialog, setShowLoginDialog] = useState(false);
-```
-
-Modificar handleSubscribe:
-```typescript
-const handleSubscribe = () => {
-  if (!isAuthenticated) {
-    setShowLoginDialog(true);
-    return;
-  }
-  
-  // Logica existente de WhatsApp
-  const productName = `BARF ${protein === "res" ? "Res" : "Pollo"} ${presentation}`;
-  // ... resto del codigo
+  // 15% para anual, 0 para mensual
+  discount_percent: planType === "annual" ? 15 : 0,
 };
 ```
 
-Agregar al final del JSX (antes de cerrar `</Layout>`):
-```tsx
-<LoginDialog
-  open={showLoginDialog}
-  onOpenChange={setShowLoginDialog}
-  title="Registrate para suscribirte"
-  description="Para crear tu suscripcion mensual, primero necesitas una cuenta Raw Paw."
-/>
-```
+---
 
+## Resumen de Mapeos
+
+| UI Value | DB frequency | DB plan_type | Descuento |
+|----------|--------------|--------------|-----------|
+| monthly | mensual | basico | 0% |
+| annual | anual | pro | 15% |
+
+Esto alinea el flujo del AI con la página `/suscripcion` y los constraints de la base de datos.
