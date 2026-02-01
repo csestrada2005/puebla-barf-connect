@@ -1,11 +1,9 @@
-import { Suspense } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BrandImage } from "@/components/ui/BrandImage";
-import { PageLoader } from "@/components/ui/PageLoader";
 import dogtorAvatar from "@/assets/brand/dogtor-avatar.png";
 
 interface LayoutProps {
@@ -41,9 +39,7 @@ export function Layout({
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        <Suspense fallback={<PageLoader />}>
-          {children}
-        </Suspense>
+        {children}
       </main>
       {!hideFooter && <Footer />}
 
