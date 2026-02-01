@@ -8,3 +8,4 @@ export { DualRecommendation } from "./DualRecommendation";
 export { SubscriptionTiers } from "./SubscriptionTiers";
 export { BirthdayPicker } from "./BirthdayPicker";
 export { DogImageUpload } from "./DogImageUpload";
+export { ImageUploadStep } from "./ImageUploadStep";

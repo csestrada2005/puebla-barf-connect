@@ -167,6 +167,7 @@ export type Database = {
           daily_grams: number
           goal: string
           id: string
+          image_url: string | null
           name: string
           recommended_plan_type: string
           recommended_protein: string
@@ -186,6 +187,7 @@ export type Database = {
           daily_grams: number
           goal: string
           id?: string
+          image_url?: string | null
           name: string
           recommended_plan_type: string
           recommended_protein: string
@@ -205,6 +207,7 @@ export type Database = {
           daily_grams?: number
           goal?: string
           id?: string
+          image_url?: string | null
           name?: string
           recommended_plan_type?: string
           recommended_protein?: string
