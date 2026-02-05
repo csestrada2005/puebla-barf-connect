@@ -56,7 +56,7 @@ export function Layout({
             to="/ai" 
             className="group flex items-center gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-1 pr-1 md:pr-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           >
-            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
               <BrandImage 
                 src={dogtorAvatar} 
                 alt="El Dogtor" 
