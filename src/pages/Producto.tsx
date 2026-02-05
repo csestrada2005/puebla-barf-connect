@@ -20,8 +20,11 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+ import { motion } from "framer-motion";
+ import { Sticker } from "@/components/ui/Sticker";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
+ import dogLicking from "@/assets/brand/dog-licking.png";
 
 // Product images by protein line
 const productImages: Record<string, string> = {
@@ -148,7 +151,7 @@ export default function Producto() {
 
   return (
     <Layout>
-      <div className="container py-8">
+      <div className="container py-8 relative">
         {/* Back link */}
         <Link 
           to="/tienda" 
@@ -161,7 +164,7 @@ export default function Producto() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Image */}
           <div className="relative">
-            <div className="aspect-square rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
+            <div className="aspect-square max-h-64 md:max-h-none rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
               <img 
                 src={productImages[product.protein_line || "res"]} 
                 alt={product.name}
@@ -247,14 +250,30 @@ export default function Producto() {
             </div>
 
             {/* Add to Cart */}
-            <Button 
-              size="lg" 
-              className="w-full gap-2 text-lg h-14"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Agregar al carrito
-            </Button>
+            <div className="relative">
+              <Button 
+                size="lg" 
+                className="w-full gap-2 text-lg h-14"
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                Agregar al carrito
+              </Button>
+              
+              {/* Mobile Dog Licking the button */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="absolute -right-4 -bottom-8 md:hidden pointer-events-none z-20"
+              >
+                <Sticker 
+                  src={dogLicking}
+                  alt=""
+                  className="w-20 h-20 rotate-[-15deg]"
+                />
+              </motion.div>
+            </div>
 
             {/* Delivery Info */}
             <Card className="bg-secondary/30 border-secondary">

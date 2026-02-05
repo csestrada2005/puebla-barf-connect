@@ -25,6 +25,8 @@ import decoBall from "@/assets/brand/deco-ball.png";
 import decoPuppy from "@/assets/brand/deco-puppy.png";
 import decoPaw from "@/assets/brand/deco-paw.png";
 import decoFluffy from "@/assets/brand/deco-fluffy.png";
+ import herodog from "@/assets/brand/hero-dog.jpeg";
+ import { Sticker } from "@/components/ui/Sticker";
 
 const howItWorks = [{
   step: 1,
@@ -75,11 +77,36 @@ export default function Home() {
         />
 
         {/* Playful hero dog - peeking from bottom right - PRIORITY */}
+        {/* Mobile Hero Card - Polaroid style with dog */}
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 md:hidden z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30, rotate: -5 }}
+            animate={{ opacity: 1, y: 0, rotate: 2 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="relative"
+          >
+            <div className="bg-white p-2 rounded-3xl shadow-2xl border-4 border-white">
+              <img 
+                src={herodog} 
+                alt="Perro feliz" 
+                className="w-48 h-48 object-cover rounded-2xl"
+              />
+            </div>
+            {/* Ball sticker on corner */}
+            <Sticker 
+              src={decoBall}
+              alt=""
+              className="absolute -top-6 -right-4 w-14 h-14 sticker-float"
+            />
+          </motion.div>
+        </div>
+
+        {/* Desktop hero dog - peeking from bottom right */}
         <motion.div
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 w-64 sm:w-80 md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
+          className="absolute -bottom-4 -right-4 md:-right-8 hidden md:block md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
         >
           <BrandImage 
             src={heroBorderCollie} 
@@ -90,7 +117,7 @@ export default function Home() {
         </motion.div>
 
         <div className="container relative z-20 h-full flex flex-col justify-center pt-20 sm:pt-24 md:pt-28">
-          <div className="flex-col text-left flex items-start justify-center">
+          <div className="flex-col text-left flex items-start justify-center mb-48 md:mb-0">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
                 <Sparkles className="h-5 w-5 text-secondary" />
@@ -131,6 +158,15 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Mobile Section Divider - Paw Track */}
+      <div className="block md:hidden py-4 flex justify-center">
+        <Sticker 
+          src={decoPaw}
+          alt=""
+          className="w-12 h-12 opacity-80"
+        />
+      </div>
 
       {/* How it works - Simplified */}
       <section className="py-16 md:py-24 bg-background relative overflow-hidden">
@@ -197,6 +233,15 @@ export default function Home() {
 
       {/* Benefits */}
       <BenefitsSection />
+
+      {/* Mobile Section Divider - Paw Track rotated */}
+      <div className="block md:hidden py-4 flex justify-center">
+        <Sticker 
+          src={decoPaw}
+          alt=""
+          className="w-12 h-12 opacity-80 rotate-45"
+        />
+      </div>
 
       {/* Testimonials */}
       {testimonials && testimonials.length > 0 && (

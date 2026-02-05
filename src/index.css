@@ -198,4 +198,23 @@
   .btn-bounce:hover {
     animation: hoverBounce 0.4s ease-in-out;
   }
+   
+   /* Sticker utility - decorative elements that don't block interactions */
+   .sticker {
+     @apply pointer-events-none select-none z-10;
+   }
+   
+   /* Slow floating animation for stickers */
+   .sticker-float {
+     animation: stickerFloat 3s ease-in-out infinite;
+   }
+ }
+ 
+ @keyframes stickerFloat {
+   0%, 100% {
+     transform: translateY(0) rotate(0deg);
+   }
+   50% {
+     transform: translateY(-8px) rotate(2deg);
+   }
 }
