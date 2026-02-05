@@ -78,25 +78,25 @@ export default function Home() {
 
         {/* Playful hero dog - peeking from bottom right - PRIORITY */}
         {/* Mobile Hero Card - Polaroid style with dog */}
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 md:hidden z-10">
+        <div className="absolute bottom-4 right-4 md:hidden z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30, rotate: -5 }}
-            animate={{ opacity: 1, y: 0, rotate: 2 }}
+            initial={{ opacity: 0, x: 30, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotate: -3 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
             className="relative"
           >
-            <div className="bg-white p-2 rounded-3xl shadow-2xl border-4 border-white">
+            <div className="bg-white p-1.5 rounded-2xl shadow-2xl border-2 border-white">
               <img 
                 src={herodog} 
                 alt="Perro feliz" 
-                className="w-48 h-48 object-cover rounded-2xl"
+                className="w-28 h-28 object-cover rounded-xl"
               />
             </div>
             {/* Ball sticker on corner */}
             <Sticker 
               src={decoBall}
               alt=""
-              className="absolute -top-6 -right-4 w-14 h-14 sticker-float"
+              className="absolute -top-4 -left-3 w-10 h-10 sticker-float"
             />
           </motion.div>
         </div>
@@ -117,7 +117,7 @@ export default function Home() {
         </motion.div>
 
         <div className="container relative z-20 h-full flex flex-col justify-center pt-20 sm:pt-24 md:pt-28">
-          <div className="flex-col text-left flex items-start justify-center mb-48 md:mb-0">
+          <div className="flex-col text-left flex items-start justify-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
                 <Sparkles className="h-5 w-5 text-secondary" />
@@ -141,13 +141,13 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-start">
-                <Button asChild size="lg" variant="secondary" className="text-lg md:text-xl px-10 py-7 rounded-2xl btn-bounce shadow-lg">
+                <Button asChild size="lg" variant="secondary" className="text-lg md:text-xl px-8 py-6 md:px-10 md:py-7 rounded-2xl btn-bounce shadow-lg">
                   <Link to="/ai">
                     <Sparkles className="h-6 w-6 mr-2" />
                     Iniciar
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-lg text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
+                <Button asChild variant="ghost" size="lg" className="text-base md:text-lg text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
                   <Link to="/tienda">
                     Explorar productos
                     <ArrowRight className="h-5 w-5 ml-2" />
