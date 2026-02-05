@@ -67,46 +67,113 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Full viewport */}
-      <section className="relative h-[calc(100svh-4rem)] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
+      {/* ===== MOBILE HERO - Plan B "¡Ñam!" ===== */}
+      <section className="md:hidden min-h-[calc(100svh-4rem)] flex flex-col bg-gradient-to-br from-primary via-primary to-primary/90 px-6 pt-6 pb-8">
+        {/* Logo centrado */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-center mb-6"
+        >
+          <BrandImage 
+            src={logoTaglineBlack} 
+            alt="Raw Paw" 
+            className="w-40 brightness-0 invert" 
+            priority 
+          />
+        </motion.div>
+
+        {/* Imagen principal con speech bubble */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
+        >
+          {/* Speech Bubble - isotipo-bowl flotando */}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
+            <Sticker 
+              src={isotipoBowl} 
+              alt="" 
+              className="w-20 h-20 sticker-float drop-shadow-lg" 
+              priority 
+            />
+          </div>
+          
+          {/* Imagen del perro */}
+          <div className="bg-white/10 backdrop-blur-sm p-2 rounded-3xl">
+            <img 
+              src={herodog} 
+              alt="Perro feliz comiendo" 
+              className="w-full h-56 object-cover rounded-2xl shadow-2xl"
+            />
+          </div>
+          
+          {/* Ball sticker decorativo */}
+          <Sticker 
+            src={decoBall}
+            alt=""
+            className="absolute -bottom-3 -right-3 w-12 h-12 rotate-12"
+          />
+        </motion.div>
+
+        {/* Texto centrado */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-center mb-6 flex-grow flex flex-col justify-center"
+        >
+          <p className="text-2xl font-bold text-primary-foreground leading-tight mb-1">
+            Donde la <span className="text-secondary">Frescura</span> nutre,
+          </p>
+          <p className="text-2xl font-bold text-primary-foreground leading-tight mb-1">
+            la calidad se siente
+          </p>
+          <p className="text-2xl font-bold text-primary-foreground leading-tight">
+            y la <span className="text-secondary">Nutrición</span> permanece.
+          </p>
+        </motion.div>
+
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex flex-col gap-3 items-center"
+        >
+          <Button asChild size="lg" variant="secondary" className="w-full max-w-xs text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg">
+            <Link to="/ai">
+              <Sparkles className="h-5 w-5 mr-2" />
+              Crear mi plan
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10">
+            <Link to="/tienda">
+              Ver productos
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Link>
+          </Button>
+        </motion.div>
+      </section>
+
+      {/* ===== DESKTOP HERO ===== */}
+      <section className="relative h-[calc(100svh-4rem)] hidden md:flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         {/* Centered Logo at Top - PRIORITY */}
         <BrandImage 
           src={logoTaglineBlack} 
           alt="Raw Paw - La nueva forma de cuidarlos" 
-          className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-6 md:top-8 w-48 sm:w-60 md:w-72 lg:w-80 z-10 pointer-events-none brightness-0 invert" 
+          className="absolute left-1/2 -translate-x-1/2 top-8 w-72 lg:w-80 z-10 pointer-events-none brightness-0 invert" 
           priority 
         />
-
-        {/* Playful hero dog - peeking from bottom right - PRIORITY */}
-        {/* Mobile Hero Card - Polaroid style with dog */}
-        <div className="absolute bottom-4 right-4 md:hidden z-10">
-          <motion.div
-            initial={{ opacity: 0, x: 30, rotate: 5 }}
-            animate={{ opacity: 1, x: 0, rotate: -3 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="relative"
-          >
-            <div className="bg-white p-1.5 rounded-2xl shadow-2xl border-2 border-white">
-              <img 
-                src={herodog} 
-                alt="Perro feliz" 
-                className="w-28 h-28 object-cover rounded-xl"
-              />
-            </div>
-            {/* Ball sticker on corner */}
-            <Sticker 
-              src={decoBall}
-              alt=""
-              className="absolute -top-4 -left-3 w-10 h-10 sticker-float"
-            />
-          </motion.div>
-        </div>
 
         {/* Desktop hero dog - peeking from bottom right */}
         <motion.div
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 hidden md:block md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
+          className="absolute -bottom-4 -right-8 md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
         >
           <BrandImage 
             src={heroBorderCollie} 
@@ -116,38 +183,38 @@ export default function Home() {
           />
         </motion.div>
 
-        <div className="container relative z-20 h-full flex flex-col justify-center pt-20 sm:pt-24 md:pt-28">
+        <div className="container relative z-20 h-full flex flex-col justify-center pt-28">
           <div className="flex-col text-left flex items-start justify-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-2xl">
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 mb-4">
                 <Sparkles className="h-5 w-5 text-secondary" />
-                <span className="text-base md:text-lg text-primary-foreground/90 font-medium">Nutrición calculada con IA</span>
+                <span className="text-lg text-primary-foreground/90 font-medium">Nutrición calculada con IA</span>
               </div>
 
               <div className="mb-6 max-w-2xl">
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
+                <p className="text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   Donde la{" "}
                   <span className="text-secondary">Frescura</span>{" "}
                   nutre,
                 </p>
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
+                <p className="text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   la calidad se siente
                 </p>
-                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
+                <p className="text-4xl lg:text-5xl xl:text-6xl text-primary-foreground font-bold leading-snug tracking-tight">
                   y la{" "}
                   <span className="text-secondary">Nutrición</span>{" "}
                   permanece.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-start">
-                <Button asChild size="lg" variant="secondary" className="text-lg md:text-xl px-8 py-6 md:px-10 md:py-7 rounded-2xl btn-bounce shadow-lg">
+              <div className="flex flex-row gap-4 justify-start">
+                <Button asChild size="lg" variant="secondary" className="text-xl px-10 py-7 rounded-2xl btn-bounce shadow-lg">
                   <Link to="/ai">
                     <Sparkles className="h-6 w-6 mr-2" />
                     Iniciar
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-base md:text-lg text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
+                <Button asChild variant="ghost" size="lg" className="text-lg text-primary-foreground hover:text-primary-foreground hover:bg-white/10">
                   <Link to="/tienda">
                     Explorar productos
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -167,7 +234,6 @@ export default function Home() {
           className="w-12 h-12 opacity-80"
         />
       </div>
-
       {/* How it works - Simplified */}
       <section className="py-16 md:py-24 bg-background relative overflow-hidden">
         {/* Decorative background icons - LAZY */}
