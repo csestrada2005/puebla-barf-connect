@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -21,7 +21,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import { 
   LayoutDashboard, 
   Truck, 
@@ -33,6 +35,10 @@ import {
   Loader2,
   Search,
   Filter,
+  Settings,
+  Link as LinkIcon,
+  Save,
+  ExternalLink,
 } from "lucide-react";
 import { format, startOfWeek, endOfWeek, addDays } from "date-fns";
 import { es } from "date-fns/locale";
@@ -46,15 +52,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-type AdminView = "dashboard" | "logistics" | "crm";
+type AdminView = "dashboard" | "logistics" | "crm" | "settings";
 
 export default function Admin() {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading, signOut } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<AdminView>("dashboard");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [webhookUrl, setWebhookUrl] = useState("");
 
   // Check if user is admin
   const isAdmin = profile?.is_admin === true;
@@ -124,6 +133,69 @@ export default function Admin() {
     enabled: isAdmin,
   });
 
+  // Fetch webhook URL from app_config
+  const { data: webhookConfig, isLoading: webhookLoading } = useQuery({
+    queryKey: ["admin-webhook-config"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_config")
+        .select("value")
+        .eq("key", "zapier_webhook_url")
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data?.value as string | null;
+    },
+    enabled: isAdmin,
+  });
+
+  // Initialize webhook URL from config
+  useEffect(() => {
+    if (webhookConfig) {
+      setWebhookUrl(webhookConfig);
+    }
+  }, [webhookConfig]);
+
+  // Mutation to save webhook URL
+  const saveWebhookMutation = useMutation({
+    mutationFn: async (url: string) => {
+      // Check if config exists
+      const { data: existing } = await supabase
+        .from("app_config")
+        .select("id")
+        .eq("key", "zapier_webhook_url")
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from("app_config")
+          .update({ value: url as any, updated_at: new Date().toISOString() })
+          .eq("key", "zapier_webhook_url");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("app_config")
+          .insert({ key: "zapier_webhook_url", value: url as any });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-webhook-config"] });
+      toast({
+        title: "URL guardada",
+        description: "El webhook de Zapier se ha configurado correctamente.",
+      });
+    },
+    onError: (error) => {
+      console.error("Error saving webhook:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo guardar la URL. Intenta de nuevo.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle sign out
   const handleSignOut = async () => {
     await signOut();
@@ -186,6 +258,7 @@ export default function Admin() {
     { id: "dashboard" as AdminView, label: "Dashboard", icon: LayoutDashboard },
     { id: "logistics" as AdminView, label: "Logística", icon: Truck },
     { id: "crm" as AdminView, label: "CRM", icon: Users },
+    { id: "settings" as AdminView, label: "Configuración", icon: Settings },
   ];
 
   return (
@@ -233,6 +306,7 @@ export default function Admin() {
               {activeView === "dashboard" && "Dashboard"}
               {activeView === "logistics" && "Logística - Esta Semana"}
               {activeView === "crm" && "CRM - Clientes"}
+              {activeView === "settings" && "Configuración"}
             </h1>
           </div>
 
@@ -461,6 +535,74 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+          )}
+
+          {/* Settings View */}
+          {activeView === "settings" && (
+            <div className="space-y-6 max-w-2xl">
+              {/* Zapier Integration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <LinkIcon className="h-5 w-5" />
+                    Integración con Google Sheets
+                  </CardTitle>
+                  <CardDescription>
+                    Conecta tu cuenta de Zapier para sincronizar pedidos automáticamente a Google Sheets.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="webhook-url">URL del Webhook de Zapier</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="webhook-url"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/hooks/catch/..."
+                        value={webhookUrl}
+                        onChange={(e) => setWebhookUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={() => saveWebhookMutation.mutate(webhookUrl)}
+                        disabled={saveWebhookMutation.isPending}
+                        className="gap-2"
+                      >
+                        {saveWebhookMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        Guardar
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Cada pedido nuevo se enviará automáticamente a esta URL.
+                    </p>
+                  </div>
+
+                  <div className="bg-muted rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-sm">¿Cómo configurar Zapier?</h4>
+                    <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                      <li>Ve a <a href="https://zapier.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">zapier.com <ExternalLink className="h-3 w-3" /></a> y crea una cuenta gratuita</li>
+                      <li>Crea un nuevo Zap</li>
+                      <li>Como trigger, selecciona <strong>Webhooks by Zapier</strong> → <strong>Catch Hook</strong></li>
+                      <li>Copia la URL del webhook que te da Zapier y pégala aquí</li>
+                      <li>Como action, selecciona <strong>Google Sheets</strong> → <strong>Create Spreadsheet Row</strong></li>
+                      <li>Conecta tu cuenta de Google y selecciona tu hoja de cálculo</li>
+                      <li>Mapea los campos: fecha, orden, cliente, teléfono, productos, total, etc.</li>
+                    </ol>
+                  </div>
+
+                  {webhookConfig && (
+                    <div className="flex items-center gap-2 text-sm text-primary">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                      Webhook configurado y activo
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </main>
       </div>
