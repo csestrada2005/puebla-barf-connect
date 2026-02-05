@@ -103,16 +103,20 @@ export default function Home() {
             <svg width="0" height="0" className="absolute">
               <defs>
                 <clipPath id="pawClip" clipPathUnits="objectBoundingBox">
-                  {/* Almohadilla principal (centro-abajo) */}
-                  <ellipse cx="0.5" cy="0.75" rx="0.35" ry="0.22" />
-                  {/* Dedito izquierdo exterior */}
-                  <ellipse cx="0.15" cy="0.32" rx="0.12" ry="0.15" />
+                  {/* Almohadilla principal - forma de corazón/triangulo redondeado */}
+                  <path d="M 0.5 0.95 
+                           C 0.15 0.95, 0.1 0.55, 0.25 0.45 
+                           C 0.35 0.38, 0.45 0.42, 0.5 0.48 
+                           C 0.55 0.42, 0.65 0.38, 0.75 0.45 
+                           C 0.9 0.55, 0.85 0.95, 0.5 0.95 Z" />
+                  {/* Dedito izquierdo exterior - inclinado */}
+                  <ellipse cx="0.12" cy="0.28" rx="0.1" ry="0.13" transform="rotate(-20, 0.12, 0.28)" />
                   {/* Dedito izquierdo interior */}
-                  <ellipse cx="0.32" cy="0.22" rx="0.11" ry="0.14" />
+                  <ellipse cx="0.3" cy="0.15" rx="0.1" ry="0.12" transform="rotate(-8, 0.3, 0.15)" />
                   {/* Dedito derecho interior */}
-                  <ellipse cx="0.68" cy="0.22" rx="0.11" ry="0.14" />
-                  {/* Dedito derecho exterior */}
-                  <ellipse cx="0.85" cy="0.32" rx="0.12" ry="0.15" />
+                  <ellipse cx="0.7" cy="0.15" rx="0.1" ry="0.12" transform="rotate(8, 0.7, 0.15)" />
+                  {/* Dedito derecho exterior - inclinado */}
+                  <ellipse cx="0.88" cy="0.28" rx="0.1" ry="0.13" transform="rotate(20, 0.88, 0.28)" />
                 </clipPath>
               </defs>
             </svg>
@@ -122,7 +126,7 @@ export default function Home() {
               loop
               muted
               playsInline
-              className="w-full h-72 object-cover drop-shadow-xl"
+              className="w-full h-80 object-cover drop-shadow-xl"
               style={{ clipPath: "url(#pawClip)" }}
             />
           </div>
