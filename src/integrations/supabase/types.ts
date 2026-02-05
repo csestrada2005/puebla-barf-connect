@@ -625,7 +625,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_order_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          customer_address: string
+          customer_name: string
+          customer_phone: string
+          delivery_notes: string
+          driver_confirmed_at: string
+          driver_notes: string
+          driver_status: string
+          id: string
+          items: Json
+          order_number: string
+          payment_method: string
+          status: string
+          total: number
+        }[]
+      }
+      update_order_by_token: {
+        Args: {
+          p_driver_notes?: string
+          p_driver_status: string
+          p_token: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -29,6 +29,7 @@ const Privacidad = lazy(() => import("./pages/Privacidad"));
 const GuiasBarf = lazy(() => import("./pages/GuiasBarf"));
 const Nosotros = lazy(() => import("./pages/Nosotros"));
 const Admin = lazy(() => import("./pages/Admin"));
+const DriverConfirm = lazy(() => import("./pages/DriverConfirm"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -121,6 +122,11 @@ const App = () => (
               <Route path="/nosotros" element={
                 <Suspense fallback={<RouteSkeleton />}>
                   <Nosotros />
+                </Suspense>
+              } />
+              <Route path="/entrega/:token" element={
+                <Suspense fallback={<RouteSkeleton />}>
+                  <DriverConfirm />
                 </Suspense>
               } />
               <Route path="*" element={
