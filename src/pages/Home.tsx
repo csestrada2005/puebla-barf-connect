@@ -20,7 +20,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
-import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 import herodog from "@/assets/brand/hero-dog.jpeg";
@@ -210,7 +209,6 @@ export default function Home() {
       <section className="py-10 md:py-24 bg-background relative overflow-hidden" id="como-funciona">
         <div className="container relative z-10">
           <div className="text-center mb-6 md:mb-12">
-            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 md:h-32 w-auto mx-auto mb-3 md:mb-6" />
             <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
               Así de fácil funciona
             </h2>
@@ -220,17 +218,17 @@ export default function Home() {
           </div>
 
           {/* Carousel for mobile, grid for desktop */}
-          <div className="md:hidden pt-6">
+          <div className="md:hidden">
             <Carousel
               opts={{
-                align: "center",
+                align: "start",
                 loop: true,
               }}
               className="w-full max-w-xs mx-auto"
             >
-              <CarouselContent className="overflow-visible">
+              <CarouselContent className="ml-0">
                 {howItWorks.map((item) => (
-                  <CarouselItem key={item.step} className="basis-full">
+                  <CarouselItem key={item.step} className="basis-full pl-0">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -238,15 +236,18 @@ export default function Home() {
                       viewport={{ once: true }}
                       className="px-2"
                     >
-                      <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                        <CardContent className="pt-8 pb-5 text-center">
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
-                            {item.step}
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
-                        </CardContent>
-                      </Card>
+                      <div className="relative pt-5">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
+                          {item.step}
+                        </div>
+
+                        <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                          <CardContent className="pt-8 pb-5 text-center">
+                            <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          </CardContent>
+                        </Card>
+                      </div>
                     </motion.div>
                   </CarouselItem>
                 ))}
@@ -262,15 +263,18 @@ export default function Home() {
           <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {howItWorks.map((item, index) => (
               <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} viewport={{ once: true }}>
-                <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                  <CardContent className="pt-8 pb-6 text-center">
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
-                      {item.step}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.description}</p>
-                  </CardContent>
-                </Card>
+                <div className="relative pt-5">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
+                    {item.step}
+                  </div>
+
+                  <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                    <CardContent className="pt-8 pb-6 text-center">
+                      <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
+                      <p className="text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </div>
               </motion.div>
             ))}
           </div>
