@@ -20,11 +20,8 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
- import { motion } from "framer-motion";
- import { Sticker } from "@/components/ui/Sticker";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
- import dogLicking from "@/assets/brand/dog-licking.png";
 
 // Product images by protein line
 const productImages: Record<string, string> = {
@@ -40,6 +37,12 @@ const benefitIcons: Record<string, React.ReactNode> = {
   "Mayor masa muscular": <Dumbbell className="h-5 w-5" />,
 };
 
+// Week options for purchasing
+const weekOptions = [
+  { value: "1", label: "1 semana", description: "Ideal para probar" },
+  { value: "2", label: "2 semanas", description: "Mejor precio por kg" },
+];
+
 export default function Producto() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -47,6 +50,7 @@ export default function Producto() {
   const { toast } = useToast();
   const [selectedLine, setSelectedLine] = useState<string | null>(null);
   const [selectedPresentation, setSelectedPresentation] = useState<string | null>(null);
+  const [selectedWeeks, setSelectedWeeks] = useState<string>("1");
 
   // Fetch all products first to enable smooth switching
   const { data: allProducts, isLoading: isLoadingProducts } = useQuery({
@@ -197,6 +201,24 @@ export default function Producto() {
 
             {/* Variant Selectors */}
             <div className="space-y-4">
+              {/* Week Selector */}
+              <div>
+                <p className="text-sm font-medium mb-2">Duración del pedido</p>
+                <div className="flex gap-2">
+                  {weekOptions.map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={selectedWeeks === option.value ? "default" : "outline"}
+                      className="flex-1 flex-col h-auto py-3 transition-all"
+                      onClick={() => setSelectedWeeks(option.value)}
+                    >
+                      <span className="font-semibold">{option.label}</span>
+                      <span className="text-xs opacity-80">{option.description}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
               {/* Protein Line Selector */}
               <div>
                 <p className="text-sm font-medium mb-2">Línea de proteína</p>
@@ -250,30 +272,14 @@ export default function Producto() {
             </div>
 
             {/* Add to Cart */}
-            <div className="relative">
-              <Button 
-                size="lg" 
-                className="w-full gap-2 text-lg h-14"
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                Agregar al carrito
-              </Button>
-              
-              {/* Mobile Dog Licking the button */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="absolute -right-4 -bottom-8 md:hidden pointer-events-none z-20"
-              >
-                <Sticker 
-                  src={dogLicking}
-                  alt=""
-                  className="w-20 h-20 rotate-[-15deg]"
-                />
-              </motion.div>
-            </div>
+            <Button 
+              size="lg" 
+              className="w-full gap-2 text-lg h-14"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              Agregar al carrito
+            </Button>
 
             {/* Delivery Info */}
             <Card className="bg-secondary/30 border-secondary">
