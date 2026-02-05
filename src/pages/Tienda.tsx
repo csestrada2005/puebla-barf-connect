@@ -32,7 +32,7 @@ const proteinProducts = [
     tagline: "Digestión ligera",
     description: "Fórmula balanceada y suave para el estómago",
     image: productoPollo,
-    badge: "💚 Recomendado",
+    badge: null,
     priceFrom: 299,
     slug: "barf-pollo-500g",
     benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"],
@@ -45,7 +45,7 @@ interface ProteinCardProps {
   tagline: string;
   description: string;
   image: string;
-  badge: string;
+  badge: string | null;
   priceFrom: number;
   slug: string;
   benefits: string[];
@@ -62,9 +62,11 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
             alt={name}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
-          <Badge className="absolute top-3 left-3 text-xs font-semibold">
-            {badge}
-          </Badge>
+          {badge && (
+            <Badge className="absolute top-3 left-3 text-xs font-semibold">
+              {badge}
+            </Badge>
+          )}
         </div>
 
         {/* Content - Compact */}
@@ -116,26 +118,8 @@ export default function Tienda() {
           </p>
         </div>
 
-        {/* Benefits Bar - Vertical on mobile */}
-        <div className="mb-8 md:mb-10">
-          <div className="flex flex-col md:flex-row md:grid md:grid-cols-3 gap-2 md:gap-4">
-            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
-              <Truck className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-              <span className="text-sm font-medium">Envío incluido</span>
-            </div>
-            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
-              <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-              <span className="text-sm font-medium">Entrega 24-48h</span>
-            </div>
-            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
-              <Check className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-              <span className="text-sm font-medium">Pago contra entrega</span>
-            </div>
-          </div>
-        </div>
-
         {/* Products - Carousel on mobile, Grid on desktop */}
-        <div className="md:hidden">
+        <div className="md:hidden mb-6">
           <Carousel className="w-full" opts={{ align: "center", loop: true }}>
             <CarouselContent className="-ml-2">
               {proteinProducts.map((product) => (
@@ -147,6 +131,42 @@ export default function Tienda() {
             <CarouselPrevious className="left-2" />
             <CarouselNext className="right-2" />
           </Carousel>
+        </div>
+
+        {/* Benefits Bar - Below products on mobile, above on desktop */}
+        <div className="mb-8 md:mb-10 md:hidden">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/30">
+              <Truck className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Envío incluido</span>
+            </div>
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/30">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Entrega 24-48h</span>
+            </div>
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/30">
+              <Check className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Pago contra entrega</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Benefits Bar - Desktop only (above products) */}
+        <div className="mb-10 hidden md:block">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
+              <Truck className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Envío incluido</span>
+            </div>
+            <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
+              <Clock className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Entrega 24-48h</span>
+            </div>
+            <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
+              <Check className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium">Pago contra entrega</span>
+            </div>
+          </div>
         </div>
         
         <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
