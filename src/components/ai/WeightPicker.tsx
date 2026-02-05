@@ -12,15 +12,18 @@ interface WeightPickerProps {
 
 export function WeightPicker({ onSubmit, disabled, initialValue = 10 }: WeightPickerProps) {
   const [weight, setWeight] = useState<number>(initialValue);
+  const MAX_WEIGHT = 35;
 
   const handleSliderChange = (value: number[]) => {
-    setWeight(value[0]);
+    setWeight(Math.min(value[0], MAX_WEIGHT));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && value >= 1 && value <= 80) {
+    if (!isNaN(value) && value >= 1 && value <= MAX_WEIGHT) {
       setWeight(Math.round(value * 10) / 10);
+    } else if (!isNaN(value) && value > MAX_WEIGHT) {
+      setWeight(MAX_WEIGHT);
     }
   };
 
@@ -56,14 +59,14 @@ export function WeightPicker({ onSubmit, disabled, initialValue = 10 }: WeightPi
           value={[weight]}
           onValueChange={handleSliderChange}
           min={1}
-          max={80}
+          max={MAX_WEIGHT}
           step={0.5}
           disabled={disabled}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
           <span>1 kg</span>
-          <span>80 kg</span>
+          <span>{MAX_WEIGHT}+ kg</span>
         </div>
       </div>
 
@@ -75,7 +78,7 @@ export function WeightPicker({ onSubmit, disabled, initialValue = 10 }: WeightPi
           value={weight}
           onChange={handleInputChange}
           min={1}
-          max={80}
+          max={MAX_WEIGHT}
           step={0.5}
           disabled={disabled}
           className="w-20 text-center"
