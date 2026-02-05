@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, Clock, Check, ArrowRight } from "lucide-react";
- import { Sticker } from "@/components/ui/Sticker";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
- import decoBowl from "@/assets/brand/deco-bowl.png";
- import decoPaw from "@/assets/brand/deco-paw.png";
 
 const proteinProducts = [
   {
@@ -100,68 +104,63 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
 export default function Tienda() {
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-8 md:py-12">
         {/* Header */}
-        <div className="text-center mb-8 relative">
-          {/* Mobile Bowl Sticker - Top right of header */}
-          <Sticker 
-            src={decoBowl}
-            alt=""
-            className="absolute -top-2 right-0 md:hidden w-14 h-14 rotate-12"
-          />
-          
-          <Badge variant="secondary" className="mb-4">
+        <div className="text-center mb-6 md:mb-8">
+          <Badge variant="secondary" className="mb-3 md:mb-4">
             🐾 Alimentación Natural BARF
           </Badge>
-          <h1 className="text-4xl font-bold mb-4">Nuestra Tienda</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Nuestra Tienda</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
             Solo 2 productos, infinitas posibilidades. Elige la proteína que mejor se adapte a tu mejor amigo.
           </p>
         </div>
 
-        {/* Benefits Bar */}
-        <div className="mb-10">
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-              <Truck className="h-5 w-5 text-primary" />
+        {/* Benefits Bar - Vertical on mobile */}
+        <div className="mb-8 md:mb-10">
+          <div className="flex flex-col md:flex-row md:grid md:grid-cols-3 gap-2 md:gap-4">
+            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
+              <Truck className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               <span className="text-sm font-medium">Envío incluido</span>
             </div>
-            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-              <Clock className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
+              <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               <span className="text-sm font-medium">Entrega 24-48h</span>
             </div>
-            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-secondary/30">
-              <Check className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2 p-3 md:p-4 md:justify-center rounded-lg bg-secondary/30">
+              <Check className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               <span className="text-sm font-medium">Pago contra entrega</span>
             </div>
           </div>
         </div>
 
-        {/* Products Grid - 2 Large Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {proteinProducts.map((product, index) => (
-            <div key={product.protein}>
-              <ProteinCard {...product} />
-              {/* Mobile Paw Separator between cards */}
-              {index === 0 && (
-                <div className="block md:hidden py-4 flex justify-center">
-                  <Sticker 
-                    src={decoPaw}
-                    alt=""
-                    className="w-10 h-10 opacity-60 rotate-45"
-                  />
-                </div>
-              )}
-            </div>
+        {/* Products - Carousel on mobile, Grid on desktop */}
+        <div className="md:hidden">
+          <Carousel className="w-full">
+            <CarouselContent>
+              {proteinProducts.map((product) => (
+                <CarouselItem key={product.protein} className="basis-[85%]">
+                  <ProteinCard {...product} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 -translate-x-1/2" />
+            <CarouselNext className="right-0 translate-x-1/2" />
+          </Carousel>
+        </div>
+        
+        <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {proteinProducts.map((product) => (
+            <ProteinCard key={product.protein} {...product} />
           ))}
         </div>
 
         {/* Tip Section */}
-        <div className="mt-10 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted/50 text-sm text-muted-foreground">
+        <div className="mt-8 md:mt-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full bg-muted/50 text-xs md:text-sm text-muted-foreground">
             <span>💡</span>
             <span>
-              <strong>Tip:</strong> Para perros grandes (+20kg) recomendamos la presentación de 1kg para mejor almacenamiento
+              <strong>Tip:</strong> Para perros grandes (+20kg) recomendamos la presentación de 1kg
             </span>
           </div>
         </div>
