@@ -84,6 +84,7 @@ interface ExtendedPetData extends PetData {
   zoneId: string;
   zoneName: string;
   deliveryFee: number;
+  allergy?: "chicken" | "beef" | "none";
 }
 
 // ==================== STATIC OPTIONS ====================
@@ -1162,9 +1163,10 @@ export default function AIRecomendador() {
   const handleSensitivitySelect = (value: string, label: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    // Map allergy value to sensitivity for petData
+    // Map allergy value to sensitivity for petData and store the specific allergy
     const sensitivityValue = value === "none" ? "low" : "high";
-    setPetData(prev => ({ ...prev, sensitivity: sensitivityValue }));
+    const allergyValue = value as "chicken" | "beef" | "none";
+    setPetData(prev => ({ ...prev, sensitivity: sensitivityValue, allergy: allergyValue }));
     addMessage(label, false);
     setTimeout(async () => {
       await addBotMessage(`¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${petData.name}? 🎯`);
@@ -1188,7 +1190,15 @@ export default function AIRecomendador() {
     
     setTimeout(async () => {
       if (products && products.length > 0) {
-        const recommendation = calculateRecommendation(updatedPetData, products);
+        let recommendation = calculateRecommendation(updatedPetData, products);
+        
+        // Override protein based on allergy - if allergic to chicken, recommend beef; if allergic to beef, recommend chicken
+        if (updatedPetData.allergy === "chicken") {
+          recommendation = { ...recommendation, recommendedProtein: "beef" };
+        } else if (updatedPetData.allergy === "beef") {
+          recommendation = { ...recommendation, recommendedProtein: "chicken" };
+        }
+        
         setResult(recommendation);
         
         setRecommendation({
@@ -1303,10 +1313,7 @@ export default function AIRecomendador() {
     if (!isAuthenticated || !user) {
       setLoginDialogContext("edit");
       setShowLoginDialog(true);
-      toast({
-        title: "Inicia sesión para suscribirte",
-        description: "Necesitas una cuenta para crear tu suscripción.",
-      });
+      // Don't show toast - the dialog is enough
       return;
     }
 

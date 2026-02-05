@@ -167,8 +167,8 @@ export default function Producto() {
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Image */}
-          <div className="relative">
-            <div className="aspect-square max-h-64 md:max-h-none rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
+          <div className="relative flex justify-center">
+            <div className="aspect-square max-h-64 md:max-h-none w-full max-w-sm md:max-w-none rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
               <img 
                 src={productImages[product.protein_line || "res"]} 
                 alt={product.name}
@@ -264,10 +264,6 @@ export default function Producto() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                  <span>💡</span>
-                  <span>Perros grandes (+20kg): recomendamos 1kg para mejor almacenamiento</span>
-                </p>
               </div>
             </div>
 

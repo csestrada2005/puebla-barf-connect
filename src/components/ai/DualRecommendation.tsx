@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNavigate } from "react-router-dom";
+
 interface ProductOption {
   id: string;
   slug: string;
@@ -15,6 +16,7 @@ interface ProductOption {
   quantity: number;
   presentation: string;
 }
+
 interface RecommendationOption {
   title: string;
   subtitle: string;
@@ -24,11 +26,13 @@ interface RecommendationOption {
   isRecommended?: boolean;
   durationDays: number;
 }
+
 interface RecommendationReasoning {
   planReason: string;
   proteinReason: string;
   dailyGramsReason: string;
 }
+
 interface DualRecommendationProps {
   petName: string;
   dailyGrams: number;
@@ -44,6 +48,7 @@ interface DualRecommendationProps {
   onViewProduct: (productSlug: string) => void;
   onRestart: () => void;
 }
+
 export function DualRecommendation({
   petName,
   dailyGrams,
@@ -63,16 +68,17 @@ export function DualRecommendation({
   const [selectedFrequency, setSelectedFrequency] = useState<"A" | "B">("A");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const currentOption = selectedFrequency === "A" ? optionA : optionB;
+  
   const getPlanBadge = () => {
     return planType === "premium" ? "✨ Premium" : "🌿 Standard";
   };
-  return <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} className="w-full space-y-4">
+  
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="w-full space-y-4"
+    >
       {/* Compact Header - Nutrition Ticket Style */}
       <div className="border-dashed border-2 border-primary rounded-xl p-4 bg-primary/5">
         <div className="flex items-center gap-2 mb-3">
@@ -87,14 +93,24 @@ export function DualRecommendation({
 
       {/* Frequency Toggle - Central Feature */}
       <div className="space-y-2">
-        
-        <ToggleGroup type="single" value={selectedFrequency} onValueChange={value => value && setSelectedFrequency(value as "A" | "B")} className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
-          <ToggleGroupItem value="B" className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all">
-            <span className="text-base font-semibold"> Porción Semanal</span>
+        <ToggleGroup 
+          type="single" 
+          value={selectedFrequency} 
+          onValueChange={value => value && setSelectedFrequency(value as "A" | "B")} 
+          className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl"
+        >
+          <ToggleGroupItem 
+            value="B" 
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all min-h-[60px]"
+          >
+            <span className="text-sm font-semibold text-center leading-tight">Porción Semanal</span>
             <span className="text-xs text-muted-foreground">Para empezar</span>
           </ToggleGroupItem>
-          <ToggleGroupItem value="A" className="flex-1 flex flex-col gap-0.5 py-3 px-4 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-primary transition-all">
-            <span className="text-base font-semibold">Porción Quincenal</span>
+          <ToggleGroupItem 
+            value="A" 
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-primary transition-all min-h-[60px]"
+          >
+            <span className="text-sm font-semibold text-center leading-tight">Porción Quincenal</span>
             <span className="text-xs text-muted-foreground">Mejor Valor</span>
           </ToggleGroupItem>
         </ToggleGroup>
@@ -102,18 +118,13 @@ export function DualRecommendation({
 
       {/* Dynamic Product Card with Animation */}
       <AnimatePresence mode="wait">
-        <motion.div key={selectedFrequency} initial={{
-        opacity: 0,
-        y: 10
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} exit={{
-        opacity: 0,
-        y: -10
-      }} transition={{
-        duration: 0.2
-      }}>
+        <motion.div 
+          key={selectedFrequency} 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0, y: -10 }} 
+          transition={{ duration: 0.2 }}
+        >
           <Card className={`border-2 ${selectedFrequency === "A" ? 'border-primary' : 'border-muted'}`}>
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-3">
@@ -121,41 +132,57 @@ export function DualRecommendation({
                   <h3 className="font-bold">{currentOption.title}</h3>
                   <p className="text-xs text-muted-foreground">{currentOption.subtitle}</p>
                 </div>
-                {selectedFrequency === "A" && <Badge className="bg-primary/10 text-primary border-0">
+                {selectedFrequency === "A" && (
+                  <Badge className="bg-primary/10 text-primary border-0">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Recomendado
-                  </Badge>}
+                  </Badge>
+                )}
               </div>
               
               {/* Product List - Compact */}
               <div className="space-y-2 mb-4">
-                {currentOption.products.map((product, idx) => <div key={idx} className="flex justify-between items-center py-2 border-b border-dashed last:border-0 text-sm">
+                {currentOption.products.map((product, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-2 border-b border-dashed last:border-0 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="bg-muted text-muted-foreground text-xs font-bold px-2 py-0.5 rounded">
                         {product.quantity}x
                       </span>
                       <span className="font-medium">{product.name}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => onViewProduct(product.slug)}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs gap-1" 
+                      onClick={() => onViewProduct(product.slug)}
+                    >
                       <Eye className="h-3 w-3" />
                       Ver
                     </Button>
-                  </div>)}
+                  </div>
+                ))}
               </div>
-
             </CardContent>
           </Card>
         </motion.div>
       </AnimatePresence>
 
       {/* Sticky/Prominent CTA */}
-      <Button onClick={() => onSelectOption(selectedFrequency, currentOption.products)} className="w-full gap-2 h-14 text-base font-bold shadow-lg" size="lg">
+      <Button 
+        onClick={() => onSelectOption(selectedFrequency, currentOption.products)} 
+        className="w-full gap-2 h-14 text-base font-bold shadow-lg" 
+        size="lg"
+      >
         <ShoppingCart className="h-5 w-5" />
         Agregar Plan ({currentOption.durationDays} días) — ${currentOption.totalPrice.toLocaleString("es-MX")}
       </Button>
 
       {/* Subscription Quick CTA */}
-      <Button variant="outline" className="w-full gap-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => navigate("/suscripcion")}>
+      <Button 
+        variant="outline" 
+        className="w-full gap-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground" 
+        onClick={() => navigate("/suscripcion")}
+      >
         <Repeat className="h-4 w-4" />
         Suscríbete y ahorra
       </Button>
@@ -192,5 +219,6 @@ export function DualRecommendation({
           ⚠️ Consulta a tu veterinario para casos especiales
         </p>
       </div>
-    </motion.div>;
+    </motion.div>
+  );
 }

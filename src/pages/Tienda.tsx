@@ -136,16 +136,16 @@ export default function Tienda() {
 
         {/* Products - Carousel on mobile, Grid on desktop */}
         <div className="md:hidden">
-          <Carousel className="w-full">
-            <CarouselContent>
+          <Carousel className="w-full" opts={{ align: "center", loop: true }}>
+            <CarouselContent className="-ml-2">
               {proteinProducts.map((product) => (
-                <CarouselItem key={product.protein} className="basis-[85%]">
+                <CarouselItem key={product.protein} className="pl-2 basis-full">
                   <ProteinCard {...product} />
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-0 -translate-x-1/2" />
-            <CarouselNext className="right-0 translate-x-1/2" />
+            <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" />
           </Carousel>
         </div>
         
@@ -153,16 +153,6 @@ export default function Tienda() {
           {proteinProducts.map((product) => (
             <ProteinCard key={product.protein} {...product} />
           ))}
-        </div>
-
-        {/* Tip Section */}
-        <div className="mt-8 md:mt-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full bg-muted/50 text-xs md:text-sm text-muted-foreground">
-            <span>💡</span>
-            <span>
-              <strong>Tip:</strong> Para perros grandes (+20kg) recomendamos la presentación de 1kg
-            </span>
-          </div>
         </div>
       </div>
     </Layout>

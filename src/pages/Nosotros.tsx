@@ -3,8 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight } from "lucide-react";
+import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight, ChevronDown } from "lucide-react";
 import { BrandImage } from "@/components/ui/BrandImage";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 import nosotrosBrownDog from "@/assets/brand/nosotros-brown-dog.png";
 
 const fadeInUp = {
@@ -32,6 +34,9 @@ const values = [
 ];
 
 export default function Nosotros() {
+  const [missionOpen, setMissionOpen] = useState(false);
+  const [visionOpen, setVisionOpen] = useState(false);
+  
   return (
     <Layout>
       {/* Wrapper for hero + mission sections so dog can span across */}
@@ -76,18 +81,19 @@ export default function Nosotros() {
         </section>
 
 
-        {/* Mission & Vision Section */}
+        {/* Mission & Vision Section - Dropouts on mobile */}
         <section className="py-10 md:py-24 bg-background">
         <div className="container">
-          <motion.div {...fadeInUp} className="text-center mb-12">
+          <motion.div {...fadeInUp} className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Lo que nos mueve
             </h2>
           </motion.div>
           
+          {/* Desktop: Cards side by side */}
           <motion.div 
             {...staggerContainer}
-            className="grid md:grid-cols-2 gap-8"
+            className="hidden md:grid md:grid-cols-2 gap-8"
           >
             <motion.div {...fadeInUp}>
               <Card className="h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-2 border-transparent hover:border-primary/20">
@@ -122,6 +128,64 @@ export default function Nosotros() {
               </Card>
             </motion.div>
           </motion.div>
+
+          {/* Mobile: Dropouts/Accordions */}
+          <div className="md:hidden space-y-3">
+            <Collapsible open={missionOpen} onOpenChange={setMissionOpen}>
+              <CollapsibleTrigger asChild>
+                <Card className="cursor-pointer transition-all hover:shadow-md">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Target className="w-5 h-5 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground">Misión</h3>
+                    </div>
+                    <ChevronDown className={`h-5 w-5 transition-transform ${missionOpen ? 'rotate-180' : ''}`} />
+                  </CardContent>
+                </Card>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <Card className="border-t-0 rounded-t-none">
+                  <CardContent className="p-4 pt-0">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Brindar alimentación natural, fresca y de alta calidad para perros, 
+                      elaborada con ingredientes de consumo humano, para mejorar su salud, 
+                      vitalidad y calidad de vida, ofreciendo a los dueños la confianza de 
+                      que están cuidando lo más importante: el bienestar de su compañero.
+                    </p>
+                  </CardContent>
+                </Card>
+              </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible open={visionOpen} onOpenChange={setVisionOpen}>
+              <CollapsibleTrigger asChild>
+                <Card className="cursor-pointer transition-all hover:shadow-md">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                        <Eye className="w-5 h-5 text-foreground" />
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground">Visión</h3>
+                    </div>
+                    <ChevronDown className={`h-5 w-5 transition-transform ${visionOpen ? 'rotate-180' : ''}`} />
+                  </CardContent>
+                </Card>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <Card className="border-t-0 rounded-t-none">
+                  <CardContent className="p-4 pt-0">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Ser la marca líder en nutrición natural para perros en México, 
+                      reconocida por transformar la forma en que los humanos alimentan 
+                      a sus mascotas, impulsando una cultura consciente, saludable y sostenible.
+                    </p>
+                  </CardContent>
+                </Card>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
         </div>
         </section>
       </div>
