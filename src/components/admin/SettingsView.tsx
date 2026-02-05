@@ -12,6 +12,8 @@ import {
   Loader2, 
   Truck,
   MessageSquare,
+  Send,
+  ExternalLink,
 } from "lucide-react";
 
 export default function SettingsView() {
@@ -20,6 +22,7 @@ export default function SettingsView() {
   
   const [driverPhone, setDriverPhone] = useState("");
   const [deliveryHour, setDeliveryHour] = useState("07:00");
+  const [testingNotification, setTestingNotification] = useState(false);
 
   // Fetch driver config
   const { data: driverConfig, isLoading: driverLoading } = useQuery({
@@ -172,6 +175,66 @@ export default function SettingsView() {
               Mensaje configurado para +52 {driverConfig.driver_phone} a las {driverConfig.delivery_notification_hour || "07:00"}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Test Notification Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5" />
+            Probar Notificación
+          </CardTitle>
+          <CardDescription>
+            Genera el mensaje de entregas de hoy y ábrelo en WhatsApp.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button
+            onClick={async () => {
+              setTestingNotification(true);
+              try {
+                const { data, error } = await supabase.functions.invoke("notify-driver");
+                
+                if (error) throw error;
+                
+                if (data.orderCount === 0) {
+                  toast({
+                    title: "Sin entregas",
+                    description: "No hay pedidos confirmados para entregar hoy.",
+                  });
+                } else if (data.whatsappLink) {
+                  toast({
+                    title: `${data.orderCount} entregas encontradas`,
+                    description: "Abriendo WhatsApp...",
+                  });
+                  window.open(data.whatsappLink, "_blank");
+                }
+              } catch (error) {
+                console.error("Error testing notification:", error);
+                toast({
+                  title: "Error",
+                  description: "No se pudo generar el mensaje.",
+                  variant: "destructive",
+                });
+              } finally {
+                setTestingNotification(false);
+              }
+            }}
+            disabled={testingNotification || !driverConfig?.driver_phone}
+            variant="outline"
+            className="w-full gap-2"
+          >
+            {testingNotification ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ExternalLink className="h-4 w-4" />
+            )}
+            Generar mensaje y abrir WhatsApp
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Esto genera el resumen de entregas confirmadas y abre WhatsApp Web para enviarlo al chofer.
+          </p>
         </CardContent>
       </Card>
 
