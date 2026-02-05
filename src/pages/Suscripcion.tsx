@@ -11,10 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
-import { BrandImage } from "@/components/ui/BrandImage";
- import { Sticker } from "@/components/ui/Sticker";
-import playBulldogs from "@/assets/brand/play-bulldogs.png";
- import decoDogBone from "@/assets/brand/deco-dog-bone.png";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useCart } from "@/hooks/useCart";
@@ -137,22 +133,6 @@ export default function Suscripcion() {
           </h1>
         </div>
 
-        {/* Mobile Bulldogs Greeting - Top of page */}
-        <div className="block md:hidden mb-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex justify-center"
-          >
-            <BrandImage 
-              src={playBulldogs} 
-              alt="Bulldogs felices te dan la bienvenida" 
-              className="w-48 object-contain drop-shadow-xl"
-              priority
-            />
-          </motion.div>
-        </div>
 
         <div className="grid lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
           {/* Configurator */}
@@ -176,14 +156,6 @@ export default function Suscripcion() {
               </CardContent>
             </Card>
 
-            {/* Mobile Bone Divider */}
-            <div className="block md:hidden py-2 flex justify-center">
-              <Sticker 
-                src={decoDogBone}
-                alt=""
-                className="w-10 h-10 opacity-60 rotate-12"
-              />
-            </div>
 
             {/* Presentation */}
             <Card>
@@ -252,20 +224,6 @@ export default function Suscripcion() {
           <div className="lg:sticky lg:top-16 space-y-3 h-fit">
             {/* Price Card with Bulldogs inside */}
             <div className="relative">
-              {/* Bulldogs - DESKTOP ONLY - positioned overlapping the card */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                className="absolute -top-28 md:-top-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden md:block"
-              >
-                <BrandImage 
-                  src={playBulldogs} 
-                  alt="Bulldogs felices" 
-                  className="w-40 md:w-48 lg:w-56 object-contain drop-shadow-xl"
-                  priority
-                />
-              </motion.div>
               
               <Card className="border-primary border-2 relative z-10">
                 <CardHeader className="pb-2 pt-4">

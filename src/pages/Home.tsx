@@ -338,17 +338,50 @@ export default function Home() {
 
       {/* Testimonials */}
       {testimonials && testimonials.length > 0 && (
-        <section className="py-16 md:py-24 bg-card relative overflow-hidden">
+        <section className="py-10 md:py-24 bg-card relative overflow-hidden">
           <div className="container relative z-10">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <div className="text-center mb-6 md:mb-12">
+              <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
                 Lo que dicen nuestros clientes
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground">
                 Perros felices, familias felices
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+
+            {/* Carousel for mobile */}
+            <div className="md:hidden">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full max-w-xs mx-auto"
+              >
+                <CarouselContent className="ml-0">
+                  {testimonials.slice(0, 3).map((t) => (
+                    <CarouselItem key={t.id} className="basis-full pl-0">
+                      <div className="px-2">
+                        <TestimonialCard 
+                          customerName={t.customer_name} 
+                          petName={t.pet_name || undefined} 
+                          petBreed={t.pet_breed || undefined} 
+                          content={t.content} 
+                          rating={t.rating || 5} 
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex justify-center gap-2 mt-4">
+                  <CarouselPrevious className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
+                  <CarouselNext className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
+                </div>
+              </Carousel>
+            </div>
+
+            {/* Grid for desktop */}
+            <div className="hidden md:grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {testimonials.slice(0, 3).map((t, index) => (
                 <div key={t.id} className="relative">
                   {/* Decorative sticker on first card (left) - happy dog */}
