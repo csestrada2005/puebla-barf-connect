@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -21,6 +22,8 @@ import {
   Edit2,
   Check,
   X,
+  Send,
+  MessageSquare,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -43,6 +46,8 @@ export default function OrdersView() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [tempNotes, setTempNotes] = useState("");
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
 
   // Fetch all orders
   const { data: orders, isLoading } = useQuery({
@@ -55,6 +60,25 @@ export default function OrdersView() {
       
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // Fetch driver config
+  const { data: driverConfig } = useQuery({
+    queryKey: ["admin-driver-config"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_config")
+        .select("key, value")
+        .in("key", ["driver_phone"]);
+      
+      if (error) throw error;
+      
+      const config: Record<string, string> = {};
+      data?.forEach((item) => {
+        config[item.key] = item.value as string;
+      });
+      return config;
     },
   });
 
@@ -128,9 +152,99 @@ export default function OrdersView() {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
+  const toggleOrderSelection = (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSelected = new Set(selectedOrders);
+    if (newSelected.has(orderId)) {
+      newSelected.delete(orderId);
+    } else {
+      newSelected.add(orderId);
+    }
+    setSelectedOrders(newSelected);
+  };
+
+  const selectAllVisible = () => {
+    const allIds = new Set(filteredOrders.map(o => o.id));
+    setSelectedOrders(allIds);
+  };
+
+  const clearSelection = () => {
+    setSelectedOrders(new Set());
+  };
+
   const formatItems = (items: any) => {
     if (!items || !Array.isArray(items)) return "—";
     return items.map((item: any) => `${item.name} x${item.quantity}`).join(", ");
+  };
+
+  const sendWhatsAppForSelected = async () => {
+    if (selectedOrders.size === 0) {
+      toast({ title: "Selecciona al menos un pedido", variant: "destructive" });
+      return;
+    }
+
+    const driverPhone = driverConfig?.driver_phone;
+    if (!driverPhone) {
+      toast({ title: "Configura el número del chofer primero", variant: "destructive" });
+      return;
+    }
+
+    setSendingWhatsApp(true);
+
+    try {
+      // Get selected order details
+      const selectedOrderData = orders?.filter(o => selectedOrders.has(o.id)) || [];
+      
+      if (selectedOrderData.length === 0) {
+        toast({ title: "No se encontraron los pedidos seleccionados", variant: "destructive" });
+        return;
+      }
+
+      // Format the message
+      const today = format(new Date(), "EEEE d 'de' MMMM", { locale: es });
+      let message = `🚚 *ENTREGAS PARA HOY*\n📅 ${today}\n\n`;
+      message += `Total: ${selectedOrderData.length} entrega(s)\n`;
+      message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      selectedOrderData.forEach((order, index) => {
+        const items = Array.isArray(order.items) 
+          ? order.items.map((item: any) => `  • ${item.name} x${item.quantity}`).join('\n')
+          : '  Sin productos';
+
+        message += `📦 *PEDIDO ${index + 1}: ${order.order_number}*\n`;
+        message += `👤 ${order.customer_name}\n`;
+        message += `📍 ${order.customer_address}\n`;
+        message += `📞 ${order.customer_phone}\n`;
+        message += `\n🛒 Productos:\n${items}\n`;
+        message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo' : 'Tarjeta'})\n`;
+        
+        if (order.delivery_notes) {
+          message += `📝 Notas: ${order.delivery_notes}\n`;
+        }
+        
+        message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+      });
+
+      message += `✅ ¡Buen día de entregas!`;
+
+      // Generate WhatsApp link
+      const whatsappLink = `https://wa.me/52${driverPhone}?text=${encodeURIComponent(message)}`;
+      
+      toast({
+        title: `${selectedOrderData.length} pedido(s) listos`,
+        description: "Abriendo WhatsApp...",
+      });
+
+      window.open(whatsappLink, "_blank");
+      
+      // Clear selection after sending
+      setSelectedOrders(new Set());
+    } catch (error) {
+      console.error("Error sending WhatsApp:", error);
+      toast({ title: "Error al generar mensaje", variant: "destructive" });
+    } finally {
+      setSendingWhatsApp(false);
+    }
   };
 
   return (
@@ -144,7 +258,7 @@ export default function OrdersView() {
             </CardTitle>
             <CardDescription>{filteredOrders.length} pedidos encontrados</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -169,6 +283,47 @@ export default function OrdersView() {
             </Select>
           </div>
         </div>
+
+        {/* Selection controls and WhatsApp button */}
+        {filteredOrders.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={selectAllVisible}
+            >
+              Seleccionar todos ({filteredOrders.length})
+            </Button>
+            {selectedOrders.size > 0 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSelection}
+                >
+                  Limpiar ({selectedOrders.size})
+                </Button>
+                <Button
+                  onClick={sendWhatsAppForSelected}
+                  disabled={sendingWhatsApp || !driverConfig?.driver_phone}
+                  className="gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  {sendingWhatsApp ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MessageSquare className="h-4 w-4" />
+                  )}
+                  Enviar {selectedOrders.size} al chofer
+                </Button>
+              </>
+            )}
+            {!driverConfig?.driver_phone && (
+              <span className="text-xs text-muted-foreground">
+                ⚠️ Configura el número del chofer primero
+              </span>
+            )}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -182,18 +337,32 @@ export default function OrdersView() {
               const statusConfig = STATUS_CONFIG[status];
               const isExpanded = expandedOrder === order.id;
               const isEditingThis = editingNotes === order.id;
+              const isSelected = selectedOrders.has(order.id);
 
               return (
                 <div
                   key={order.id}
-                  className="border rounded-lg overflow-hidden"
+                  className={`border rounded-lg overflow-hidden transition-all ${
+                    isSelected ? "ring-2 ring-primary border-primary" : ""
+                  }`}
                 >
                   {/* Order Header */}
                   <div 
-                    className="p-4 bg-card hover:bg-muted/50 cursor-pointer flex items-center justify-between"
+                    className="p-4 bg-card hover:bg-muted/50 cursor-pointer flex items-center justify-between gap-3"
                     onClick={() => toggleExpand(order.id)}
                   >
-                    <div className="flex items-center gap-4 flex-wrap">
+                    {/* Checkbox */}
+                    <div 
+                      className="flex items-center"
+                      onClick={(e) => toggleOrderSelection(order.id, e)}
+                    >
+                      <Checkbox 
+                        checked={isSelected}
+                        className="h-5 w-5"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-4 flex-wrap flex-1">
                       <div>
                         <p className="font-mono font-bold text-sm">{order.order_number}</p>
                         <p className="text-xs text-muted-foreground">
