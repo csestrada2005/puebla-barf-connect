@@ -7,8 +7,10 @@ import { Truck, Clock, Check, ArrowRight } from "lucide-react";
  import { Sticker } from "@/components/ui/Sticker";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
- import decoBowl from "@/assets/brand/deco-bowl.png";
- import decoPaw from "@/assets/brand/deco-paw.png";
+import decoBallBrown from "@/assets/brand/deco-ball-brown.png";
+import decoRunningDog from "@/assets/brand/deco-running-dog.png";
+import decoDogEyes from "@/assets/brand/deco-dog-eyes.png";
+import decoCarrotBrown from "@/assets/brand/deco-carrot-brown.png";
 
 const proteinProducts = [
   {
@@ -100,12 +102,34 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
 export default function Tienda() {
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 relative overflow-hidden">
+        {/* Decorative Stickers - Desktop */}
+        <Sticker 
+          src={decoBallBrown}
+          alt=""
+          className="hidden md:block absolute top-8 left-4 w-20 h-20 opacity-40 -rotate-12"
+        />
+        <Sticker 
+          src={decoCarrotBrown}
+          alt=""
+          className="hidden md:block absolute top-24 right-8 w-24 h-24 opacity-40 rotate-12"
+        />
+        <Sticker 
+          src={decoRunningDog}
+          alt=""
+          className="hidden md:block absolute bottom-32 left-8 w-32 h-32 opacity-30"
+        />
+        <Sticker 
+          src={decoDogEyes}
+          alt=""
+          className="hidden md:block absolute bottom-48 right-12 w-20 h-20 opacity-40"
+        />
+
         {/* Header */}
         <div className="text-center mb-8 relative">
-          {/* Mobile Bowl Sticker - Top right of header */}
+          {/* Mobile Ball Sticker - Top right of header */}
           <Sticker 
-            src={decoBowl}
+            src={decoBallBrown}
             alt=""
             className="absolute -top-2 right-0 md:hidden w-14 h-14 rotate-12"
           />
@@ -138,17 +162,17 @@ export default function Tienda() {
         </div>
 
         {/* Products Grid - 2 Large Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto relative z-10">
           {proteinProducts.map((product, index) => (
             <div key={product.protein}>
               <ProteinCard {...product} />
-              {/* Mobile Paw Separator between cards */}
+              {/* Mobile Carrot Separator between cards */}
               {index === 0 && (
                 <div className="block md:hidden py-4 flex justify-center">
                   <Sticker 
-                    src={decoPaw}
+                    src={decoCarrotBrown}
                     alt=""
-                    className="w-10 h-10 opacity-60 rotate-45"
+                    className="w-12 h-12 opacity-60 rotate-45"
                   />
                 </div>
               )}
@@ -157,7 +181,7 @@ export default function Tienda() {
         </div>
 
         {/* Tip Section */}
-        <div className="mt-10 text-center">
+        <div className="mt-10 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted/50 text-sm text-muted-foreground">
             <span>💡</span>
             <span>
