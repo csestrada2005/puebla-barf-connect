@@ -96,17 +96,17 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video */}
-          <div className="rounded-3xl shadow-2xl overflow-hidden">
-            <video
-              src={heroVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-56 object-cover rounded-3xl"
-            />
-          </div>
+        {/* Card con video - Doodle border effect */}
+        <div className="rounded-3xl shadow-2xl overflow-hidden border-4 border-leafy ring-4 ring-secondary ring-offset-4 ring-offset-primary">
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-56 object-cover"
+          />
+        </div>
         </motion.div>
 
         {/* Texto centrado */}
