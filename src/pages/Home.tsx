@@ -356,7 +356,7 @@ export default function Home() {
                     <img 
                       src={decoBowlFull} 
                       alt="" 
-                      className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 object-contain pointer-events-none z-10"
+                      className="absolute -top-16 left-1/2 -translate-x-1/2 w-28 h-28 object-contain pointer-events-none z-10"
                     />
                   )}
                   {/* Decorative sticker on last card (right) */}
@@ -364,7 +364,7 @@ export default function Home() {
                     <img 
                       src={decoHappyDog} 
                       alt="" 
-                      className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 object-contain pointer-events-none z-10"
+                      className="absolute -top-16 left-1/2 -translate-x-1/2 w-28 h-28 object-contain pointer-events-none z-10"
                     />
                   )}
                   <TestimonialCard 
