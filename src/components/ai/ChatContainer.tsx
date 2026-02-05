@@ -83,7 +83,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             y: 0
           }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none md:hidden w-24 object-contain drop-shadow-lg"
+          className="fixed left-0 z-10 pointer-events-none md:hidden w-36 object-contain drop-shadow-lg"
           style={{ bottom: inputHeight - 8 }}
         />
       </AnimatePresence>
@@ -99,7 +99,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             y: 0
           }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed right-0 z-10 pointer-events-none md:hidden w-20 object-contain drop-shadow-lg"
+          className="fixed right-0 z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg"
           style={{ bottom: inputHeight - 4 }}
         />
       </AnimatePresence>
