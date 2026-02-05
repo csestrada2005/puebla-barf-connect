@@ -73,7 +73,7 @@ export default function Home() {
     <Layout>
       {/* Hero - Full viewport */}
       {/* ===== MOBILE HERO - Full Video Background ===== */}
-      <section className="md:hidden min-h-[calc(100svh-4rem)] relative flex flex-col overflow-hidden">
+      <section className="md:hidden h-[calc(100svh-4rem)] relative flex flex-col overflow-hidden">
         {/* Video Background */}
         <video
           src={heroVideo}
@@ -88,7 +88,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
 
         {/* Content overlay */}
-        <div className="relative z-10 flex flex-col h-full px-6 pt-6 pb-8">
+        <div className="relative z-10 flex flex-col flex-1 px-6 pt-6 pb-8">
           {/* Logo centrado */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
