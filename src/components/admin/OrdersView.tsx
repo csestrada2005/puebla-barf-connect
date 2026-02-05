@@ -202,6 +202,8 @@ export default function OrdersView() {
 
       // Format the message
       const today = format(new Date(), "EEEE d 'de' MMMM", { locale: es });
+      const baseUrl = window.location.origin;
+      
       let message = `🚚 *ENTREGAS PARA HOY*\n📅 ${today}\n\n`;
       message += `Total: ${selectedOrderData.length} entrega(s)\n`;
       message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
@@ -216,10 +218,15 @@ export default function OrdersView() {
         message += `📍 ${order.customer_address}\n`;
         message += `📞 ${order.customer_phone}\n`;
         message += `\n🛒 Productos:\n${items}\n`;
-        message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo' : 'Tarjeta'})\n`;
+        message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo - COBRAR' : 'Tarjeta - YA PAGADO'})\n`;
         
         if (order.delivery_notes) {
           message += `📝 Notas: ${order.delivery_notes}\n`;
+        }
+        
+        // Add confirmation link with delivery token
+        if (order.delivery_token) {
+          message += `\n✅ *Confirmar entrega:*\n${baseUrl}/entrega/${order.delivery_token}\n`;
         }
         
         message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
