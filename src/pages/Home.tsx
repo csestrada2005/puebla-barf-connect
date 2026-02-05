@@ -135,8 +135,8 @@ export default function Home() {
       {/* How it works - Simplified */}
       <section className="py-16 md:py-24 bg-background relative overflow-hidden">
         {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoBowl} alt="" className="absolute top-10 left-4 w-24 md:w-32 opacity-30 pointer-events-none" />
-        <BrandImage src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-20 md:w-28 opacity-30 pointer-events-none" />
+        <BrandImage src={decoBowl} alt="" className="absolute top-10 left-4 w-36 md:w-48 opacity-30 pointer-events-none" />
+        <BrandImage src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-32 md:w-44 opacity-30 pointer-events-none" />
         
         <div className="container relative z-10">
           <div className="text-center mb-12">
@@ -179,8 +179,8 @@ export default function Home() {
       {/* Brand Philosophy */}
       <section className="py-16 md:py-20 bg-secondary text-secondary-foreground relative overflow-hidden">
         {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-32 md:w-48 opacity-20 pointer-events-none" />
-        <BrandImage src={decoBall} alt="" className="absolute top-8 right-8 w-16 md:w-24 opacity-20 pointer-events-none" />
+        <BrandImage src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-48 md:w-64 opacity-20 pointer-events-none" />
+        <BrandImage src={decoBall} alt="" className="absolute top-8 right-8 w-28 md:w-40 opacity-20 pointer-events-none" />
         
         <div className="container relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-4xl mx-auto text-center">
@@ -202,7 +202,7 @@ export default function Home() {
       {testimonials && testimonials.length > 0 && (
         <section className="py-16 md:py-24 bg-card relative overflow-hidden">
           {/* Decorative background icons - LAZY */}
-          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-24 md:w-36 opacity-20 pointer-events-none" />
+          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-36 md:w-52 opacity-20 pointer-events-none" />
           
           <div className="container relative z-10">
             <div className="text-center mb-12">
@@ -232,8 +232,8 @@ export default function Home() {
       {/* Email Capture */}
       <section className="py-16 md:py-24 bg-muted/50 relative overflow-hidden">
         {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-28 md:w-40 opacity-20 pointer-events-none" />
-        <BrandImage src={decoPaw} alt="" className="absolute top-8 left-8 w-20 md:w-28 opacity-20 pointer-events-none" />
+        <BrandImage src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-40 md:w-56 opacity-20 pointer-events-none" />
+        <BrandImage src={decoPaw} alt="" className="absolute top-8 left-8 w-32 md:w-44 opacity-20 pointer-events-none" />
         
         <div className="container relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-xl mx-auto text-center">
@@ -255,7 +255,7 @@ export default function Home() {
       {/* Final CTA */}
       <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
         {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-28 md:w-40 opacity-10 pointer-events-none" />
+        <BrandImage src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-40 md:w-56 opacity-10 pointer-events-none" />
         
         <div className="container text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
