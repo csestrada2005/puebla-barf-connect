@@ -97,25 +97,15 @@ export default function Home() {
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
           {/* Card con video */}
-          <div className="bg-card rounded-3xl shadow-2xl overflow-hidden">
-            {/* Texto arriba del video */}
-            <div className="text-center px-4 pt-4 pb-2">
-              <p className="text-foreground text-base font-medium leading-snug">
-                Pruébala con <span className="font-bold">RawPaw</span> y dale a tu perro lo que su cuerpo realmente necesita
-              </p>
-            </div>
-            
-            {/* Video centrado */}
-            <div className="flex justify-center px-2 pb-2">
-              <video
-                src={heroVideo}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-48 object-cover rounded-2xl"
-              />
-            </div>
+          <div className="rounded-3xl shadow-2xl overflow-hidden">
+            <video
+              src={heroVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-56 object-cover rounded-3xl"
+            />
           </div>
         </motion.div>
 
