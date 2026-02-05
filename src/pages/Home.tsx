@@ -12,6 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
@@ -235,7 +242,7 @@ export default function Home() {
         />
       </div>
       {/* How it works - Simplified */}
-      <section className="py-16 md:py-24 bg-background relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-background relative overflow-hidden" id="como-funciona">
         {/* Decorative background icons - LAZY */}
         <BrandImage src={decoBowl} alt="" className="absolute top-10 left-4 w-36 md:w-48 opacity-30 pointer-events-none" />
         <BrandImage src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-32 md:w-44 opacity-30 pointer-events-none" />
@@ -251,7 +258,46 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {/* Carousel for mobile, grid for desktop */}
+          <div className="md:hidden px-4">
+            <Carousel
+              opts={{
+                align: "center",
+                loop: true,
+              }}
+              className="w-full max-w-sm mx-auto"
+            >
+              <CarouselContent className="-ml-2">
+                {howItWorks.map((item) => (
+                  <CarouselItem key={item.step} className="pl-2 basis-[85%]">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      viewport={{ once: true }}
+                    >
+                      <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                        <CardContent className="pt-8 pb-6 text-center">
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
+                            {item.step}
+                          </div>
+                          <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
+                          <p className="text-muted-foreground">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-center gap-2 mt-6">
+                <CarouselPrevious className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
+                <CarouselNext className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
+              </div>
+            </Carousel>
+          </div>
+
+          {/* Grid for desktop */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {howItWorks.map((item, index) => (
               <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} viewport={{ once: true }}>
                 <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
