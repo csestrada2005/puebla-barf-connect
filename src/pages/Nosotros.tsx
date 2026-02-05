@@ -5,9 +5,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight } from "lucide-react";
 import { BrandImage } from "@/components/ui/BrandImage";
- import { Sticker } from "@/components/ui/Sticker";
 import nosotrosBrownDog from "@/assets/brand/nosotros-brown-dog.png";
- import decoPaw from "@/assets/brand/deco-paw.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -145,14 +143,7 @@ export default function Nosotros() {
       </div>
 
       {/* Values Section */}
-      <section className="py-16 md:py-24 bg-secondary/30 relative overflow-hidden">
-        {/* Background Paw - Large, faint decoration */}
-        <Sticker 
-          src={decoPaw}
-          alt=""
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] opacity-5 rotate-12 scale-150"
-        />
-        
+      <section className="py-16 md:py-24 bg-secondary/30 relative overflow-hidden">        
         <div className="container">
           <motion.div {...fadeInUp} className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">

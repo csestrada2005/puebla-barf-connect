@@ -23,17 +23,7 @@ import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import isotipoBowl from "@/assets/brand/isotipo-bowl.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
-// Decorative icons
-import decoBowl from "@/assets/brand/deco-bowl.png";
-import decoCarrot from "@/assets/brand/deco-carrot.png";
-import decoDogRunning from "@/assets/brand/deco-dog-running.png";
-import decoDogStanding from "@/assets/brand/deco-dog-standing.png";
-import decoBall from "@/assets/brand/deco-ball.png";
-import decoPuppy from "@/assets/brand/deco-puppy.png";
-import decoPaw from "@/assets/brand/deco-paw.png";
-import decoFluffy from "@/assets/brand/deco-fluffy.png";
- import herodog from "@/assets/brand/hero-dog.jpeg";
- import { Sticker } from "@/components/ui/Sticker";
+import herodog from "@/assets/brand/hero-dog.jpeg";
 
 const howItWorks = [{
   step: 1,
@@ -98,16 +88,6 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Speech Bubble - isotipo-bowl flotando */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
-            <Sticker 
-              src={isotipoBowl} 
-              alt="" 
-              className="w-20 h-20 sticker-float drop-shadow-lg" 
-              priority 
-            />
-          </div>
-          
           {/* Imagen del perro */}
           <div className="bg-white/10 backdrop-blur-sm p-2 rounded-3xl">
             <img 
@@ -116,13 +96,6 @@ export default function Home() {
               className="w-full h-56 object-cover rounded-2xl shadow-2xl"
             />
           </div>
-          
-          {/* Ball sticker decorativo */}
-          <Sticker 
-            src={decoBall}
-            alt=""
-            className="absolute -bottom-3 -right-3 w-12 h-12 rotate-12"
-          />
         </motion.div>
 
         {/* Texto centrado */}
@@ -233,20 +206,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mobile Section Divider - Paw Track */}
-      <div className="block md:hidden py-4 flex justify-center">
-        <Sticker 
-          src={decoPaw}
-          alt=""
-          className="w-12 h-12 opacity-80"
-        />
-      </div>
       {/* How it works - Simplified */}
       <section className="py-10 md:py-24 bg-background relative overflow-hidden" id="como-funciona">
-        {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoBowl} alt="" className="absolute top-4 left-2 w-24 md:w-48 opacity-30 pointer-events-none" />
-        <BrandImage src={decoCarrot} alt="" className="absolute bottom-4 right-2 w-20 md:w-44 opacity-30 pointer-events-none" />
-        
         <div className="container relative z-10">
           <div className="text-center mb-6 md:mb-12">
             <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 md:h-32 w-auto mx-auto mb-3 md:mb-6" />
@@ -327,10 +288,6 @@ export default function Home() {
 
       {/* Brand Philosophy */}
       <section className="py-16 md:py-20 bg-secondary text-secondary-foreground relative overflow-hidden">
-        {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoDogRunning} alt="" className="absolute bottom-4 left-4 w-48 md:w-64 opacity-20 pointer-events-none" />
-        <BrandImage src={decoBall} alt="" className="absolute top-8 right-8 w-28 md:w-40 opacity-20 pointer-events-none" />
-        
         <div className="container relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-4xl mx-auto text-center">
             <BrandImage src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-6" />
@@ -347,21 +304,9 @@ export default function Home() {
       {/* Benefits */}
       <BenefitsSection />
 
-      {/* Mobile Section Divider - Paw Track rotated */}
-      <div className="block md:hidden py-4 flex justify-center">
-        <Sticker 
-          src={decoPaw}
-          alt=""
-          className="w-12 h-12 opacity-80 rotate-45"
-        />
-      </div>
-
       {/* Testimonials */}
       {testimonials && testimonials.length > 0 && (
         <section className="py-16 md:py-24 bg-card relative overflow-hidden">
-          {/* Decorative background icons - LAZY */}
-          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-36 md:w-52 opacity-20 pointer-events-none" />
-          
           <div className="container relative z-10">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -389,10 +334,6 @@ export default function Home() {
 
       {/* Email Capture */}
       <section className="py-16 md:py-24 bg-muted/50 relative overflow-hidden">
-        {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoPuppy} alt="" className="absolute bottom-4 right-4 w-40 md:w-56 opacity-20 pointer-events-none" />
-        <BrandImage src={decoPaw} alt="" className="absolute top-8 left-8 w-32 md:w-44 opacity-20 pointer-events-none" />
-        
         <div className="container relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="max-w-xl mx-auto text-center">
             <BrandImage src={isotipoBarky} alt="Raw Paw" className="h-20 w-auto mx-auto mb-4" />
@@ -412,9 +353,6 @@ export default function Home() {
 
       {/* Final CTA */}
       <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
-        {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoDogStanding} alt="" className="absolute bottom-0 left-4 w-40 md:w-56 opacity-10 pointer-events-none" />
-        
         <div className="container text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             ¿Listo para mejorar la alimentación de tu perro?
