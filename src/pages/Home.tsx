@@ -27,6 +27,8 @@ import heroVideo from "@/assets/brand/hero-video.mp4";
 import stepDog1 from "@/assets/brand/step-dog-1.png";
 import stepDog2 from "@/assets/brand/step-dog-2.png";
 import stepDog3 from "@/assets/brand/step-dog-3.png";
+import decoBowlFull from "@/assets/brand/deco-bowl-full.png";
+import decoHappyDog from "@/assets/brand/deco-happy-dog.png";
 
 const stepDogImages = [stepDog1, stepDog2, stepDog3];
 
@@ -347,15 +349,32 @@ export default function Home() {
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {testimonials.slice(0, 3).map(t => (
-                <TestimonialCard 
-                  key={t.id} 
-                  customerName={t.customer_name} 
-                  petName={t.pet_name || undefined} 
-                  petBreed={t.pet_breed || undefined} 
-                  content={t.content} 
-                  rating={t.rating || 5} 
-                />
+              {testimonials.slice(0, 3).map((t, index) => (
+                <div key={t.id} className="relative">
+                  {/* Decorative sticker on first card (left) */}
+                  {index === 0 && (
+                    <img 
+                      src={decoBowlFull} 
+                      alt="" 
+                      className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 object-contain pointer-events-none z-10"
+                    />
+                  )}
+                  {/* Decorative sticker on last card (right) */}
+                  {index === 2 && (
+                    <img 
+                      src={decoHappyDog} 
+                      alt="" 
+                      className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 object-contain pointer-events-none z-10"
+                    />
+                  )}
+                  <TestimonialCard 
+                    customerName={t.customer_name} 
+                    petName={t.pet_name || undefined} 
+                    petBreed={t.pet_breed || undefined} 
+                    content={t.content} 
+                    rating={t.rating || 5} 
+                  />
+                </div>
               ))}
             </div>
           </div>
