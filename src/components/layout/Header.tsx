@@ -35,7 +35,7 @@ export function Header() {
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 backdrop-blur bg-card/60 supports-[backdrop-filter]:bg-card/50 lg:bg-card/95 lg:supports-[backdrop-filter]:bg-card/80">
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo - PRIORITY */}
         <Link to="/" className="flex-shrink-0">
