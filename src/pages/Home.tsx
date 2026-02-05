@@ -97,35 +97,33 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video en forma de patita */}
-          <div className="relative shadow-2xl overflow-hidden">
+          {/* Card con video en forma de patita usando SVG clipPath */}
+          <div className="relative shadow-2xl">
+            {/* SVG con definición del clipPath de patita */}
+            <svg width="0" height="0" className="absolute">
+              <defs>
+                <clipPath id="pawClip" clipPathUnits="objectBoundingBox">
+                  {/* Almohadilla principal (centro-abajo) */}
+                  <ellipse cx="0.5" cy="0.75" rx="0.35" ry="0.22" />
+                  {/* Dedito izquierdo exterior */}
+                  <ellipse cx="0.15" cy="0.32" rx="0.12" ry="0.15" />
+                  {/* Dedito izquierdo interior */}
+                  <ellipse cx="0.32" cy="0.22" rx="0.11" ry="0.14" />
+                  {/* Dedito derecho interior */}
+                  <ellipse cx="0.68" cy="0.22" rx="0.11" ry="0.14" />
+                  {/* Dedito derecho exterior */}
+                  <ellipse cx="0.85" cy="0.32" rx="0.12" ry="0.15" />
+                </clipPath>
+              </defs>
+            </svg>
             <video
               src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-64 object-cover"
-              style={{
-                clipPath: `
-                  path('
-                    M 80 10
-                    C 60 0, 40 0, 30 15
-                    C 20 5, 5 10, 5 30
-                    C 0 50, 10 70, 20 75
-                    C 10 85, 5 100, 15 115
-                    C 25 130, 45 140, 50 145
-                    C 55 155, 65 165, 80 170
-                    C 95 165, 105 155, 110 145
-                    C 115 140, 135 130, 145 115
-                    C 155 100, 150 85, 140 75
-                    C 150 70, 160 50, 155 30
-                    C 155 10, 140 5, 130 15
-                    C 120 0, 100 0, 80 10
-                    Z
-                  ')
-                `
-              }}
+              className="w-full h-72 object-cover drop-shadow-xl"
+              style={{ clipPath: "url(#pawClip)" }}
             />
           </div>
         </motion.div>
