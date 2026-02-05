@@ -108,7 +108,7 @@ export default function Checkout() {
     
     try {
       // Save order to database
-      const { error } = await supabase.from("orders").insert({
+      const { data: orderData, error } = await supabase.from("orders").insert({
         order_number: newOrderNumber,
         customer_name: formData.name,
         customer_phone: formData.phone,
@@ -122,15 +122,41 @@ export default function Checkout() {
         payment_status: "pending",
         status: "pending",
         ai_recommendation: recommendation as any,
-      });
+      }).select().single();
 
       if (error) throw error;
 
       setOrderNumber(newOrderNumber);
+
+      // Sync to Google Sheets via Edge Function (fire and forget)
+      const hasSubscription = items.some(i => i.isSubscription);
+      const petInfo = recommendation?.breed 
+        ? `${recommendation.breed}${recommendation?.weight ? ` - ${recommendation.weight}kg` : ""}`
+        : "";
+
+      supabase.functions.invoke("sync-to-sheets", {
+        body: {
+          order_number: newOrderNumber,
+          created_at: new Date().toISOString(),
+          customer_name: formData.name,
+          customer_phone: formData.phone,
+          customer_address: formData.address,
+          items: items,
+          subtotal: subtotal,
+          delivery_fee: deliveryFee,
+          total: total,
+          payment_method: paymentMethod,
+          order_type: hasSubscription ? "subscription" : "single",
+          pet_info: petInfo,
+          delivery_notes: formData.notes || "",
+        },
+      }).then(({ error }) => {
+        if (error) console.error("Error syncing to sheets:", error);
+        else console.log("Order synced to sheets");
+      });
       
       // Generate WhatsApp message with structured format
       const itemsList = items.map(i => `• ${i.name} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
-      const petInfo = recommendation?.breed ? `${recommendation.breed}` : "No especificado";
       const familyName = formData.name.split(" ").slice(-1)[0];
       
       const message = encodeURIComponent(
@@ -139,7 +165,7 @@ export default function Checkout() {
         `*Productos:*\n${itemsList}\n\n` +
         `*Total:* $${total.toLocaleString("es-MX")}\n` +
         `*Pago:* ${paymentMethod === "efectivo" ? "Efectivo por cobrar" : "Tarjeta"}\n\n` +
-        `*Cliente:* ${petInfo} - Fam. ${familyName}\n` +
+        `*Cliente:* ${petInfo || "No especificado"} - Fam. ${familyName}\n` +
         `*Tel:* ${formData.phone}\n` +
         `*Dirección:* ${formData.address}\n` +
         (formData.notes ? `*Referencias:* ${formData.notes}\n` : "") +

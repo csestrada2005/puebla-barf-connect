@@ -2,3 +2,6 @@ project_id = "gdnnxuxirkqsogcqmrps"
 
 [functions.send-welcome-email]
 verify_jwt = false
+
+[functions.sync-to-sheets]
+verify_jwt = false
