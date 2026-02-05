@@ -97,21 +97,18 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video y borde primario */}
-          <div className="relative border-4 border-primary rounded-3xl shadow-2xl overflow-visible">
+          {/* Card con video y efecto mordida */}
+          <div className="relative rounded-3xl shadow-2xl overflow-hidden">
             <video
               src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-56 object-cover rounded-[1.25rem]"
-            />
-            {/* Patita decorativa */}
-            <img 
-              src={decoPaw} 
-              alt="" 
-              className="absolute -bottom-3 -right-3 w-14 h-14 z-10 rotate-12 drop-shadow-lg"
+              className="w-full h-56 object-cover"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 100% 75%, 92% 82%, 85% 78%, 78% 85%, 72% 80%, 65% 88%, 60% 82%, 55% 90%, 50% 85%, 45% 92%, 40% 88%, 35% 95%, 30% 90%, 25% 100%, 0 100%)"
+              }}
             />
           </div>
         </motion.div>
