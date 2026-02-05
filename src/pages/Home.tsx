@@ -23,6 +23,7 @@ import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 import herodog from "@/assets/brand/hero-dog.jpeg";
+import heroVideo from "@/assets/brand/hero-video.mp4";
 import stepDog1 from "@/assets/brand/step-dog-1.png";
 import stepDog2 from "@/assets/brand/step-dog-2.png";
 import stepDog3 from "@/assets/brand/step-dog-3.png";
@@ -95,13 +96,26 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Imagen del perro */}
-          <div className="bg-white/10 backdrop-blur-sm p-2 rounded-3xl">
-            <img 
-              src={herodog} 
-              alt="Perro feliz comiendo" 
-              className="w-full h-56 object-cover rounded-2xl shadow-2xl"
-            />
+          {/* Card con video */}
+          <div className="bg-card rounded-3xl shadow-2xl overflow-hidden">
+            {/* Texto arriba del video */}
+            <div className="text-center px-4 pt-4 pb-2">
+              <p className="text-foreground text-base font-medium leading-snug">
+                Pruébala con <span className="font-bold">RawPaw</span> y dale a tu perro lo que su cuerpo realmente necesita
+              </p>
+            </div>
+            
+            {/* Video centrado */}
+            <div className="flex justify-center px-2 pb-2">
+              <video
+                src={heroVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-48 object-cover rounded-2xl"
+              />
+            </div>
           </div>
         </motion.div>
 
