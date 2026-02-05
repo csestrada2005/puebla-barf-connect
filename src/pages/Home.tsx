@@ -140,7 +140,7 @@ export default function Home() {
         
         <div className="container relative z-10">
           <div className="text-center mb-12">
-            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
+            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-24 md:h-32 w-auto mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Así de fácil funciona
             </h2>
