@@ -94,7 +94,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex justify-center mb-auto"
+            className="flex justify-center"
           >
             <BrandImage 
               src={logoTaglineBlack} 
@@ -104,12 +104,15 @@ export default function Home() {
             />
           </motion.div>
 
-          {/* Texto centrado - pushed to center */}
+          {/* Spacer to push content down */}
+          <div className="flex-grow" />
+
+          {/* Texto centrado */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center my-auto"
+            className="text-center mb-6"
           >
             <p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
               Donde la <span className="text-secondary">Frescura</span> nutre,
@@ -122,12 +125,12 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* CTAs - pushed to bottom */}
+          {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex flex-col gap-3 items-center mt-auto"
+            className="flex flex-col gap-3 items-center"
           >
             <Button asChild size="lg" variant="secondary" className="w-full max-w-xs text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg">
               <Link to="/ai">
