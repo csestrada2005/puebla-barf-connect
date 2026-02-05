@@ -92,7 +92,7 @@ export function BenefitsSection() {
 
           {/* Right: Image */}
           <motion.div
-            className="relative hidden lg:block"
+            className="relative"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
