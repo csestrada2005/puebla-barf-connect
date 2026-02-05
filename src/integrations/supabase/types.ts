@@ -263,7 +263,11 @@ export type Database = {
           delivery_date: string | null
           delivery_fee: number | null
           delivery_notes: string | null
+          delivery_token: string | null
           dog_profile_id: string | null
+          driver_confirmed_at: string | null
+          driver_notes: string | null
+          driver_status: string | null
           id: string
           items: Json
           order_number: string
@@ -286,7 +290,11 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          delivery_token?: string | null
           dog_profile_id?: string | null
+          driver_confirmed_at?: string | null
+          driver_notes?: string | null
+          driver_status?: string | null
           id?: string
           items?: Json
           order_number: string
@@ -309,7 +317,11 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          delivery_token?: string | null
           dog_profile_id?: string | null
+          driver_confirmed_at?: string | null
+          driver_notes?: string | null
+          driver_status?: string | null
           id?: string
           items?: Json
           order_number?: string
