@@ -27,6 +27,7 @@ import heroVideo from "@/assets/brand/hero-video.mp4";
 import stepDog1 from "@/assets/brand/step-dog-1.png";
 import stepDog2 from "@/assets/brand/step-dog-2.png";
 import stepDog3 from "@/assets/brand/step-dog-3.png";
+import decoPaw from "@/assets/brand/deco-paw.png";
 
 const stepDogImages = [stepDog1, stepDog2, stepDog3];
 
@@ -96,15 +97,21 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video */}
-          <div className="rounded-3xl shadow-2xl overflow-hidden">
+          {/* Card con video y borde primario */}
+          <div className="relative border-4 border-primary rounded-3xl shadow-2xl overflow-visible">
             <video
               src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-56 object-cover rounded-3xl"
+              className="w-full h-56 object-cover rounded-[1.25rem]"
+            />
+            {/* Patita decorativa */}
+            <img 
+              src={decoPaw} 
+              alt="" 
+              className="absolute -bottom-3 -right-3 w-14 h-14 z-10 rotate-12 drop-shadow-lg"
             />
           </div>
         </motion.div>
