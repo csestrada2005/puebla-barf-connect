@@ -1,67 +1,36 @@
-# ✅ Plan Completado: Unificación del Flujo del AI Recommender
 
-## Estado: IMPLEMENTADO
+# Plan: Aumentar el tamaño del isotipo del perro con bowl
 
-El flujo del AI Recommender ha sido unificado exitosamente.
+## Identificación
 
----
+El asset en cuestión es `isotipoBowl` (importado desde `src/assets/brand/isotipo-bowl.png`), ubicado en la línea 143 de `src/pages/Home.tsx`:
 
-## Cambios Realizados
-
-### 1. Nuevo Componente `WeightPicker`
-- Creado `src/components/ai/WeightPicker.tsx`
-- Slider interactivo de 1-80 kg
-- Input numérico para ajuste fino
-- Categorización automática (Toy/Mini, Pequeño, Mediano, Grande)
-
-### 2. Flujo Unificado Implementado
-
-Ambos flujos (Guest y Profile) ahora siguen el mismo patrón:
-
-```
-1. Nombre (ChatInput)
-   ↓
-2. Cumpleaños (BirthdayPicker) → calcula edad automáticamente
-   ↓
-3. Peso (WeightPicker)
-   ↓
-4. Actividad (QuickReplies: Tranquilo/Normal/Activo)
-   ↓
-5. Condición corporal (QuickReplies: Flaco/Ideal/Gordito)
-   ↓
-6. Alergias (QuickReplies: Pollo/Res/Ninguna)
-   ↓
-7. Objetivo (QuickReplies: Probar/Rutina/Variedad)
-   ↓
-→ Resultado (sin paso de foto)
+```tsx
+<BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
 ```
 
-### 3. Cambios Técnicos
+Este es el isotipo del perrito con el bowl de comida que aparece centrado arriba del título "Así de fácil funciona".
+
+## Cambio a Realizar
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/components/ai/WeightPicker.tsx` | Nuevo componente |
-| `src/components/ai/index.ts` | Export añadido |
-| `src/pages/AIRecomendador.tsx` | Flujos unificados |
+| `src/pages/Home.tsx` | Aumentar el tamaño del isotipoBowl de `h-16` a `h-24 md:h-32` |
 
-### 4. Pasos Eliminados
-- ❌ `profile_image` - Ya no se pide foto
-- ❌ `age` (QuickReplies) - Reemplazado por `birthday` (BirthdayPicker)
-- ❌ `weight` (QuickReplies) - Reemplazado por WeightPicker
+## Código Actual vs Nuevo
 
-### 5. Mensajes Unificados
+**Antes:**
+```tsx
+<BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 w-auto mx-auto mb-4" />
+```
 
-| Transición | Mensaje |
-|------------|---------|
-| Nombre → Cumpleaños | `¡Encantado de conocer a ${name}! 🐾 ¿Cuándo nació?` |
-| Cumpleaños → Peso | `Perfecto, anotado. ¿Cuánto pesa ${name}? ⚖️` |
-| Peso → Actividad | `Muy bien. ¿Qué tan activo es ${name}? 🏃` |
-| Actividad → Condición | `Ahora una pregunta importante. ¿Cómo describirías la condición corporal de ${name}? ⚖️` |
-| Condición → Alergias | `Entendido. ¿${name} tiene alergias conocidas? 🤧` |
-| Alergias → Objetivo | `¡Okay! Última pregunta: ¿Cuál es tu objetivo con la dieta BARF para ${name}? 🎯` |
+**Después:**
+```tsx
+<BrandImage src={isotipoBowl} alt="Raw Paw" className="h-24 md:h-32 w-auto mx-auto mb-6" />
+```
 
----
+Esto aumentará la altura de:
+- **Móvil**: 64px → 96px (50% más grande)
+- **Desktop**: 64px → 128px (100% más grande)
 
-## Resultado
-
-El flujo es ahora idéntico tanto para usuarios guest como para usuarios registrados creando un nuevo perfil.
+También ajusto el margin-bottom de `mb-4` a `mb-6` para mantener el espaciado proporcional.
