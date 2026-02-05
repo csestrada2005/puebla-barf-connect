@@ -51,44 +51,44 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
   return (
     <Link to={`/producto/${slug}`} className="block h-full">
       <Card className="group hover:shadow-xl transition-all duration-300 h-full overflow-hidden border-2 hover:border-primary/20">
-        {/* Visual Header */}
-        <div className="relative aspect-square bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-4">
+        {/* Visual Header - Compact */}
+        <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-3">
           <img 
             src={image} 
             alt={name}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
-          <Badge className="absolute top-4 left-4 text-sm font-semibold">
+          <Badge className="absolute top-3 left-3 text-xs font-semibold">
             {badge}
           </Badge>
         </div>
 
-        {/* Content */}
-        <CardContent className="p-6 space-y-4">
+        {/* Content - Compact */}
+        <CardContent className="p-4 space-y-3">
           <div>
-            <h3 className="text-2xl font-bold">{name}</h3>
-            <p className="text-muted-foreground">{tagline}</p>
+            <h3 className="text-xl font-bold">{name}</h3>
+            <p className="text-sm text-muted-foreground">{tagline}</p>
           </div>
 
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {benefits.map((benefit) => (
-              <li key={benefit} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-primary shrink-0" />
+              <li key={benefit} className="flex items-center gap-2 text-xs">
+                <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span>{benefit}</span>
               </li>
             ))}
           </ul>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-1">
             <div>
               <p className="text-xs text-muted-foreground">Desde</p>
-              <span className="text-3xl font-bold text-primary">
+              <span className="text-2xl font-bold text-primary">
                 ${priceFrom.toLocaleString("es-MX")}
               </span>
             </div>
-            <Button className="gap-2 group-hover:gap-3 transition-all">
+            <Button size="sm" className="gap-1.5 group-hover:gap-2 transition-all">
               Ver opciones
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </CardContent>
