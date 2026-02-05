@@ -7,7 +7,9 @@ import { Link } from "react-router-dom";
 import { Sparkles, Book, Calculator, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrandImage } from "@/components/ui/BrandImage";
+ import { Sticker } from "@/components/ui/Sticker";
 import playLabrador from "@/assets/brand/play-labrador.png";
+ import decoBall from "@/assets/brand/deco-ball.png";
 
 export default function GuiasBarf() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +40,7 @@ export default function GuiasBarf() {
   return (
     <Layout>
       <div ref={containerRef} className="container py-12 pb-48 relative">
-        {/* Labrador - fixed at bottom-left, visible only within content section */}
+        {/* Labrador - DESKTOP: fixed at bottom-left, visible only within content section */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ 
@@ -130,9 +132,15 @@ export default function GuiasBarf() {
             {/* Portion Calculator */}
             <AccordionItem value="calculator" className="border-primary border rounded-xl px-4">
               <AccordionTrigger className="text-lg font-semibold py-4">
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2 relative">
                   <Calculator className="h-5 w-5" />
                   ¿Cuánto debe comer mi perro?
+                  {/* Ball sticker next to calculator */}
+                  <Sticker 
+                    src={decoBall}
+                    alt=""
+                    className="w-6 h-6 -ml-1 hidden md:block"
+                  />
                 </span>
               </AccordionTrigger>
               <AccordionContent>
@@ -243,6 +251,24 @@ export default function GuiasBarf() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Mobile Labrador Sign-off - End of content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="block lg:hidden mt-12 flex flex-col items-center"
+          >
+            <BrandImage 
+              src={playLabrador}
+              alt="Labrador sonriente - ¡Gracias por leer!"
+              className="w-48 object-contain drop-shadow-xl"
+            />
+            <p className="text-sm text-muted-foreground mt-2 italic">
+              ¡Gracias por leer! 🐾
+            </p>
+          </motion.div>
         </div>
       </div>
     </Layout>

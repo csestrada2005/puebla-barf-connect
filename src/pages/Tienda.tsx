@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, Clock, Check, ArrowRight } from "lucide-react";
+ import { Sticker } from "@/components/ui/Sticker";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
+ import decoBowl from "@/assets/brand/deco-bowl.png";
+ import decoPaw from "@/assets/brand/deco-paw.png";
 
 const proteinProducts = [
   {
@@ -99,7 +102,14 @@ export default function Tienda() {
     <Layout>
       <div className="container py-12">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 relative">
+          {/* Mobile Bowl Sticker - Top right of header */}
+          <Sticker 
+            src={decoBowl}
+            alt=""
+            className="absolute -top-2 right-0 md:hidden w-14 h-14 rotate-12"
+          />
+          
           <Badge variant="secondary" className="mb-4">
             🐾 Alimentación Natural BARF
           </Badge>
@@ -129,8 +139,20 @@ export default function Tienda() {
 
         {/* Products Grid - 2 Large Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {proteinProducts.map((product) => (
-            <ProteinCard key={product.protein} {...product} />
+          {proteinProducts.map((product, index) => (
+            <div key={product.protein}>
+              <ProteinCard {...product} />
+              {/* Mobile Paw Separator between cards */}
+              {index === 0 && (
+                <div className="block md:hidden py-4 flex justify-center">
+                  <Sticker 
+                    src={decoPaw}
+                    alt=""
+                    className="w-10 h-10 opacity-60 rotate-45"
+                  />
+                </div>
+              )}
+            </div>
           ))}
         </div>
 

@@ -5,7 +5,9 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Target, Eye, Award, ShieldCheck, Handshake, Smile, ArrowRight } from "lucide-react";
 import { BrandImage } from "@/components/ui/BrandImage";
+ import { Sticker } from "@/components/ui/Sticker";
 import nosotrosBrownDog from "@/assets/brand/nosotros-brown-dog.png";
+ import decoPaw from "@/assets/brand/deco-paw.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -36,12 +38,12 @@ export default function Nosotros() {
     <Layout>
       {/* Wrapper for hero + mission sections so dog can span across */}
       <div className="relative">
-        {/* Brown dog peeking from top-right - PRIORITY */}
+        {/* Brown dog peeking from top-right - DESKTOP ONLY */}
         <motion.div 
           initial={{ opacity: 0, x: 50, rotate: 5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="absolute top-8 right-0 z-20 pointer-events-none"
+          className="absolute top-8 right-0 z-20 pointer-events-none hidden md:block"
         >
           <BrandImage 
             src={nosotrosBrownDog} 
@@ -74,6 +76,23 @@ export default function Nosotros() {
             </div>
           </div>
         </section>
+
+        {/* Mobile Dog - Between Hero and Mission */}
+        <div className="block md:hidden py-8 flex justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="sticker-float"
+          >
+            <BrandImage 
+              src={nosotrosBrownDog} 
+              alt="Perro curioso" 
+              className="w-64 object-contain drop-shadow-xl mx-auto"
+              priority
+            />
+          </motion.div>
+        </div>
 
         {/* Mission & Vision Section */}
         <section className="py-16 md:py-24 bg-background">
@@ -126,7 +145,14 @@ export default function Nosotros() {
       </div>
 
       {/* Values Section */}
-      <section className="py-16 md:py-24 bg-secondary/30">
+      <section className="py-16 md:py-24 bg-secondary/30 relative overflow-hidden">
+        {/* Background Paw - Large, faint decoration */}
+        <Sticker 
+          src={decoPaw}
+          alt=""
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] opacity-5 rotate-12 scale-150"
+        />
+        
         <div className="container">
           <motion.div {...fadeInUp} className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -137,9 +163,9 @@ export default function Nosotros() {
             </p>
           </motion.div>
           
-          <motion.div 
+          <motion.div
             {...staggerContainer}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-6 relative z-10"
           >
             {values.map((value) => (
               <motion.div key={value.title} {...fadeInUp}>
