@@ -220,7 +220,7 @@ export default function Home() {
           </div>
 
           {/* Carousel for mobile, grid for desktop */}
-          <div className="md:hidden">
+          <div className="md:hidden pt-6">
             <Carousel
               opts={{
                 align: "center",
@@ -228,7 +228,7 @@ export default function Home() {
               }}
               className="w-full max-w-xs mx-auto"
             >
-              <CarouselContent>
+              <CarouselContent className="overflow-visible">
                 {howItWorks.map((item) => (
                   <CarouselItem key={item.step} className="basis-full">
                     <motion.div
