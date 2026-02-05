@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import aiHoundRight from "@/assets/brand/ai-hound-right.png";
 import playPomeranian from "@/assets/brand/play-pomeranian.png";
+import mobileDogLeft from "@/assets/brand/mobile-dog-left.png";
+import mobileDogRight from "@/assets/brand/mobile-dog-right.png";
 
 interface ChatContainerProps {
   children: ReactNode;
@@ -38,7 +40,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
-      {/* Pomeranian (looking right) - LEFT side, standing on input bar */}
+      {/* Desktop: Pomeranian (looking right) - LEFT side, standing on input bar */}
       <AnimatePresence>
         <motion.img 
           src={playPomeranian}
@@ -54,7 +56,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         />
       </AnimatePresence>
 
-      {/* Hound (looking LEFT) - RIGHT side, standing on input bar */}
+      {/* Desktop: Hound (looking LEFT) - RIGHT side, standing on input bar */}
       <AnimatePresence>
         <motion.img 
           src={aiHoundRight}
@@ -67,6 +69,38 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="fixed right-0 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl"
           style={{ bottom: inputHeight + 16 }}
+        />
+      </AnimatePresence>
+
+      {/* Mobile: Dog (sitting, looking left) - LEFT side, on top of input bar */}
+      <AnimatePresence>
+        <motion.img 
+          src={mobileDogLeft}
+          alt="Perrito sentado"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0
+          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="fixed left-0 z-10 pointer-events-none md:hidden w-20 object-contain drop-shadow-lg"
+          style={{ bottom: inputHeight - 8 }}
+        />
+      </AnimatePresence>
+
+      {/* Mobile: Dog (fluffy, laying) - RIGHT side, on top of input bar */}
+      <AnimatePresence>
+        <motion.img 
+          src={mobileDogRight}
+          alt="Perrito acostado"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0
+          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="fixed right-0 z-10 pointer-events-none md:hidden w-24 object-contain drop-shadow-lg"
+          style={{ bottom: inputHeight - 12 }}
         />
       </AnimatePresence>
 
