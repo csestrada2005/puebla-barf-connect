@@ -181,23 +181,20 @@ export function determineProtein(
 // ===== CART OPTIONS LOGIC =====
 
 /**
- * Calculate Option A (Best Value): Prefers 1kg packs + 14 days (Quincenal)
- * Uses Math.floor for 1kg packs, Math.ceil for 500g remainder
+ * Calculate the total price for a given duration and protein
+ * This consolidates all products into a single "portion" item
  */
-function calculateOptionA(
+function calculatePortionPrice(
   dailyGrams: number,
   products: Product[],
-  protein: "chicken" | "beef" | "mix"
-): { products: ProductOption[]; totalPrice: number; durationDays: number } {
-  const targetDays = 14;
+  protein: "chicken" | "beef" | "mix",
+  targetDays: number
+): { totalPrice: number; actualGrams: number } {
   const totalGrams = dailyGrams * targetDays;
-  
-  const optionProducts: ProductOption[] = [];
   let totalPrice = 0;
   let actualGrams = 0;
   
   if (protein === "mix") {
-    // Split between chicken and beef
     const halfGrams = totalGrams / 2;
     
     // Chicken portion
@@ -209,28 +206,12 @@ function calculateOptionA(
       const remainder = halfGrams % 1000;
       
       if (packs1kg > 0) {
-        optionProducts.push({
-          id: pollo1kg.id,
-          slug: pollo1kg.slug,
-          name: pollo1kg.name,
-          price: Number(pollo1kg.price),
-          quantity: packs1kg,
-          presentation: "1kg",
-        });
         totalPrice += Number(pollo1kg.price) * packs1kg;
         actualGrams += packs1kg * 1000;
       }
       
       if (remainder > 0 && pollo500) {
         const packs500 = Math.ceil(remainder / 500);
-        optionProducts.push({
-          id: pollo500.id,
-          slug: pollo500.slug,
-          name: pollo500.name,
-          price: Number(pollo500.price),
-          quantity: packs500,
-          presentation: "500g",
-        });
         totalPrice += Number(pollo500.price) * packs500;
         actualGrams += packs500 * 500;
       }
@@ -245,34 +226,17 @@ function calculateOptionA(
       const remainder = halfGrams % 1000;
       
       if (packs1kg > 0) {
-        optionProducts.push({
-          id: res1kg.id,
-          slug: res1kg.slug,
-          name: res1kg.name,
-          price: Number(res1kg.price),
-          quantity: packs1kg,
-          presentation: "1kg",
-        });
         totalPrice += Number(res1kg.price) * packs1kg;
         actualGrams += packs1kg * 1000;
       }
       
       if (remainder > 0 && res500) {
         const packs500 = Math.ceil(remainder / 500);
-        optionProducts.push({
-          id: res500.id,
-          slug: res500.slug,
-          name: res500.name,
-          price: Number(res500.price),
-          quantity: packs500,
-          presentation: "500g",
-        });
         totalPrice += Number(res500.price) * packs500;
         actualGrams += packs500 * 500;
       }
     }
   } else {
-    // Single protein type
     const proteinLine = protein === "chicken" ? "pollo" : "res";
     const product1kg = products.find(p => p.protein_line === proteinLine && p.presentation === "1kg");
     const product500 = products.find(p => p.protein_line === proteinLine && p.presentation === "500g");
@@ -282,33 +246,52 @@ function calculateOptionA(
       const remainder = totalGrams % 1000;
       
       if (packs1kg > 0) {
-        optionProducts.push({
-          id: product1kg.id,
-          slug: product1kg.slug,
-          name: product1kg.name,
-          price: Number(product1kg.price),
-          quantity: packs1kg,
-          presentation: "1kg",
-        });
         totalPrice += Number(product1kg.price) * packs1kg;
         actualGrams += packs1kg * 1000;
       }
       
       if (remainder > 0 && product500) {
         const packs500 = Math.ceil(remainder / 500);
-        optionProducts.push({
-          id: product500.id,
-          slug: product500.slug,
-          name: product500.name,
-          price: Number(product500.price),
-          quantity: packs500,
-          presentation: "500g",
-        });
         totalPrice += Number(product500.price) * packs500;
         actualGrams += packs500 * 500;
       }
+    } else if (product500) {
+      const packs = Math.ceil(totalGrams / 500);
+      totalPrice += Number(product500.price) * packs;
+      actualGrams += packs * 500;
     }
   }
+  
+  return { totalPrice, actualGrams };
+}
+
+/**
+ * Calculate Option A (Best Value): 14 days (Quincenal)
+ * Returns a single consolidated "Porción Quincenal" product
+ */
+function calculateOptionA(
+  dailyGrams: number,
+  products: Product[],
+  protein: "chicken" | "beef" | "mix"
+): { products: ProductOption[]; totalPrice: number; durationDays: number } {
+  const targetDays = 14;
+  const { totalPrice, actualGrams } = calculatePortionPrice(dailyGrams, products, protein, targetDays);
+  
+  const proteinLabel = protein === "chicken" ? "Pollo" : protein === "beef" ? "Res" : "Mix";
+  const totalKg = Math.round(actualGrams / 100) / 10; // Convert to kg with 1 decimal
+  
+  // Find a base product for the slug
+  const proteinLine = protein === "chicken" ? "pollo" : protein === "beef" ? "res" : "pollo";
+  const baseProduct = products.find(p => p.protein_line === proteinLine);
+  
+  const optionProducts: ProductOption[] = [{
+    id: `porcion-quincenal-${protein}`,
+    slug: baseProduct?.slug || `barf-${proteinLine}-500g`,
+    name: `Porción Quincenal BARF ${proteinLabel} (${totalKg}kg)`,
+    price: totalPrice,
+    quantity: 1,
+    presentation: "quincenal",
+  }];
   
   const durationDays = actualGrams > 0 ? Math.floor(actualGrams / dailyGrams) : targetDays;
   
@@ -316,7 +299,8 @@ function calculateOptionA(
 }
 
 /**
- * Calculate Option B (Low Investment): Prefers 500g packs + 7 days (Semanal)
+ * Calculate Option B (Low Investment): 7 days (Semanal)
+ * Returns a single consolidated "Porción Semanal" product
  */
 function calculateOptionB(
   dailyGrams: number,
@@ -324,64 +308,23 @@ function calculateOptionB(
   protein: "chicken" | "beef" | "mix"
 ): { products: ProductOption[]; totalPrice: number; durationDays: number } {
   const targetDays = 7;
-  const totalGrams = dailyGrams * targetDays;
+  const { totalPrice, actualGrams } = calculatePortionPrice(dailyGrams, products, protein, targetDays);
   
-  const optionProducts: ProductOption[] = [];
-  let totalPrice = 0;
-  let actualGrams = 0;
+  const proteinLabel = protein === "chicken" ? "Pollo" : protein === "beef" ? "Res" : "Mix";
+  const totalKg = Math.round(actualGrams / 100) / 10; // Convert to kg with 1 decimal
   
-  if (protein === "mix") {
-    // Split between chicken and beef
-    const halfGrams = totalGrams / 2;
-    
-    const pollo500 = products.find(p => p.protein_line === "pollo" && p.presentation === "500g");
-    const res500 = products.find(p => p.protein_line === "res" && p.presentation === "500g");
-    
-    if (pollo500) {
-      const packs = Math.ceil(halfGrams / 500);
-      optionProducts.push({
-        id: pollo500.id,
-        slug: pollo500.slug,
-        name: pollo500.name,
-        price: Number(pollo500.price),
-        quantity: packs,
-        presentation: "500g",
-      });
-      totalPrice += Number(pollo500.price) * packs;
-      actualGrams += packs * 500;
-    }
-    
-    if (res500) {
-      const packs = Math.ceil(halfGrams / 500);
-      optionProducts.push({
-        id: res500.id,
-        slug: res500.slug,
-        name: res500.name,
-        price: Number(res500.price),
-        quantity: packs,
-        presentation: "500g",
-      });
-      totalPrice += Number(res500.price) * packs;
-      actualGrams += packs * 500;
-    }
-  } else {
-    const proteinLine = protein === "chicken" ? "pollo" : "res";
-    const product500 = products.find(p => p.protein_line === proteinLine && p.presentation === "500g");
-    
-    if (product500) {
-      const packs = Math.ceil(totalGrams / 500);
-      optionProducts.push({
-        id: product500.id,
-        slug: product500.slug,
-        name: product500.name,
-        price: Number(product500.price),
-        quantity: packs,
-        presentation: "500g",
-      });
-      totalPrice += Number(product500.price) * packs;
-      actualGrams += packs * 500;
-    }
-  }
+  // Find a base product for the slug
+  const proteinLine = protein === "chicken" ? "pollo" : protein === "beef" ? "res" : "pollo";
+  const baseProduct = products.find(p => p.protein_line === proteinLine);
+  
+  const optionProducts: ProductOption[] = [{
+    id: `porcion-semanal-${protein}`,
+    slug: baseProduct?.slug || `barf-${proteinLine}-500g`,
+    name: `Porción Semanal BARF ${proteinLabel} (${totalKg}kg)`,
+    price: totalPrice,
+    quantity: 1,
+    presentation: "semanal",
+  }];
   
   const durationDays = actualGrams > 0 ? Math.floor(actualGrams / dailyGrams) : targetDays;
   
