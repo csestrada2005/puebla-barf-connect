@@ -79,7 +79,7 @@ export default function Home() {
           initial={{ opacity: 0, x: 50, rotate: -5 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute -bottom-4 -right-4 md:-right-8 w-80 sm:w-96 md:w-[500px] lg:w-[620px] xl:w-[720px] z-10 pointer-events-none"
+          className="absolute -bottom-4 -right-4 md:-right-8 w-64 sm:w-80 md:w-[420px] lg:w-[520px] xl:w-[600px] z-10 pointer-events-none"
         >
           <BrandImage 
             src={heroBorderCollie} 
