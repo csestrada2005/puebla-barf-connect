@@ -23,19 +23,27 @@ import isotipoBarky from "@/assets/brand/isotipo-barky.png";
 import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 import herodog from "@/assets/brand/hero-dog.jpeg";
+import stepDog1 from "@/assets/brand/step-dog-1.png";
+import stepDog2 from "@/assets/brand/step-dog-2.png";
+import stepDog3 from "@/assets/brand/step-dog-3.png";
+
+const stepDogImages = [stepDog1, stepDog2, stepDog3];
 
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
-  description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo."
+  description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
+  image: stepDog1
 }, {
   step: 2,
   title: "Recibe tu receta personalizada",
-  description: "Calculamos la porción exacta y la proteína ideal para su perfil."
+  description: "Calculamos la porción exacta y la proteína ideal para su perfil.",
+  image: stepDog2
 }, {
   step: 3,
   title: "Entrega en 24-48h",
-  description: "Alimento fresco directo a tu puerta en Puebla."
+  description: "Alimento fresco directo a tu puerta en Puebla.",
+  image: stepDog3
 }];
 
 export default function Home() {
@@ -236,17 +244,26 @@ export default function Home() {
                       viewport={{ once: true }}
                       className="px-2"
                     >
-                      <div className="relative pt-5">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
-                          {item.step}
-                        </div>
+                      <div className="flex flex-col items-center">
+                        {/* Sticker above card */}
+                        <img 
+                          src={item.image} 
+                          alt="" 
+                          className="w-24 h-24 object-contain mb-2"
+                        />
+                        
+                        <div className="relative pt-5 w-full">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg z-10">
+                            {item.step}
+                          </div>
 
-                        <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                          <CardContent className="pt-8 pb-5 text-center">
-                            <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                          </CardContent>
-                        </Card>
+                          <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                            <CardContent className="pt-8 pb-5 text-center">
+                              <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
+                              <p className="text-sm text-muted-foreground">{item.description}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
                       </div>
                     </motion.div>
                   </CarouselItem>
@@ -263,17 +280,26 @@ export default function Home() {
           <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {howItWorks.map((item, index) => (
               <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} viewport={{ once: true }}>
-                <div className="relative pt-5">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
-                    {item.step}
-                  </div>
+                <div className="flex flex-col items-center">
+                  {/* Sticker above card */}
+                  <img 
+                    src={item.image} 
+                    alt="" 
+                    className="w-28 h-28 object-contain mb-2"
+                  />
+                  
+                  <div className="relative pt-5 w-full">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg z-10">
+                      {item.step}
+                    </div>
 
-                  <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                    <CardContent className="pt-8 pb-6 text-center">
-                      <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
-                      <p className="text-muted-foreground">{item.description}</p>
-                    </CardContent>
-                  </Card>
+                    <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
+                      <CardContent className="pt-8 pb-6 text-center">
+                        <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
+                        <p className="text-muted-foreground">{item.description}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               </motion.div>
             ))}
