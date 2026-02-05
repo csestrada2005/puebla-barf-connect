@@ -1,121 +1,54 @@
 
 # Plan: Conectar Pedidos y Suscripciones a Google Sheets
 
-## Objetivo
-Enviar automáticamente cada pedido nuevo y cada suscripción nueva a un Google Sheet para tener un registro centralizado y fácil de consultar.
+## Estado: ✅ IMPLEMENTADO
 
 ---
 
-## Solución Propuesta: Webhook con Zapier
+## Lo que se implementó
 
-Esta es la opción más sencilla y no requiere configurar APIs de Google.
+### 1. Edge Function `sync-to-sheets`
+- Recibe datos del pedido/suscripción
+- Lee la URL del webhook desde `app_config`
+- Envía los datos formateados a Zapier
 
-### Flujo de Datos
+### 2. Integración en Checkout
+- Después de guardar cada pedido, se llama automáticamente a `sync-to-sheets`
+- Funciona para pedidos únicos y suscripciones
 
-```text
-Usuario hace pedido/suscripción
-           ↓
-    Checkout.tsx guarda en DB
-           ↓
-    Edge Function "sync-to-sheets"
-           ↓
-    Webhook de Zapier
-           ↓
-    Google Sheets (automático)
-```
+### 3. Panel de Admin → Configuración
+- Nueva sección "Configuración" en el menú lateral
+- Campo para pegar la URL del webhook de Zapier
+- Instrucciones paso a paso para configurar Zapier
 
 ---
 
-## Pasos de Implementación
+## Próximos pasos (los haces tú)
 
-### 1. Crear Edge Function `sync-to-sheets`
-
-Una función backend que recibe los datos del pedido y los envía al webhook de Zapier.
-
-**Datos que se enviarán:**
-- Número de orden
-- Fecha y hora
-- Nombre del cliente
-- Teléfono
-- Dirección
-- Productos (listado)
-- Subtotal
-- Envío
-- Total
-- Método de pago
-- Tipo (Pedido único o Suscripción)
-- Info de la mascota (si existe)
-
-### 2. Modificar `Checkout.tsx`
-
-Después de guardar el pedido en la base de datos, llamar a la Edge Function para sincronizar con Sheets.
-
-### 3. Modificar flujo de Suscripción
-
-Cuando se cree una suscripción, también llamar a la Edge Function.
-
-### 4. Configuración en Zapier (la haces tú)
-
-1. Crear un Zap nuevo
-2. Trigger: **Webhooks by Zapier** → **Catch Hook**
-3. Action: **Google Sheets** → **Create Spreadsheet Row**
-4. Copiar la URL del webhook y pegarla en la app
+1. **Crea tu cuenta en Zapier**: [zapier.com](https://zapier.com)
+2. **Crea un nuevo Zap**:
+   - Trigger: **Webhooks by Zapier** → **Catch Hook**
+   - Action: **Google Sheets** → **Create Spreadsheet Row**
+3. **Copia la URL del webhook** que te da Zapier
+4. **Pégala en Admin → Configuración**
+5. **Mapea los campos** en Zapier a tu hoja de cálculo
 
 ---
 
-## Cambios Técnicos
+## Datos que se envían al webhook
 
-### Archivos a Crear
-| Archivo | Descripción |
-|---------|-------------|
-| `supabase/functions/sync-to-sheets/index.ts` | Edge Function que recibe datos y llama al webhook |
-
-### Archivos a Modificar
-| Archivo | Cambio |
-|---------|--------|
-| `src/pages/Checkout.tsx` | Llamar a `sync-to-sheets` después de crear el pedido |
-| `src/pages/Suscripcion.tsx` | Llamar a `sync-to-sheets` cuando se agregue suscripción al carrito |
-| `supabase/config.toml` | Agregar configuración de la nueva función |
-
-### UI para Webhook URL
-
-Agregaré un campo en el panel de Admin para que puedas pegar la URL del webhook de Zapier sin tocar código.
-
----
-
-## Estructura del Google Sheet Resultante
-
-| Columna | Ejemplo |
-|---------|---------|
-| Fecha | 2026-02-05 14:30 |
-| Orden # | RP-ABC123-XYZ |
-| Tipo | Pedido / Suscripción |
-| Cliente | Juan Pérez |
-| Teléfono | 221 360 6464 |
-| Dirección | Calle Principal #123, Angelópolis |
-| Productos | BARF Res 1kg x2 |
-| Subtotal | $580 |
-| Envío | $50 |
-| Total | $630 |
-| Pago | Efectivo |
-| Mascota | Golden Retriever - 25kg |
-
----
-
-## Alternativa: Sin Zapier (Google Sheets API directa)
-
-Si prefieres no usar Zapier, puedo configurar la integración directa con Google Sheets API, pero requiere:
-1. Crear un proyecto en Google Cloud Console
-2. Habilitar la API de Google Sheets
-3. Crear credenciales de servicio
-4. Compartir el Sheet con la cuenta de servicio
-
-Esta opción es más compleja pero no tiene límites de uso.
-
----
-
-## Recomendación
-
-Empezar con **Zapier** por simplicidad. Es gratis hasta cierto número de tareas mensuales y muy fácil de configurar.
-
-¿Apruebas el plan para implementar la integración con Zapier?
+| Campo | Descripción |
+|-------|-------------|
+| `fecha` | Fecha y hora del pedido |
+| `orden` | Número de orden (RP-XXX-YYY) |
+| `tipo` | "Pedido" o "Suscripción" |
+| `cliente` | Nombre del cliente |
+| `telefono` | Teléfono de contacto |
+| `direccion` | Dirección de entrega |
+| `productos` | Lista de productos |
+| `subtotal` | Subtotal en pesos |
+| `envio` | Costo de envío |
+| `total` | Total a cobrar |
+| `pago` | Método de pago |
+| `mascota` | Info de la mascota (si existe) |
+| `notas` | Notas de entrega |
