@@ -114,14 +114,11 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-center mb-6"
           >
-            <p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
-              Donde la <span className="text-secondary">Frescura</span> nutre,
+            <p className="text-3xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+              <span className="text-secondary">Fresco.</span> Real.
             </p>
-            <p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
-              la calidad se siente
-            </p>
-            <p className="text-2xl font-bold text-white leading-tight drop-shadow-md">
-              y la <span className="text-secondary">Nutrición</span> permanece.
+            <p className="text-3xl font-bold text-white leading-tight drop-shadow-md">
+              Para quien <span className="text-secondary">amas.</span>
             </p>
           </motion.div>
 
