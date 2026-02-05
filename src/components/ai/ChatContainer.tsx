@@ -72,23 +72,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         />
       </AnimatePresence>
 
-      {/* Mobile: Dog (sitting, looking left) - LEFT side, on top of input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={mobileDogLeft}
-          alt="Perrito sentado"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0
-          }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none md:hidden w-20 object-contain drop-shadow-lg"
-          style={{ bottom: inputHeight - 8 }}
-        />
-      </AnimatePresence>
-
-      {/* Mobile: Dog (fluffy, laying) - RIGHT side, on top of input bar */}
+      {/* Mobile: Fluffy dog (laying) - LEFT side, on top of input bar */}
       <AnimatePresence>
         <motion.img 
           src={mobileDogRight}
@@ -99,8 +83,24 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
             y: 0
           }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed right-0 z-10 pointer-events-none md:hidden w-24 object-contain drop-shadow-lg"
-          style={{ bottom: inputHeight - 12 }}
+          className="fixed left-0 z-10 pointer-events-none md:hidden w-24 object-contain drop-shadow-lg"
+          style={{ bottom: inputHeight + 8 }}
+        />
+      </AnimatePresence>
+
+      {/* Mobile: Dog (sitting, looking left) - RIGHT side, on top of input bar */}
+      <AnimatePresence>
+        <motion.img 
+          src={mobileDogLeft}
+          alt="Perrito sentado"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0
+          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="fixed right-0 z-10 pointer-events-none md:hidden w-20 object-contain drop-shadow-lg"
+          style={{ bottom: inputHeight + 12 }}
         />
       </AnimatePresence>
 
