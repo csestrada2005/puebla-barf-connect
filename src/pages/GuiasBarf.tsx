@@ -39,7 +39,7 @@ export default function GuiasBarf() {
 
   return (
     <Layout>
-      <div ref={containerRef} className="container py-12 pb-48 relative">
+      <div ref={containerRef} className="container py-8 md:py-12 pb-24 md:pb-48 relative">
         {/* Labrador - DESKTOP: fixed at bottom-left, visible only within content section */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
@@ -252,23 +252,6 @@ export default function GuiasBarf() {
             </CardContent>
           </Card>
 
-          {/* Mobile Labrador Sign-off - End of content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="block lg:hidden mt-12 flex flex-col items-center"
-          >
-            <BrandImage 
-              src={playLabrador}
-              alt="Labrador sonriente - ¡Gracias por leer!"
-              className="w-48 object-contain drop-shadow-xl"
-            />
-            <p className="text-sm text-muted-foreground mt-2 italic">
-              ¡Gracias por leer! 🐾
-            </p>
-          </motion.div>
         </div>
       </div>
     </Layout>
