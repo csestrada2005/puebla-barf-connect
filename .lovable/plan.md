@@ -1,54 +1,73 @@
 
-# Plan: Conectar Pedidos y Suscripciones a Google Sheets
 
-## Estado: ✅ IMPLEMENTADO
+# Plan: Actualizar Texto del Hero Móvil
 
----
-
-## Lo que se implementó
-
-### 1. Edge Function `sync-to-sheets`
-- Recibe datos del pedido/suscripción
-- Lee la URL del webhook desde `app_config`
-- Envía los datos formateados a Zapier
-
-### 2. Integración en Checkout
-- Después de guardar cada pedido, se llama automáticamente a `sync-to-sheets`
-- Funciona para pedidos únicos y suscripciones
-
-### 3. Panel de Admin → Configuración
-- Nueva sección "Configuración" en el menú lateral
-- Campo para pegar la URL del webhook de Zapier
-- Instrucciones paso a paso para configurar Zapier
+## Objetivo
+Reemplazar el texto actual del hero móvil con la nueva versión más corta y emotiva: **"Fresco. Real. Para quien amas."**
 
 ---
 
-## Próximos pasos (los haces tú)
+## Cambio Visual
 
-1. **Crea tu cuenta en Zapier**: [zapier.com](https://zapier.com)
-2. **Crea un nuevo Zap**:
-   - Trigger: **Webhooks by Zapier** → **Catch Hook**
-   - Action: **Google Sheets** → **Create Spreadsheet Row**
-3. **Copia la URL del webhook** que te da Zapier
-4. **Pégala en Admin → Configuración**
-5. **Mapea los campos** en Zapier a tu hoja de cálculo
+### Antes
+```
+Donde la Frescura nutre,
+la calidad se siente
+y la Nutrición permanece.
+```
+
+### Después
+```
+Fresco. Real.
+Para quien amas.
+```
 
 ---
 
-## Datos que se envían al webhook
+## Cambios Técnicos
 
-| Campo | Descripción |
-|-------|-------------|
-| `fecha` | Fecha y hora del pedido |
-| `orden` | Número de orden (RP-XXX-YYY) |
-| `tipo` | "Pedido" o "Suscripción" |
-| `cliente` | Nombre del cliente |
-| `telefono` | Teléfono de contacto |
-| `direccion` | Dirección de entrega |
-| `productos` | Lista de productos |
-| `subtotal` | Subtotal en pesos |
-| `envio` | Costo de envío |
-| `total` | Total a cobrar |
-| `pago` | Método de pago |
-| `mascota` | Info de la mascota (si existe) |
-| `notas` | Notas de entrega |
+### Archivo: `src/pages/Home.tsx`
+
+**Ubicación:** Sección del hero móvil, líneas ~103-113
+
+**Código actual:**
+```tsx
+<p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+  Donde la <span className="text-secondary">Frescura</span> nutre,
+</p>
+<p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+  la calidad se siente
+</p>
+<p className="text-2xl font-bold text-white leading-tight drop-shadow-md">
+  y la <span className="text-secondary">Nutrición</span> permanece.
+</p>
+```
+
+**Código nuevo:**
+```tsx
+<p className="text-3xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+  <span className="text-secondary">Fresco.</span> Real.
+</p>
+<p className="text-3xl font-bold text-white leading-tight drop-shadow-md">
+  Para quien <span className="text-secondary">amas.</span>
+</p>
+```
+
+---
+
+## Ajustes de Estilo
+
+| Aspecto | Antes | Después |
+|---------|-------|---------|
+| Tamaño de texto | `text-2xl` | `text-3xl` (más grande para compensar menos texto) |
+| Líneas | 3 líneas | 2 líneas |
+| Acentos (secondary) | "Frescura", "Nutrición" | "Fresco.", "amas." |
+
+---
+
+## Resumen
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/pages/Home.tsx` | Reemplazar texto del hero móvil con versión corta y aumentar tamaño de fuente |
+
