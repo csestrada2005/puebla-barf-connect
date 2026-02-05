@@ -72,81 +72,77 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero - Full viewport */}
-      {/* ===== MOBILE HERO - Plan B "¡Ñam!" ===== */}
-      <section className="md:hidden min-h-[calc(100svh-4rem)] flex flex-col bg-gradient-to-br from-primary via-primary to-primary/90 px-6 pt-6 pb-8">
-        {/* Logo centrado */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-center mb-6"
-        >
-          <BrandImage 
-            src={logoTaglineBlack} 
-            alt="Raw Paw" 
-            className="w-40 brightness-0 invert" 
-            priority 
-          />
-        </motion.div>
+      {/* ===== MOBILE HERO - Full Video Background ===== */}
+      <section className="md:hidden min-h-[calc(100svh-4rem)] relative flex flex-col overflow-hidden">
+        {/* Video Background */}
+        <video
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
 
-        {/* Imagen principal con speech bubble */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
-        >
-        {/* Card con video - Doodle border effect */}
-        <div className="rounded-3xl shadow-2xl overflow-hidden border-4 border-leafy ring-4 ring-secondary ring-offset-4 ring-offset-primary">
-          <video
-            src={heroVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-56 object-cover"
-          />
+        {/* Content overlay */}
+        <div className="relative z-10 flex flex-col h-full px-6 pt-6 pb-8">
+          {/* Logo centrado */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex justify-center mb-auto"
+          >
+            <BrandImage 
+              src={logoTaglineBlack} 
+              alt="Raw Paw" 
+              className="w-44 brightness-0 invert drop-shadow-lg" 
+              priority 
+            />
+          </motion.div>
+
+          {/* Texto centrado - pushed to center */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center my-auto"
+          >
+            <p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+              Donde la <span className="text-secondary">Frescura</span> nutre,
+            </p>
+            <p className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md">
+              la calidad se siente
+            </p>
+            <p className="text-2xl font-bold text-white leading-tight drop-shadow-md">
+              y la <span className="text-secondary">Nutrición</span> permanece.
+            </p>
+          </motion.div>
+
+          {/* CTAs - pushed to bottom */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="flex flex-col gap-3 items-center mt-auto"
+          >
+            <Button asChild size="lg" variant="secondary" className="w-full max-w-xs text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg">
+              <Link to="/ai">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Crear mi plan
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-white/90 hover:text-white hover:bg-white/10">
+              <Link to="/tienda">
+                Ver productos
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
-        </motion.div>
-
-        {/* Texto centrado */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="text-center mb-6 flex-grow flex flex-col justify-center"
-        >
-          <p className="text-2xl font-bold text-primary-foreground leading-tight mb-1">
-            Donde la <span className="text-secondary">Frescura</span> nutre,
-          </p>
-          <p className="text-2xl font-bold text-primary-foreground leading-tight mb-1">
-            la calidad se siente
-          </p>
-          <p className="text-2xl font-bold text-primary-foreground leading-tight">
-            y la <span className="text-secondary">Nutrición</span> permanece.
-          </p>
-        </motion.div>
-
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="flex flex-col gap-3 items-center"
-        >
-          <Button asChild size="lg" variant="secondary" className="w-full max-w-xs text-lg px-8 py-6 rounded-2xl btn-bounce shadow-lg">
-            <Link to="/ai">
-              <Sparkles className="h-5 w-5 mr-2" />
-              Crear mi plan
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10">
-            <Link to="/tienda">
-              Ver productos
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Link>
-          </Button>
-        </motion.div>
       </section>
 
       {/* ===== DESKTOP HERO ===== */}
