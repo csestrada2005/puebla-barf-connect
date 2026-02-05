@@ -97,18 +97,35 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video y orejas de perro */}
-          <div className="relative rounded-3xl shadow-2xl overflow-visible pt-6">
-            {/* Orejas de perro */}
-            <div className="absolute -top-2 left-8 w-12 h-14 bg-primary rounded-t-full rounded-b-[40%] -rotate-12 shadow-lg z-0" />
-            <div className="absolute -top-2 right-8 w-12 h-14 bg-primary rounded-t-full rounded-b-[40%] rotate-12 shadow-lg z-0" />
+          {/* Card con video en forma de patita */}
+          <div className="relative shadow-2xl overflow-hidden">
             <video
               src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
-              className="relative z-10 w-full h-56 object-cover rounded-3xl shadow-xl"
+              className="w-full h-64 object-cover"
+              style={{
+                clipPath: `
+                  path('
+                    M 80 10
+                    C 60 0, 40 0, 30 15
+                    C 20 5, 5 10, 5 30
+                    C 0 50, 10 70, 20 75
+                    C 10 85, 5 100, 15 115
+                    C 25 130, 45 140, 50 145
+                    C 55 155, 65 165, 80 170
+                    C 95 165, 105 155, 110 145
+                    C 115 140, 135 130, 145 115
+                    C 155 100, 150 85, 140 75
+                    C 150 70, 160 50, 155 30
+                    C 155 10, 140 5, 130 15
+                    C 120 0, 100 0, 80 10
+                    Z
+                  ')
+                `
+              }}
             />
           </div>
         </motion.div>
