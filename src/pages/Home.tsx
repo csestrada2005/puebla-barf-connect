@@ -364,7 +364,7 @@ export default function Home() {
                     <img 
                       src={decoHappyDog} 
                       alt="" 
-                      className="absolute -top-28 left-1/2 -translate-x-1/2 w-40 h-40 object-contain pointer-events-none z-10"
+                      className="absolute -top-36 left-1/2 -translate-x-1/2 w-48 h-48 object-contain pointer-events-none z-10"
                     />
                   )}
                   <TestimonialCard 
