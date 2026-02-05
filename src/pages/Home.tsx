@@ -242,54 +242,55 @@ export default function Home() {
         />
       </div>
       {/* How it works - Simplified */}
-      <section className="py-16 md:py-24 bg-background relative overflow-hidden" id="como-funciona">
+      <section className="py-10 md:py-24 bg-background relative overflow-hidden" id="como-funciona">
         {/* Decorative background icons - LAZY */}
-        <BrandImage src={decoBowl} alt="" className="absolute top-10 left-4 w-36 md:w-48 opacity-30 pointer-events-none" />
-        <BrandImage src={decoCarrot} alt="" className="absolute bottom-10 right-4 w-32 md:w-44 opacity-30 pointer-events-none" />
+        <BrandImage src={decoBowl} alt="" className="absolute top-4 left-2 w-24 md:w-48 opacity-30 pointer-events-none" />
+        <BrandImage src={decoCarrot} alt="" className="absolute bottom-4 right-2 w-20 md:w-44 opacity-30 pointer-events-none" />
         
         <div className="container relative z-10">
-          <div className="text-center mb-12">
-            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-24 md:h-32 w-auto mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <div className="text-center mb-6 md:mb-12">
+            <BrandImage src={isotipoBowl} alt="Raw Paw" className="h-16 md:h-32 w-auto mx-auto mb-3 md:mb-6" />
+            <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
               Así de fácil funciona
             </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto">
               En 3 pasos simples, tu perro estará comiendo mejor que nunca
             </p>
           </div>
 
           {/* Carousel for mobile, grid for desktop */}
-          <div className="md:hidden px-4">
+          <div className="md:hidden">
             <Carousel
               opts={{
                 align: "center",
                 loop: true,
               }}
-              className="w-full max-w-sm mx-auto"
+              className="w-full max-w-xs mx-auto"
             >
-              <CarouselContent className="-ml-2">
+              <CarouselContent>
                 {howItWorks.map((item) => (
-                  <CarouselItem key={item.step} className="pl-2 basis-[85%]">
+                  <CarouselItem key={item.step} className="basis-full">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                       viewport={{ once: true }}
+                      className="px-2"
                     >
                       <Card className="relative h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                        <CardContent className="pt-8 pb-6 text-center">
+                        <CardContent className="pt-8 pb-5 text-center">
                           <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg">
                             {item.step}
                           </div>
-                          <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
-                          <p className="text-muted-foreground">{item.description}</p>
+                          <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">{item.description}</p>
                         </CardContent>
                       </Card>
                     </motion.div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center gap-2 mt-6">
+              <div className="flex justify-center gap-2 mt-4">
                 <CarouselPrevious className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
                 <CarouselNext className="static translate-y-0 bg-primary/10 hover:bg-primary/20 border-0" />
               </div>
@@ -313,7 +314,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-8 md:mt-12">
             <Button asChild size="lg" className="rounded-2xl btn-bounce gap-2">
               <Link to="/ai">
                 <Sparkles className="h-5 w-5" />
