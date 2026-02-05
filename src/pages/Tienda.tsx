@@ -4,41 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, Clock, Check, ArrowRight } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
-
-const proteinProducts = [
-  {
-    protein: "res",
-    name: "Res Premium",
-    tagline: "Nutrición superior",
-    description: "Variedad de órganos y carne de res de primera calidad",
-    image: productoRes,
-    badge: "✨ Premium",
-    priceFrom: 349,
-    slug: "barf-res-500g",
-    benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"],
-  },
-  {
-    protein: "pollo",
-    name: "Pollo Esencial",
-    tagline: "Digestión ligera",
-    description: "Fórmula balanceada y suave para el estómago",
-    image: productoPollo,
-    badge: null,
-    priceFrom: 299,
-    slug: "barf-pollo-500g",
-    benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"],
-  },
-];
-
+const proteinProducts = [{
+  protein: "res",
+  name: "Res Premium",
+  tagline: "Nutrición superior",
+  description: "Variedad de órganos y carne de res de primera calidad",
+  image: productoRes,
+  badge: "✨ Premium",
+  priceFrom: 349,
+  slug: "barf-res-500g",
+  benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"]
+}, {
+  protein: "pollo",
+  name: "Pollo Esencial",
+  tagline: "Digestión ligera",
+  description: "Fórmula balanceada y suave para el estómago",
+  image: productoPollo,
+  badge: null,
+  priceFrom: 299,
+  slug: "barf-pollo-500g",
+  benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"]
+}];
 interface ProteinCardProps {
   protein: string;
   name: string;
@@ -50,23 +39,23 @@ interface ProteinCardProps {
   slug: string;
   benefits: string[];
 }
-
-function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }: ProteinCardProps) {
-  return (
-    <Link to={`/producto/${slug}`} className="block h-full">
+function ProteinCard({
+  name,
+  tagline,
+  image,
+  badge,
+  priceFrom,
+  slug,
+  benefits
+}: ProteinCardProps) {
+  return <Link to={`/producto/${slug}`} className="block h-full">
       <Card className="group hover:shadow-xl transition-all duration-300 h-full overflow-hidden border-2 hover:border-primary/20">
         {/* Visual Header - Compact */}
         <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-muted/50 flex items-center justify-center overflow-hidden p-3">
-          <img 
-            src={image} 
-            alt={name}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-          />
-          {badge && (
-            <Badge className="absolute top-3 left-3 text-xs font-semibold">
+          <img src={image} alt={name} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+          {badge && <Badge className="absolute top-3 left-3 text-xs font-semibold">
               {badge}
-            </Badge>
-          )}
+            </Badge>}
         </div>
 
         {/* Content - Compact */}
@@ -77,12 +66,10 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
           </div>
 
           <ul className="space-y-1.5">
-            {benefits.map((benefit) => (
-              <li key={benefit} className="flex items-center gap-2 text-xs">
+            {benefits.map(benefit => <li key={benefit} className="flex items-center gap-2 text-xs">
                 <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span>{benefit}</span>
-              </li>
-            ))}
+              </li>)}
           </ul>
 
           <div className="flex items-center justify-between pt-1">
@@ -99,13 +86,10 @@ function ProteinCard({ name, tagline, image, badge, priceFrom, slug, benefits }:
           </div>
         </CardContent>
       </Card>
-    </Link>
-  );
+    </Link>;
 }
-
 export default function Tienda() {
-  return (
-    <Layout>
+  return <Layout>
       <div className="container py-8 md:py-12">
         {/* Header */}
         <div className="text-center mb-6 md:mb-8">
@@ -113,20 +97,19 @@ export default function Tienda() {
             🐾 Alimentación Natural BARF
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Nuestra Tienda</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
-            Solo 2 productos, infinitas posibilidades. Elige la proteína que mejor se adapte a tu mejor amigo.
-          </p>
+          
         </div>
 
         {/* Products - Carousel on mobile, Grid on desktop */}
         <div className="md:hidden mb-6">
-          <Carousel className="w-full" opts={{ align: "center", loop: true }}>
+          <Carousel className="w-full" opts={{
+          align: "center",
+          loop: true
+        }}>
             <CarouselContent className="-ml-2">
-              {proteinProducts.map((product) => (
-                <CarouselItem key={product.protein} className="pl-2 basis-full">
+              {proteinProducts.map(product => <CarouselItem key={product.protein} className="pl-2 basis-full">
                   <ProteinCard {...product} />
-                </CarouselItem>
-              ))}
+                </CarouselItem>)}
             </CarouselContent>
             <CarouselPrevious className="left-2" />
             <CarouselNext className="right-2" />
@@ -170,11 +153,8 @@ export default function Tienda() {
         </div>
         
         <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {proteinProducts.map((product) => (
-            <ProteinCard key={product.protein} {...product} />
-          ))}
+          {proteinProducts.map(product => <ProteinCard key={product.protein} {...product} />)}
         </div>
       </div>
-    </Layout>
-  );
+    </Layout>;
 }
