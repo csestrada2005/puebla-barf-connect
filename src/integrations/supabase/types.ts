@@ -643,6 +643,7 @@ export type Database = {
           total: number
         }[]
       }
+      is_admin: { Args: never; Returns: boolean }
       update_order_by_token: {
         Args: {
           p_driver_notes?: string
