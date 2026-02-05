@@ -53,7 +53,7 @@ export default function Nosotros() {
 
         {/* Hero / Manifesto Section */}
         <section className="relative bg-primary/10 overflow-hidden">
-          <div className="container py-16 md:py-24 pt-32 sm:pt-36 md:pt-20">
+          <div className="container py-10 md:py-24 pt-24 sm:pt-28 md:pt-20">
             <div className="max-w-2xl">
               <motion.div {...fadeInUp} className="space-y-6">
                 <span className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
@@ -75,25 +75,9 @@ export default function Nosotros() {
           </div>
         </section>
 
-        {/* Mobile Dog - Between Hero and Mission */}
-        <div className="block md:hidden py-8 flex justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="sticker-float"
-          >
-            <BrandImage 
-              src={nosotrosBrownDog} 
-              alt="Perro curioso" 
-              className="w-64 object-contain drop-shadow-xl mx-auto"
-              priority
-            />
-          </motion.div>
-        </div>
 
         {/* Mission & Vision Section */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-10 md:py-24 bg-background">
         <div className="container">
           <motion.div {...fadeInUp} className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
