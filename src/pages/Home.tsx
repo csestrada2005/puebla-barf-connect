@@ -202,7 +202,7 @@ export default function Home() {
       {testimonials && testimonials.length > 0 && (
         <section className="py-16 md:py-24 bg-card relative overflow-hidden">
           {/* Decorative background icons - LAZY */}
-          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-36 md:w-52 opacity-20 pointer-events-none" />
+          <BrandImage src={decoFluffy} alt="" className="absolute top-8 right-4 w-56 md:w-80 opacity-20 pointer-events-none" />
           
           <div className="container relative z-10">
             <div className="text-center mb-12">
