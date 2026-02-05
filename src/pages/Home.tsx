@@ -27,7 +27,6 @@ import heroVideo from "@/assets/brand/hero-video.mp4";
 import stepDog1 from "@/assets/brand/step-dog-1.png";
 import stepDog2 from "@/assets/brand/step-dog-2.png";
 import stepDog3 from "@/assets/brand/step-dog-3.png";
-import decoPaw from "@/assets/brand/deco-paw.png";
 
 const stepDogImages = [stepDog1, stepDog2, stepDog3];
 
@@ -97,37 +96,15 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative flex-shrink-0 mx-auto w-full max-w-xs mb-6"
         >
-          {/* Card con video en forma de patita usando SVG clipPath */}
-          <div className="relative shadow-2xl">
-            {/* SVG con definición del clipPath de patita */}
-            <svg width="0" height="0" className="absolute">
-              <defs>
-                <clipPath id="pawClip" clipPathUnits="objectBoundingBox">
-                  {/* Almohadilla principal - forma de corazón/triangulo redondeado */}
-                  <path d="M 0.5 0.95 
-                           C 0.15 0.95, 0.1 0.55, 0.25 0.45 
-                           C 0.35 0.38, 0.45 0.42, 0.5 0.48 
-                           C 0.55 0.42, 0.65 0.38, 0.75 0.45 
-                           C 0.9 0.55, 0.85 0.95, 0.5 0.95 Z" />
-                  {/* Dedito izquierdo exterior - inclinado */}
-                  <ellipse cx="0.12" cy="0.28" rx="0.1" ry="0.13" transform="rotate(-20, 0.12, 0.28)" />
-                  {/* Dedito izquierdo interior */}
-                  <ellipse cx="0.3" cy="0.15" rx="0.1" ry="0.12" transform="rotate(-8, 0.3, 0.15)" />
-                  {/* Dedito derecho interior */}
-                  <ellipse cx="0.7" cy="0.15" rx="0.1" ry="0.12" transform="rotate(8, 0.7, 0.15)" />
-                  {/* Dedito derecho exterior - inclinado */}
-                  <ellipse cx="0.88" cy="0.28" rx="0.1" ry="0.13" transform="rotate(20, 0.88, 0.28)" />
-                </clipPath>
-              </defs>
-            </svg>
+          {/* Card con video */}
+          <div className="rounded-3xl shadow-2xl overflow-hidden">
             <video
               src={heroVideo}
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-80 object-cover drop-shadow-xl"
-              style={{ clipPath: "url(#pawClip)" }}
+              className="w-full h-56 object-cover rounded-3xl"
             />
           </div>
         </motion.div>
