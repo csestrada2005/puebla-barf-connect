@@ -660,6 +660,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_owns_order: { Args: { p_order_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
