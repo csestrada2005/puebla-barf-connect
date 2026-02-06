@@ -23,6 +23,8 @@ const Suscripcion = lazy(() => import("./pages/Suscripcion"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Login = lazy(() => import("./pages/Login"));
 const Registro = lazy(() => import("./pages/Registro"));
+const RecuperarContrasena = lazy(() => import("./pages/RecuperarContrasena"));
+const RestablecerContrasena = lazy(() => import("./pages/RestablecerContrasena"));
 const MiCuenta = lazy(() => import("./pages/MiCuenta"));
 const Terminos = lazy(() => import("./pages/Terminos"));
 const Privacidad = lazy(() => import("./pages/Privacidad"));
@@ -88,6 +90,16 @@ const App = () => (
               <Route path="/registro" element={
                 <Suspense fallback={<RouteSkeleton />}>
                   <Registro />
+                </Suspense>
+              } />
+              <Route path="/recuperar-contrasena" element={
+                <Suspense fallback={<RouteSkeleton />}>
+                  <RecuperarContrasena />
+                </Suspense>
+              } />
+              <Route path="/restablecer-contrasena" element={
+                <Suspense fallback={<RouteSkeleton />}>
+                  <RestablecerContrasena />
                 </Suspense>
               } />
               <Route path="/mi-cuenta" element={
