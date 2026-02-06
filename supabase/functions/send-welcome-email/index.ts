@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -20,6 +21,39 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Authenticate the request - only authenticated users can send welcome emails
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - missing authorization header' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid token' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - no user ID in token' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { email, petName, familyName }: WelcomeEmailRequest = await req.json();
 
     // Validate required fields
@@ -27,10 +61,16 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Missing required fields: email, petName, familyName");
     }
 
-    console.log(`Sending welcome email to ${email} for pet ${petName}`);
+    // Additional validation: email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error("Invalid email format");
+    }
+
+    console.log(`Sending welcome email to ${email} for pet ${petName} (requested by user ${userId})`);
 
     const emailResponse = await resend.emails.send({
-      from: "Raw Paw <hola@rawpaw.mx>", // Replace with your verified domain
+      from: "Raw Paw <hola@rawpaw.mx>",
       to: [email],
       subject: `¡Bienvenido a Raw Paw, familia ${familyName}! 🐾`,
       html: `

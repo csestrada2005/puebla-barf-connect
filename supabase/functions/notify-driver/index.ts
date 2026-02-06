@@ -24,15 +24,62 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authenticate the request - only authenticated admin users can notify drivers
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - no user ID in token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if user is admin using service role client
+    const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    console.log("Fetching driver configuration...");
+    const { data: profile, error: profileError } = await serviceClient
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", userId)
+      .single();
+
+    if (profileError || !profile?.is_admin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - admin access required' }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Admin", userId, "requesting driver notification");
 
     // Get driver phone from app_config
-    const { data: phoneConfig, error: phoneError } = await supabaseClient
+    const { data: phoneConfig, error: phoneError } = await serviceClient
       .from("app_config")
       .select("value")
       .eq("key", "driver_phone")
@@ -69,7 +116,7 @@ Deno.serve(async (req) => {
     });
 
     // Get orders with status "confirmed" for delivery
-    const { data: orders, error: ordersError } = await supabaseClient
+    const { data: orders, error: ordersError } = await serviceClient
       .from("orders")
       .select("*")
       .eq("status", "confirmed")
@@ -131,10 +178,6 @@ Deno.serve(async (req) => {
     // Log the message for debugging
     console.log("WhatsApp message:", message);
     console.log("WhatsApp link generated");
-
-    // For automatic sending, we'd need a WhatsApp Business API
-    // For now, we return the message and link for manual triggering or
-    // integration with a WhatsApp API provider
 
     return new Response(
       JSON.stringify({
