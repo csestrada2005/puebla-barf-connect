@@ -1,111 +1,88 @@
 
-# Plan: Refactorizar "Asi de facil funciona" y agregar seccion en Nosotros
+# Plan: Otorgar acceso de Admin a csestrada2005@outlook.com
 
 ## Resumen
+Actualizar el campo `is_admin` a `true` para el usuario con correo `csestrada2005@outlook.com` en la tabla `profiles`.
 
-Se realizaran dos cambios principales:
-1. **Refactorizar la seccion "Asi de facil funciona"** en Home para usar tarjetas con imagenes de fondo de tamanio uniforme, con el numero del paso en la parte inferior de la imagen (similar al screenshot de referencia de "The Pets Table")
-2. **Agregar nueva seccion** al final de la pagina Nosotros con el mensaje "Porque son un miembro mas de la familia"
+## Pasos
+
+### 1. Ejecutar migración SQL
+Actualizar el registro existente en la base de datos:
+
+```sql
+UPDATE profiles 
+SET is_admin = true 
+WHERE email = 'csestrada2005@outlook.com';
+```
+
+**Resultado esperado**: El usuario podrá acceder a `/admin` después de iniciar sesión.
 
 ---
 
-## Cambio 1: Seccion "Asi de facil funciona"
+## Cómo funciona el sistema de Admin (explicación detallada)
 
-### Diseno Visual (basado en referencia)
-- **Tarjetas con imagen de fondo**: Cada tarjeta tendra una imagen grande con bordes redondeados en la parte superior
-- **Badge de numero**: Circulo con el numero del paso posicionado en la parte inferior-centro de la imagen (solapando entre imagen y texto)
-- **Altura uniforme**: Todas las tarjetas tendran el mismo tamanio usando `aspect-ratio` o altura fija
-- **Texto debajo**: Titulo y descripcion debajo de la imagen
+### Flujo de autenticación
+1. Usuario inicia sesión en `/login`
+2. El hook `useAuth` detecta la sesión y guarda el estado
+3. Al navegar a `/admin`:
+   - Se verifica si está autenticado
+   - Se carga su perfil con `useProfile`
+   - Se verifica si `profile.is_admin === true`
 
-### Imagenes a utilizar
-Las 3 fotos de perros con producto Raw Paw subidas por el usuario:
-- `Gemini_Generated_Image_g6wkq5g6wkq5g6wk.png` - Cachorro Golden con producto (Paso 1)
-- `DSC07256.jpg` - Pastor Aleman con producto (Paso 2) 
-- `IMG_2693.jpg` - Dachshund en cama con producto (Paso 3)
-
-### Estructura del componente
+### Estructura de seguridad
 
 ```text
-+---------------------------+
-|                           |
-|     [IMAGEN GRANDE]       |
-|     aspect-ratio 4:3      |
-|     rounded-3xl           |
-|                           |
-|          (1)              |  <- Badge centrado en la parte inferior
-+---------------------------+
-        Titulo
-      Descripcion
+┌─────────────────────────────────────────────────────────┐
+│                    FRONTEND                              │
+├─────────────────────────────────────────────────────────┤
+│  Admin.tsx                                              │
+│  ├── Verifica isAuthenticated (hook useAuth)            │
+│  ├── Carga perfil con useProfile                        │
+│  └── Verifica profile?.is_admin === true                │
+│       ├── SI: Muestra panel admin                       │
+│       └── NO: Muestra "Acceso Denegado"                 │
+└─────────────────────────────────────────────────────────┘
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                    BACKEND (Base de datos)              │
+├─────────────────────────────────────────────────────────┤
+│  Función is_admin()                                     │
+│  ├── Verifica si auth.uid() tiene is_admin=true        │
+│  └── Usada en todas las políticas RLS de admin         │
+├─────────────────────────────────────────────────────────┤
+│  Políticas RLS en profiles:                             │
+│  ├── "Users can view their own profile" → auth.uid()=id│
+│  ├── "Admins can view all profiles" → is_admin()       │
+│  ├── "Users can update their own profile"→ auth.uid()=id│
+│  └── "Admins can update all profiles" → is_admin()     │
+└─────────────────────────────────────────────────────────┘
 ```
 
----
+### Qué puede hacer un Admin
+| Sección | Funcionalidad |
+|---------|---------------|
+| Dashboard | Ver métricas de ventas, clientes, suscripciones |
+| Pedidos | Ver/editar todos los pedidos, enviar a chofer por WhatsApp |
+| Clientes | Ver todos los perfiles de clientes |
+| Suscripciones | Ver todas las suscripciones activas |
+| Perritos | Ver todos los perfiles de mascotas |
+| Configuración | Cambiar ajustes de la app |
 
-## Cambio 2: Nueva seccion en Nosotros
-
-### Ubicacion
-- Se agregara como **ultima seccion** de la pagina, justo antes del cierre del `<Layout>`
-- Quedara despues del CTA actual ("Listo para cambiar su vida?")
-
-### Diseno
-- Fondo: `bg-secondary` (verde claro de la marca)
-- Texto centrado: "Porque son un miembro mas de la familia"
-- Tipografia grande y bold
-- Imagen decorativa opcional: el grupo de perros (`Gemini_Generated_Image_whj3d3whj3d3whj3-removebg-preview.png`)
-
----
-
-## Archivos a modificar
-
-| Archivo | Cambio |
-|---------|--------|
-| `src/pages/Home.tsx` | Refactorizar seccion "howItWorks" con nuevo diseno de tarjetas |
-| `src/pages/Nosotros.tsx` | Agregar nueva seccion al final |
-| `src/assets/brand/` | Copiar las 3 imagenes de perros + imagen de grupo |
+### Tablas protegidas por RLS
+- `profiles` - Solo admin puede ver todos, usuarios solo el suyo
+- `orders` - Solo admin puede ver/modificar
+- `subscriptions` - Solo admin puede ver todos
+- `dog_profiles` - Solo admin puede ver todos
+- `app_config` - Solo admin puede leer/modificar
 
 ---
 
-## Detalles tecnicos
+## Notas técnicas
 
-### Home.tsx - Cambios principales
+### Seguridad actual
+- La columna `is_admin` está protegida por RLS
+- Solo un admin existente puede cambiar `is_admin` de otros usuarios
+- La función `is_admin()` usa `SECURITY DEFINER` para evitar recursión en RLS
 
-1. **Importar nuevas imagenes** en lugar de step-dog-1/2/3
-2. **Actualizar array `howItWorks`** con las nuevas rutas de imagenes
-3. **Refactorizar JSX** de las tarjetas:
-   - Usar `AspectRatio` de Radix para mantener proporcion 4:3
-   - Imagen como `object-cover` dentro del contenedor
-   - Badge posicionado con `absolute bottom-0 left-1/2 translate-y-1/2`
-   - Titulo y descripcion fuera de la tarjeta de imagen
-
-4. **Mobile**: Mismo diseno pero en carrusel (ya existente)
-5. **Desktop**: Grid de 3 columnas con altura uniforme
-
-### Nosotros.tsx - Nueva seccion
-
-```jsx
-<section className="py-16 md:py-20 bg-secondary">
-  <div className="container text-center">
-    <motion.div {...fadeInUp}>
-      <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground">
-        Porque son un miembro mas de la familia
-      </h2>
-      {/* Imagen decorativa del grupo de perros */}
-      <img src={familyDogs} className="mx-auto mt-8 max-w-md" />
-    </motion.div>
-  </div>
-</section>
-```
-
----
-
-## Resultado esperado
-
-### Home - "Asi de facil funciona"
-- 3 tarjetas identicas en tamanio
-- Imagenes reales de perros con producto Raw Paw
-- Numero del paso como badge circular en la parte inferior de cada imagen
-- Aspecto premium similar a "The Pets Table"
-
-### Nosotros - Nueva seccion
-- Seccion emotiva al final de la pagina
-- Mensaje: "Porque son un miembro mas de la familia"
-- Imagen de grupo de perros como refuerzo visual
+### Recomendación futura (opcional)
+Para mayor seguridad, se podría migrar a un sistema de roles separado (`user_roles` table) en el futuro, aunque el sistema actual funciona correctamente.
