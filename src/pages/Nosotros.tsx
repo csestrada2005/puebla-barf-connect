@@ -226,7 +226,7 @@ export default function Nosotros() {
       </section>
 
       {/* Combined CTA + Family Section */}
-      <section className="py-16 md:py-24 bg-primary">
+      <section className="py-16 md:py-24 bg-secondary/30">
         <div className="container">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left: Family photo with frame */}
@@ -241,11 +241,11 @@ export default function Nosotros() {
                   />
                 </AspectRatio>
                 {/* Heart badge like step cards */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-lg z-10 border-4 border-primary">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg z-10 border-4 border-background">
                   ❤️ Familia
                 </div>
               </div>
-              <p className="text-center text-primary-foreground/90 text-lg md:text-xl font-medium mt-8">
+              <p className="text-center text-foreground/80 text-lg md:text-xl font-medium mt-8">
                 Porque son un miembro más de la familia
               </p>
             </motion.div>
@@ -255,18 +255,17 @@ export default function Nosotros() {
               {...fadeInUp}
               className="order-1 md:order-2 text-center md:text-left space-y-6"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                 ¿Listo para cambiar su vida?
               </h2>
-              <p className="text-primary-foreground/80 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Descubre la diferencia que una nutrición real puede hacer en tu mejor amigo.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
                 <Button 
                   asChild 
                   size="lg" 
-                  variant="secondary"
-                  className="text-foreground font-semibold"
+                  className="font-semibold"
                 >
                   <Link to="/ai">
                     Consulta al Dogtor 🩺
@@ -276,7 +275,7 @@ export default function Nosotros() {
                   asChild 
                   size="lg" 
                   variant="outline"
-                  className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                  className="border-foreground/20"
                 >
                   <Link to="/tienda" className="flex items-center gap-2">
                     Ver Tienda <ArrowRight className="w-4 h-4" />
