@@ -265,6 +265,7 @@ export type Database = {
           delivery_notes: string | null
           delivery_photo_url: string | null
           delivery_token: string | null
+          delivery_token_expires_at: string | null
           dog_profile_id: string | null
           driver_confirmed_at: string | null
           driver_notes: string | null
@@ -293,6 +294,7 @@ export type Database = {
           delivery_notes?: string | null
           delivery_photo_url?: string | null
           delivery_token?: string | null
+          delivery_token_expires_at?: string | null
           dog_profile_id?: string | null
           driver_confirmed_at?: string | null
           driver_notes?: string | null
@@ -321,6 +323,7 @@ export type Database = {
           delivery_notes?: string | null
           delivery_photo_url?: string | null
           delivery_token?: string | null
+          delivery_token_expires_at?: string | null
           dog_profile_id?: string | null
           driver_confirmed_at?: string | null
           driver_notes?: string | null
