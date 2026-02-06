@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,11 +24,14 @@ import {
   X,
   Send,
   MessageSquare,
+  CalendarDays,
+  Image as ImageIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, addWeeks, isWithinInterval, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
 type OrderStatus = "new" | "confirmed" | "in_route" | "delivered" | "cancelled";
+type DateFilter = "all" | "today" | "this_week" | "next_week";
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; next?: OrderStatus }> = {
   new: { label: "Nuevo", color: "bg-blue-100 text-blue-800", next: "confirmed" },
@@ -38,16 +41,43 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; next?: 
   cancelled: { label: "Cancelado", color: "bg-red-100 text-red-800" },
 };
 
+const DATE_FILTER_CONFIG: Record<DateFilter, { label: string; icon?: string }> = {
+  all: { label: "Todos" },
+  today: { label: "Hoy" },
+  this_week: { label: "Esta semana" },
+  next_week: { label: "Próxima semana" },
+};
+
 export default function OrdersView() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [tempNotes, setTempNotes] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+
+  // Calculate date ranges
+  const dateRanges = useMemo(() => {
+    const now = new Date();
+    return {
+      today: {
+        start: startOfDay(now),
+        end: endOfDay(now),
+      },
+      this_week: {
+        start: startOfWeek(now, { weekStartsOn: 1 }),
+        end: endOfWeek(now, { weekStartsOn: 1 }),
+      },
+      next_week: {
+        start: startOfWeek(addWeeks(now, 1), { weekStartsOn: 1 }),
+        end: endOfWeek(addWeeks(now, 1), { weekStartsOn: 1 }),
+      },
+    };
+  }, []);
 
   // Fetch all orders
   const { data: orders, isLoading } = useQuery({
@@ -119,16 +149,32 @@ export default function OrdersView() {
     },
   });
 
-  // Filter orders
-  const filteredOrders = orders?.filter((order) => {
-    const matchesSearch = 
-      order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_phone?.includes(searchTerm) ||
-      order.order_number?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (statusFilter === "all") return matchesSearch;
-    return matchesSearch && order.status === statusFilter;
-  }) || [];
+  // Filter orders by search, status, and date
+  const filteredOrders = useMemo(() => {
+    return orders?.filter((order) => {
+      // Search filter
+      const matchesSearch = 
+        order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer_phone?.includes(searchTerm) ||
+        order.order_number?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (!matchesSearch) return false;
+
+      // Status filter
+      if (statusFilter !== "all" && order.status !== statusFilter) return false;
+
+      // Date filter
+      if (dateFilter !== "all") {
+        const orderDate = parseISO(order.created_at);
+        const range = dateRanges[dateFilter];
+        if (!isWithinInterval(orderDate, { start: range.start, end: range.end })) {
+          return false;
+        }
+      }
+
+      return true;
+    }) || [];
+  }, [orders, searchTerm, statusFilter, dateFilter, dateRanges]);
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     updateStatusMutation.mutate({ orderId, status: newStatus });
@@ -291,6 +337,29 @@ export default function OrdersView() {
           </div>
         </div>
 
+        {/* Date Filters */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex items-center gap-1 mr-2">
+            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Fecha:</span>
+          </div>
+          {(Object.entries(DATE_FILTER_CONFIG) as [DateFilter, { label: string }][]).map(([key, config]) => (
+            <Button
+              key={key}
+              variant={dateFilter === key ? "default" : "outline"}
+              size="sm"
+              onClick={() => setDateFilter(key)}
+              className="h-8"
+            >
+              {config.label}
+              {key !== "all" && dateFilter === key && (
+                <span className="ml-1 text-xs opacity-70">
+                  ({format(dateRanges[key].start, "d/M")} - {format(dateRanges[key].end, "d/M")})
+                </span>
+              )}
+            </Button>
+          ))}
+        </div>
         {/* Selection controls and WhatsApp button */}
         {filteredOrders.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-4 border-t mt-4">
