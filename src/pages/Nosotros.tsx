@@ -226,7 +226,7 @@ export default function Nosotros() {
       </section>
 
       {/* Combined CTA + Family Section */}
-      <section className="py-16 md:py-24 bg-secondary/30">
+      <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left: Family photo with frame */}
