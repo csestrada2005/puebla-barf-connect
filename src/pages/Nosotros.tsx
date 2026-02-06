@@ -232,7 +232,7 @@ export default function Nosotros() {
             {/* Left: Family photo with frame */}
             <motion.div {...fadeInUp} className="order-2 md:order-1">
               <div className="relative max-w-lg mx-auto">
-                <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl shadow-lg">
+                <AspectRatio ratio={1} className="overflow-hidden rounded-3xl shadow-lg">
                   <img 
                     src={familyDogsPhoto} 
                     alt="Familia de perros" 
