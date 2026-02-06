@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.sync-to-sheets]
 verify_jwt = false
+
+[functions.upload-delivery-photo]
+verify_jwt = false

@@ -249,6 +249,7 @@ export default function DriverConfirm() {
                 onPhotoUploaded={setPhotoUrl}
                 existingPhoto={order.delivery_photo_url}
                 disabled={submitting}
+                deliveryToken={token}
               />
             )}
 

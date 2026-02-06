@@ -4,6 +4,7 @@ import {
   CreditCard, Banknote, MessageCircle, 
   ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar 
 } from "lucide-react";
+import { z } from "zod";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,33 @@ import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
+
+// Validation schema for checkout form
+const checkoutSchema = z.object({
+  name: z.string()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres")
+    .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s'-]+$/, "El nombre contiene caracteres inválidos"),
+  phone: z.string()
+    .regex(/^[0-9+ ()-]{7,20}$/, "Formato de teléfono inválido (7-20 dígitos)"),
+  address: z.string()
+    .min(10, "La dirección debe tener al menos 10 caracteres")
+    .max(500, "La dirección no puede exceder 500 caracteres"),
+  notes: z.string()
+    .max(1000, "Las notas no pueden exceder 1000 caracteres")
+    .optional()
+    .or(z.literal("")),
+  deliveryWindow: z.string().optional(),
+  preferredDeliveryDay: z.enum(["", "monday", "sunday"]).optional(),
+});
+
+// Sanitize text for WhatsApp messages (prevent injection)
+const sanitizeForWhatsApp = (text: string): string => {
+  return text
+    .replace(/[<>]/g, "") // Remove HTML-like characters
+    .replace(/[\r\n]+/g, " ") // Replace newlines with spaces
+    .trim();
+};
 
 const paymentMethods = [
   {
@@ -84,10 +112,14 @@ export default function Checkout() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone || !formData.address) {
+    // Validate form data with Zod
+    const validationResult = checkoutSchema.safeParse(formData);
+    
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
-        title: "Completa todos los campos",
-        description: "Necesitamos tu nombre, teléfono y dirección.",
+        title: "Error de validación",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -155,9 +187,14 @@ export default function Checkout() {
         else console.log("Order synced to sheets");
       });
       
-      // Generate WhatsApp message with structured format
-      const itemsList = items.map(i => `• ${i.name} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
-      const familyName = formData.name.split(" ").slice(-1)[0];
+      // Generate WhatsApp message with sanitized, structured format
+      const sanitizedName = sanitizeForWhatsApp(formData.name);
+      const sanitizedAddress = sanitizeForWhatsApp(formData.address);
+      const sanitizedNotes = formData.notes ? sanitizeForWhatsApp(formData.notes) : "";
+      const sanitizedWindow = formData.deliveryWindow ? sanitizeForWhatsApp(formData.deliveryWindow) : "";
+      
+      const itemsList = items.map(i => `• ${sanitizeForWhatsApp(i.name)} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
+      const familyName = sanitizedName.split(" ").slice(-1)[0];
       
       const message = encodeURIComponent(
         `*Nuevo Pedido Raw Paw*\n` +
@@ -167,9 +204,9 @@ export default function Checkout() {
         `*Pago:* ${paymentMethod === "efectivo" ? "Efectivo por cobrar" : "Tarjeta"}\n\n` +
         `*Cliente:* ${petInfo || "No especificado"} - Fam. ${familyName}\n` +
         `*Tel:* ${formData.phone}\n` +
-        `*Dirección:* ${formData.address}\n` +
-        (formData.notes ? `*Referencias:* ${formData.notes}\n` : "") +
-        (formData.deliveryWindow ? `*Ventana horaria:* ${formData.deliveryWindow}\n` : "") +
+        `*Dirección:* ${sanitizedAddress}\n` +
+        (sanitizedNotes ? `*Referencias:* ${sanitizedNotes}\n` : "") +
+        (sanitizedWindow ? `*Ventana horaria:* ${sanitizedWindow}\n` : "") +
         (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "monday" ? "Lunes" : "Domingo"}\n` : "") +
         `\n*Entrega:* 24-48h`
       );
