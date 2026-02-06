@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import {
@@ -26,6 +26,7 @@ import {
   ShoppingCart,
   Dog,
   Loader2,
+  Home,
 } from "lucide-react";
 import {
   OrdersView,
@@ -130,7 +131,13 @@ export default function Admin() {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <div className="mt-auto p-4 border-t">
+            <div className="mt-auto p-4 border-t space-y-2">
+              <Button variant="outline" size="sm" asChild className="w-full gap-2">
+                <Link to="/">
+                  <Home className="h-4 w-4" />
+                  Volver a la web
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full gap-2">
                 <LogOut className="h-4 w-4" />
                 Cerrar sesión
