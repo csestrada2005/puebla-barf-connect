@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "./AuthProvider";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,15 +101,12 @@ export function RegisterForm() {
 
       // 4. Send welcome email via edge function (fire and forget)
       try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        await supabase.functions.invoke('send-welcome-email', {
+          body: {
             email: formData.email,
             petName: formData.pet_name,
             familyName: formData.family_name,
-          }),
+          },
         });
       } catch (emailError) {
         console.log('Welcome email could not be sent:', emailError);
