@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EditableField } from "./EditableField";
+import { EditableSelect } from "./EditableSelect";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Dog, 
   Search, 
@@ -17,7 +20,45 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
+const STATUS_OPTIONS = [
+  { value: "active", label: "Activo", color: "bg-green-100 text-green-800" },
+  { value: "archived", label: "Archivado", color: "bg-yellow-100 text-yellow-800" },
+  { value: "deceased", label: "Fallecido", color: "bg-gray-100 text-gray-800" },
+];
+
+const AGE_STAGE_OPTIONS = [
+  { value: "puppy", label: "Cachorro" },
+  { value: "adult", label: "Adulto" },
+  { value: "senior", label: "Senior" },
+];
+
+const ACTIVITY_OPTIONS = [
+  { value: "low", label: "Baja" },
+  { value: "normal", label: "Normal" },
+  { value: "moderate", label: "Moderada" },
+  { value: "high", label: "Alta" },
+];
+
+const BODY_CONDITION_OPTIONS = [
+  { value: "underweight", label: "Bajo peso" },
+  { value: "ideal", label: "Ideal" },
+  { value: "overweight", label: "Sobrepeso" },
+];
+
+const PROTEIN_OPTIONS = [
+  { value: "pollo", label: "Pollo" },
+  { value: "res", label: "Res" },
+  { value: "mix", label: "Mix" },
+];
+
+const PLAN_TYPE_OPTIONS = [
+  { value: "standard", label: "Estándar" },
+  { value: "premium", label: "Premium" },
+];
+
 export default function DogsView() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -46,6 +87,28 @@ export default function DogsView() {
     },
   });
 
+  // Update dog mutation
+  const updateDogMutation = useMutation({
+    mutationFn: async ({ dogId, updates }: { dogId: string; updates: Record<string, any> }) => {
+      const { error } = await supabase
+        .from("dog_profiles")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", dogId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-dogs-full"] });
+      toast({ title: "Perrito actualizado" });
+    },
+    onError: () => {
+      toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  const handleUpdateDog = async (dogId: string, field: string, value: any) => {
+    await updateDogMutation.mutateAsync({ dogId, updates: { [field]: value } });
+  };
+
   const getProfile = (userId: string | null) => profiles?.find(p => p.id === userId);
 
   // Filter dogs
@@ -59,32 +122,6 @@ export default function DogsView() {
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && dog.status === statusFilter;
   }) || [];
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-100 text-green-800 border-0">Activo</Badge>;
-      case "deceased":
-        return <Badge className="bg-gray-100 text-gray-800 border-0">Fallecido</Badge>;
-      case "archived":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-0">Archivado</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  const getActivityBadge = (level: string) => {
-    switch (level) {
-      case "high":
-        return <Badge variant="outline" className="text-red-600 border-red-200">Alta</Badge>;
-      case "moderate":
-        return <Badge variant="outline" className="text-yellow-600 border-yellow-200">Moderada</Badge>;
-      case "low":
-        return <Badge variant="outline" className="text-green-600 border-green-200">Baja</Badge>;
-      default:
-        return <Badge variant="outline">{level}</Badge>;
-    }
-  };
 
   // Calculate stats
   const activeCount = dogs?.filter(d => d.status === "active").length || 0;
@@ -183,6 +220,7 @@ export default function DogsView() {
                     <th className="text-left py-3 px-2">Peso</th>
                     <th className="text-left py-3 px-2">Edad</th>
                     <th className="text-left py-3 px-2">Actividad</th>
+                    <th className="text-left py-3 px-2">Condición</th>
                     <th className="text-left py-3 px-2">Recomendación</th>
                     <th className="text-left py-3 px-2">Diario</th>
                     <th className="text-left py-3 px-2">Estado</th>
@@ -206,7 +244,12 @@ export default function DogsView() {
                                 <Dog className="h-4 w-4 text-primary" />
                               </div>
                             )}
-                            <span className="font-medium">{dog.name}</span>
+                            <EditableField
+                              value={dog.name}
+                              onSave={(v) => handleUpdateDog(dog.id, "name", v)}
+                              placeholder="Nombre"
+                              className="font-medium"
+                            />
                           </div>
                         </td>
                         <td className="py-3 px-2">
@@ -215,33 +258,73 @@ export default function DogsView() {
                             <span>{profile?.family_name || "—"}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-2">{dog.weight_kg}kg</td>
                         <td className="py-3 px-2">
-                          <span className="capitalize">{dog.age_stage}</span>
+                          <EditableField
+                            value={dog.weight_kg?.toString()}
+                            onSave={(v) => handleUpdateDog(dog.id, "weight_kg", parseFloat(v) || 0)}
+                            type="number"
+                            inputClassName="w-16"
+                          />
+                          <span className="text-xs text-muted-foreground ml-1">kg</span>
+                        </td>
+                        <td className="py-3 px-2">
+                          <EditableSelect
+                            value={dog.age_stage}
+                            options={AGE_STAGE_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "age_stage", v)}
+                          />
                           {dog.birthday && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                               <Cake className="h-3 w-3" />
                               {format(new Date(dog.birthday), "d MMM", { locale: es })}
                             </p>
                           )}
                         </td>
                         <td className="py-3 px-2">
-                          {getActivityBadge(dog.activity_level)}
+                          <EditableSelect
+                            value={dog.activity_level}
+                            options={ACTIVITY_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "activity_level", v)}
+                          />
                         </td>
                         <td className="py-3 px-2">
-                          <p className="capitalize">{dog.recommended_protein}</p>
-                          <p className="text-xs text-muted-foreground capitalize">
-                            {dog.recommended_plan_type}
-                          </p>
+                          <EditableSelect
+                            value={dog.body_condition}
+                            options={BODY_CONDITION_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "body_condition", v)}
+                          />
                         </td>
                         <td className="py-3 px-2">
-                          <span className="font-medium">{dog.daily_grams}g</span>
+                          <EditableSelect
+                            value={dog.recommended_protein}
+                            options={PROTEIN_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "recommended_protein", v)}
+                          />
+                          <EditableSelect
+                            value={dog.recommended_plan_type}
+                            options={PLAN_TYPE_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "recommended_plan_type", v)}
+                            className="mt-1"
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <EditableField
+                            value={dog.daily_grams?.toString()}
+                            onSave={(v) => handleUpdateDog(dog.id, "daily_grams", parseInt(v) || 0)}
+                            type="number"
+                            inputClassName="w-16"
+                          />
+                          <span className="text-xs text-muted-foreground ml-1">g</span>
                           <p className="text-xs text-muted-foreground">
                             {dog.weekly_kg}kg/sem
                           </p>
                         </td>
                         <td className="py-3 px-2">
-                          {getStatusBadge(dog.status)}
+                          <EditableSelect
+                            value={dog.status}
+                            options={STATUS_OPTIONS}
+                            onSave={(v) => handleUpdateDog(dog.id, "status", v)}
+                          />
                         </td>
                       </tr>
                     );
