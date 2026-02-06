@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles, Plus, XCircle, Camera } from "lucide-react";
+import { Loader2, User, Dog, MapPin, Package, LogOut, Save, Calendar, Truck, Sparkles, Plus, XCircle, Camera, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -167,10 +167,20 @@ export default function MiCuenta() {
                 Hola, Familia {profile?.family_name} 👋
               </p>
             </div>
-            <Button variant="outline" onClick={handleSignOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Cerrar sesión
-            </Button>
+            <div className="flex items-center gap-2">
+              {profile?.is_admin && (
+                <Button variant="default" asChild className="gap-2">
+                  <Link to="/admin">
+                    <Shield className="h-4 w-4" />
+                    Panel Admin
+                  </Link>
+                </Button>
+              )}
+              <Button variant="outline" onClick={handleSignOut} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Cerrar sesión
+              </Button>
+            </div>
           </div>
 
           {/* Birthday Banner */}
