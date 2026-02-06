@@ -237,6 +237,7 @@ export default function Nosotros() {
                     src={familyDogsPhoto} 
                     alt="Familia de perros" 
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: "center bottom" }}
                   />
                 </AspectRatio>
                 {/* Heart badge like step cards */}
