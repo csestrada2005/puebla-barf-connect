@@ -14,15 +14,26 @@ import {
   MessageSquare,
   Send,
   ExternalLink,
+  Plus,
+  Trash2,
+  User,
 } from "lucide-react";
+
+interface Driver {
+  id: string;
+  name: string;
+  phone: string;
+}
 
 export default function SettingsView() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [driverPhone, setDriverPhone] = useState("");
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [deliveryHour, setDeliveryHour] = useState("07:00");
   const [testingNotification, setTestingNotification] = useState(false);
+  const [newDriverName, setNewDriverName] = useState("");
+  const [newDriverPhone, setNewDriverPhone] = useState("");
 
   // Fetch driver config
   const { data: driverConfig, isLoading: driverLoading } = useQuery({
@@ -31,13 +42,13 @@ export default function SettingsView() {
       const { data, error } = await supabase
         .from("app_config")
         .select("key, value")
-        .in("key", ["driver_phone", "delivery_notification_hour"]);
+        .in("key", ["drivers", "driver_phone", "delivery_notification_hour"]);
       
       if (error) throw error;
       
-      const config: Record<string, string> = {};
+      const config: Record<string, any> = {};
       data?.forEach((item) => {
-        config[item.key] = item.value as string;
+        config[item.key] = item.value;
       });
       return config;
     },
@@ -46,7 +57,13 @@ export default function SettingsView() {
   // Initialize from config
   useEffect(() => {
     if (driverConfig) {
-      setDriverPhone(driverConfig.driver_phone || "");
+      // Support both old single driver format and new multi-driver format
+      if (driverConfig.drivers && Array.isArray(driverConfig.drivers)) {
+        setDrivers(driverConfig.drivers);
+      } else if (driverConfig.driver_phone) {
+        // Legacy format: single driver
+        setDrivers([{ id: "1", name: "Chofer principal", phone: driverConfig.driver_phone }]);
+      }
       setDeliveryHour(driverConfig.delivery_notification_hour || "07:00");
     }
   }, [driverConfig]);
@@ -55,8 +72,10 @@ export default function SettingsView() {
   const saveDriverConfigMutation = useMutation({
     mutationFn: async () => {
       const configs = [
-        { key: "driver_phone", value: driverPhone },
+        { key: "drivers", value: drivers },
         { key: "delivery_notification_hour", value: deliveryHour },
+        // Keep driver_phone for backwards compatibility (first driver)
+        { key: "driver_phone", value: drivers[0]?.phone || "" },
       ];
 
       for (const config of configs) {
@@ -84,7 +103,7 @@ export default function SettingsView() {
       queryClient.invalidateQueries({ queryKey: ["admin-driver-config"] });
       toast({
         title: "Configuración guardada",
-        description: "Los datos del chofer se han actualizado.",
+        description: "Los datos de los choferes se han actualizado.",
       });
     },
     onError: (error) => {
@@ -97,159 +116,258 @@ export default function SettingsView() {
     },
   });
 
+  const addDriver = () => {
+    if (!newDriverName.trim() || !newDriverPhone.trim()) {
+      toast({
+        title: "Datos incompletos",
+        description: "Ingresa nombre y teléfono del chofer.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (newDriverPhone.length !== 10) {
+      toast({
+        title: "Teléfono inválido",
+        description: "El teléfono debe tener 10 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const newDriver: Driver = {
+      id: Date.now().toString(),
+      name: newDriverName.trim(),
+      phone: newDriverPhone.trim(),
+    };
+    setDrivers([...drivers, newDriver]);
+    setNewDriverName("");
+    setNewDriverPhone("");
+    toast({
+      title: "Chofer añadido",
+      description: "Recuerda guardar los cambios.",
+    });
+  };
+
+  const removeDriver = (driverId: string) => {
+    setDrivers(drivers.filter(d => d.id !== driverId));
+    toast({
+      title: "Chofer eliminado",
+      description: "Recuerda guardar los cambios.",
+    });
+  };
+
+  const updateDriver = (driverId: string, field: keyof Driver, value: string) => {
+    setDrivers(drivers.map(d => 
+      d.id === driverId ? { ...d, [field]: value } : d
+    ));
+  };
+
   const hours = Array.from({ length: 24 }, (_, i) => {
     const hour = i.toString().padStart(2, "0");
     return `${hour}:00`;
   });
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      {/* Driver WhatsApp Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Truck className="h-5 w-5" />
-            Configuración del Chofer
-          </CardTitle>
-          <CardDescription>
-            Configura el número de WhatsApp del chofer para recibir automáticamente las entregas del día.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="driver-phone">Número de WhatsApp del chofer</Label>
-            <div className="flex gap-2">
-              <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 text-sm text-muted-foreground">
-                +52
-              </span>
-              <Input
-                id="driver-phone"
-                type="tel"
-                placeholder="221 123 4567"
-                value={driverPhone}
-                onChange={(e) => setDriverPhone(e.target.value.replace(/\D/g, ""))}
-                className="flex-1 rounded-l-none"
-                maxLength={10}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Ingresa los 10 dígitos sin espacios ni guiones
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="delivery-hour">Hora de envío del mensaje</Label>
-            <Select value={deliveryHour} onValueChange={setDeliveryHour}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona hora" />
-              </SelectTrigger>
-              <SelectContent>
-                {hours.map((hour) => (
-                  <SelectItem key={hour} value={hour}>
-                    {hour} hrs
-                  </SelectItem>
+    <div className="flex justify-center">
+      <div className="space-y-6 w-full max-w-2xl">
+        {/* Driver WhatsApp Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Configuración de Choferes
+            </CardTitle>
+            <CardDescription>
+              Configura los números de WhatsApp de los choferes para recibir automáticamente las entregas del día.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Existing drivers list */}
+            {drivers.length > 0 && (
+              <div className="space-y-3">
+                <Label>Choferes registrados</Label>
+                {drivers.map((driver, index) => (
+                  <div key={driver.id} className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <Input
+                        value={driver.name}
+                        onChange={(e) => updateDriver(driver.id, "name", e.target.value)}
+                        placeholder="Nombre"
+                        className="h-8"
+                      />
+                      <div className="flex gap-1">
+                        <span className="flex items-center px-2 bg-background rounded border text-xs text-muted-foreground">
+                          +52
+                        </span>
+                        <Input
+                          type="tel"
+                          value={driver.phone}
+                          onChange={(e) => updateDriver(driver.id, "phone", e.target.value.replace(/\D/g, ""))}
+                          placeholder="Teléfono"
+                          className="h-8 flex-1"
+                          maxLength={10}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeDriver(driver.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Cada día a esta hora se enviará el resumen de entregas por WhatsApp
-            </p>
-          </div>
-
-          <Button
-            onClick={() => saveDriverConfigMutation.mutate()}
-            disabled={saveDriverConfigMutation.isPending || !driverPhone}
-            className="w-full gap-2"
-          >
-            {saveDriverConfigMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
+              </div>
             )}
-            Guardar configuración
-          </Button>
 
-          {driverConfig?.driver_phone && (
-            <div className="flex items-center gap-2 text-sm text-primary">
-              <MessageSquare className="h-4 w-4" />
-              Mensaje configurado para +52 {driverConfig.driver_phone} a las {driverConfig.delivery_notification_hour || "07:00"}
+            {/* Add new driver */}
+            <div className="space-y-2 pt-4 border-t">
+              <Label>Añadir nuevo chofer</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nombre del chofer"
+                  value={newDriverName}
+                  onChange={(e) => setNewDriverName(e.target.value)}
+                  className="flex-1"
+                />
+                <div className="flex gap-1">
+                  <span className="flex items-center px-2 bg-muted rounded-l-md border border-r-0 text-sm text-muted-foreground">
+                    +52
+                  </span>
+                  <Input
+                    type="tel"
+                    placeholder="Teléfono"
+                    value={newDriverPhone}
+                    onChange={(e) => setNewDriverPhone(e.target.value.replace(/\D/g, ""))}
+                    className="w-32 rounded-l-none"
+                    maxLength={10}
+                  />
+                </div>
+                <Button onClick={addDriver} variant="outline" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Añadir
+                </Button>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Test Notification Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Send className="h-5 w-5" />
-            Probar Notificación
-          </CardTitle>
-          <CardDescription>
-            Genera el mensaje de entregas de hoy y ábrelo en WhatsApp.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button
-            onClick={async () => {
-              setTestingNotification(true);
-              try {
-                const { data, error } = await supabase.functions.invoke("notify-driver");
-                
-                if (error) throw error;
-                
-                if (data.orderCount === 0) {
-                  toast({
-                    title: "Sin entregas",
-                    description: "No hay pedidos confirmados para entregar hoy.",
-                  });
-                } else if (data.whatsappLink) {
-                  toast({
-                    title: `${data.orderCount} entregas encontradas`,
-                    description: "Abriendo WhatsApp...",
-                  });
-                  window.open(data.whatsappLink, "_blank");
-                }
-              } catch (error) {
-                console.error("Error testing notification:", error);
-                toast({
-                  title: "Error",
-                  description: "No se pudo generar el mensaje.",
-                  variant: "destructive",
-                });
-              } finally {
-                setTestingNotification(false);
-              }
-            }}
-            disabled={testingNotification || !driverConfig?.driver_phone}
-            variant="outline"
-            className="w-full gap-2"
-          >
-            {testingNotification ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ExternalLink className="h-4 w-4" />
+            <div className="space-y-2 pt-4 border-t">
+              <Label htmlFor="delivery-hour">Hora de envío del mensaje</Label>
+              <Select value={deliveryHour} onValueChange={setDeliveryHour}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona hora" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hours.map((hour) => (
+                    <SelectItem key={hour} value={hour}>
+                      {hour} hrs
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Cada día a esta hora se enviará el resumen de entregas por WhatsApp
+              </p>
+            </div>
+
+            <Button
+              onClick={() => saveDriverConfigMutation.mutate()}
+              disabled={saveDriverConfigMutation.isPending || drivers.length === 0}
+              className="w-full gap-2"
+            >
+              {saveDriverConfigMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Guardar configuración
+            </Button>
+
+            {drivers.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-primary">
+                <MessageSquare className="h-4 w-4" />
+                {drivers.length} chofer{drivers.length > 1 ? "es" : ""} configurado{drivers.length > 1 ? "s" : ""} • Mensaje a las {deliveryHour}
+              </div>
             )}
-            Generar mensaje y abrir WhatsApp
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            Esto genera el resumen de entregas confirmadas y abre WhatsApp Web para enviarlo al chofer.
-          </p>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Info Card */}
-      <Card className="bg-muted/50">
-        <CardContent className="pt-6">
-          <h4 className="font-medium text-sm mb-2">¿Cómo funciona?</h4>
-          <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-            <li>Cada día a la hora configurada, el chofer recibirá un mensaje de WhatsApp</li>
-            <li>El mensaje incluye todas las entregas pendientes del día</li>
-            <li>Incluye: nombre del cliente, dirección, teléfono y productos</li>
-            <li>Los pedidos en estado "Confirmado" se incluyen automáticamente</li>
-          </ul>
-        </CardContent>
-      </Card>
+        {/* Test Notification Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5" />
+              Probar Notificación
+            </CardTitle>
+            <CardDescription>
+              Genera el mensaje de entregas de hoy y ábrelo en WhatsApp.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button
+              onClick={async () => {
+                setTestingNotification(true);
+                try {
+                  const { data, error } = await supabase.functions.invoke("notify-driver");
+                  
+                  if (error) throw error;
+                  
+                  if (data.orderCount === 0) {
+                    toast({
+                      title: "Sin entregas",
+                      description: "No hay pedidos confirmados para entregar hoy.",
+                    });
+                  } else if (data.whatsappLink) {
+                    toast({
+                      title: `${data.orderCount} entregas encontradas`,
+                      description: "Abriendo WhatsApp...",
+                    });
+                    window.open(data.whatsappLink, "_blank");
+                  }
+                } catch (error) {
+                  console.error("Error testing notification:", error);
+                  toast({
+                    title: "Error",
+                    description: "No se pudo generar el mensaje.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setTestingNotification(false);
+                }
+              }}
+              disabled={testingNotification || drivers.length === 0}
+              variant="outline"
+              className="w-full gap-2"
+            >
+              {testingNotification ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ExternalLink className="h-4 w-4" />
+              )}
+              Generar mensaje y abrir WhatsApp
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Esto genera el resumen de entregas confirmadas y abre WhatsApp Web para enviarlo al primer chofer.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="bg-muted/50">
+          <CardContent className="pt-6">
+            <h4 className="font-medium text-sm mb-2">¿Cómo funciona?</h4>
+            <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
+              <li>Cada día a la hora configurada, los choferes recibirán un mensaje de WhatsApp</li>
+              <li>El mensaje incluye todas las entregas pendientes del día</li>
+              <li>Incluye: nombre del cliente, dirección, teléfono y productos</li>
+              <li>Los pedidos en estado "Confirmado" se incluyen automáticamente</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

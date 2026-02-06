@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { EditableField } from "./EditableField";
 import { EditableSelect } from "./EditableSelect";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +16,7 @@ import {
   Loader2,
   Calendar,
   User,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -93,6 +96,24 @@ export default function SubscriptionsView() {
     },
     onError: () => {
       toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  // Delete subscription mutation
+  const deleteSubscriptionMutation = useMutation({
+    mutationFn: async (subId: string) => {
+      const { error } = await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("id", subId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-subscriptions-full"] });
+      toast({ title: "Suscripción eliminada" });
+    },
+    onError: () => {
+      toast({ title: "Error al eliminar", variant: "destructive" });
     },
   });
 
@@ -211,6 +232,7 @@ export default function SubscriptionsView() {
                     <th className="text-left py-3 px-2">Próx. Entrega</th>
                     <th className="text-left py-3 px-2">Estado</th>
                     <th className="text-left py-3 px-2">Puntos</th>
+                    <th className="text-left py-3 px-2 w-12"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -277,6 +299,36 @@ export default function SubscriptionsView() {
                             type="number"
                             inputClassName="w-16"
                           />
+                        </td>
+                        <td className="py-3 px-2">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Eliminar suscripción?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. La suscripción de {profile?.family_name || "este cliente"} será eliminada permanentemente.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteSubscriptionMutation.mutate(sub.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </td>
                       </tr>
                     );

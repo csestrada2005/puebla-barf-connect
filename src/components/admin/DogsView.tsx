@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { EditableField } from "./EditableField";
 import { EditableSelect } from "./EditableSelect";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +18,7 @@ import {
   Activity,
   Cake,
   User,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -102,6 +105,24 @@ export default function DogsView() {
     },
     onError: () => {
       toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  // Delete dog mutation
+  const deleteDogMutation = useMutation({
+    mutationFn: async (dogId: string) => {
+      const { error } = await supabase
+        .from("dog_profiles")
+        .delete()
+        .eq("id", dogId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-dogs-full"] });
+      toast({ title: "Perrito eliminado" });
+    },
+    onError: () => {
+      toast({ title: "Error al eliminar", variant: "destructive" });
     },
   });
 
@@ -224,6 +245,7 @@ export default function DogsView() {
                     <th className="text-left py-3 px-2">Recomendación</th>
                     <th className="text-left py-3 px-2">Diario</th>
                     <th className="text-left py-3 px-2">Estado</th>
+                    <th className="text-left py-3 px-2 w-12"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -325,6 +347,36 @@ export default function DogsView() {
                             options={STATUS_OPTIONS}
                             onSave={(v) => handleUpdateDog(dog.id, "status", v)}
                           />
+                        </td>
+                        <td className="py-3 px-2">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Eliminar perrito?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. El perfil de {dog.name} será eliminado permanentemente.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteDogMutation.mutate(dog.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </td>
                       </tr>
                     );

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from "./OrderCard";
 import { 
@@ -13,6 +14,7 @@ import {
   Loader2,
   MessageSquare,
   CalendarDays,
+  Trash2,
 } from "lucide-react";
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, addWeeks, isWithinInterval, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -103,6 +105,43 @@ export default function OrdersView() {
     },
     onError: () => {
       toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  // Delete order mutation
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", orderId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast({ title: "Pedido eliminado" });
+    },
+    onError: () => {
+      toast({ title: "Error al eliminar", variant: "destructive" });
+    },
+  });
+
+  // Delete selected orders mutation
+  const deleteSelectedMutation = useMutation({
+    mutationFn: async (orderIds: string[]) => {
+      const { error } = await supabase
+        .from("orders")
+        .delete()
+        .in("id", orderIds);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      setSelectedOrders(new Set());
+      toast({ title: "Pedidos eliminados" });
+    },
+    onError: () => {
+      toast({ title: "Error al eliminar", variant: "destructive" });
     },
   });
 
@@ -320,6 +359,36 @@ export default function OrdersView() {
                   )}
                   Enviar {selectedOrders.size} al chofer
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="gap-2"
+                      disabled={deleteSelectedMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Eliminar ({selectedOrders.size})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Eliminar {selectedOrders.size} pedido(s)?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Los pedidos seleccionados serán eliminados permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteSelectedMutation.mutate(Array.from(selectedOrders))}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </>
             )}
             {!driverConfig?.driver_phone && (
