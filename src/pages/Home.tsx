@@ -35,17 +35,20 @@ const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
   description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
-  image: stepPhoto1
+  image: stepPhoto1,
+  objectPosition: "center"
 }, {
   step: 2,
   title: "Recibe tu receta personalizada",
   description: "Calculamos la porción exacta y la proteína ideal para su perfil.",
-  image: stepPhoto2
+  image: stepPhoto2,
+  objectPosition: "center 30%"
 }, {
   step: 3,
   title: "Entrega en 24-48h",
   description: "Alimento fresco directo a tu puerta en Puebla.",
-  image: stepPhoto3
+  image: stepPhoto3,
+  objectPosition: "center 35%"
 }];
 
 export default function Home() {
@@ -253,6 +256,7 @@ export default function Home() {
                               src={item.image} 
                               alt={item.title}
                               className="w-full h-full object-cover"
+                              style={{ objectPosition: item.objectPosition }}
                             />
                           </AspectRatio>
                           {/* Badge at bottom center */}
@@ -290,6 +294,7 @@ export default function Home() {
                         src={item.image} 
                         alt={item.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        style={{ objectPosition: item.objectPosition }}
                       />
                     </AspectRatio>
                     {/* Badge at bottom center */}

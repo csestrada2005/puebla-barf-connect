@@ -231,7 +231,7 @@ export default function Nosotros() {
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left: Family photo with frame */}
             <motion.div {...fadeInUp} className="order-2 md:order-1">
-              <div className="relative max-w-md mx-auto">
+              <div className="relative max-w-lg mx-auto">
                 <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl shadow-lg">
                   <img 
                     src={familyDogsPhoto} 
