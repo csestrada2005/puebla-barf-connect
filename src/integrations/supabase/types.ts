@@ -263,6 +263,7 @@ export type Database = {
           delivery_date: string | null
           delivery_fee: number | null
           delivery_notes: string | null
+          delivery_photo_url: string | null
           delivery_token: string | null
           dog_profile_id: string | null
           driver_confirmed_at: string | null
@@ -290,6 +291,7 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          delivery_photo_url?: string | null
           delivery_token?: string | null
           dog_profile_id?: string | null
           driver_confirmed_at?: string | null
@@ -317,6 +319,7 @@ export type Database = {
           delivery_date?: string | null
           delivery_fee?: number | null
           delivery_notes?: string | null
+          delivery_photo_url?: string | null
           delivery_token?: string | null
           dog_profile_id?: string | null
           driver_confirmed_at?: string | null
@@ -632,6 +635,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_notes: string
+          delivery_photo_url: string
           driver_confirmed_at: string
           driver_notes: string
           driver_status: string
@@ -646,6 +650,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       update_order_by_token: {
         Args: {
+          p_delivery_photo_url?: string
           p_driver_notes?: string
           p_driver_status: string
           p_token: string

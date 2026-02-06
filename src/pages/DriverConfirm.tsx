@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import logoWhite from "@/assets/brand/logo-white.png";
+import DeliveryPhotoUpload from "@/components/driver/DeliveryPhotoUpload";
 
 type DriverStatus = "delivered" | "postponed" | "failed";
 
@@ -35,6 +36,7 @@ interface OrderData {
   driver_status: string | null;
   driver_notes: string | null;
   driver_confirmed_at: string | null;
+  delivery_photo_url: string | null;
 }
 
 export default function DriverConfirm() {
@@ -44,6 +46,7 @@ export default function DriverConfirm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,6 +83,16 @@ export default function DriverConfirm() {
   const handleConfirm = async (status: DriverStatus) => {
     if (!token) return;
 
+    // Require photo for "delivered" status
+    if (status === "delivered" && !photoUrl) {
+      toast({
+        title: "Foto requerida",
+        description: "Por favor sube una foto antes de confirmar la entrega",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const { data, error } = await supabase
@@ -87,6 +100,7 @@ export default function DriverConfirm() {
           p_token: token,
           p_driver_status: status,
           p_driver_notes: notes || null,
+          p_delivery_photo_url: photoUrl || null,
         });
 
       if (error) throw error;
@@ -106,6 +120,7 @@ export default function DriverConfirm() {
       
       if (refreshed && refreshed.length > 0) {
         setOrder(refreshed[0] as OrderData);
+        setPhotoUrl(refreshed[0].delivery_photo_url || "");
       }
     } catch (err) {
       console.error("Error updating order:", err);
@@ -224,6 +239,28 @@ export default function DriverConfirm() {
                   <span className="font-medium">📝 Notas: </span>
                   {order.delivery_notes}
                 </p>
+              </div>
+            )}
+
+            {/* Photo Upload */}
+            {!isAlreadyConfirmed && order && (
+              <DeliveryPhotoUpload
+                orderId={order.id}
+                onPhotoUploaded={setPhotoUrl}
+                existingPhoto={order.delivery_photo_url}
+                disabled={submitting}
+              />
+            )}
+
+            {/* Show existing photo if already confirmed */}
+            {isAlreadyConfirmed && order?.delivery_photo_url && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Foto de entrega</label>
+                <img
+                  src={order.delivery_photo_url}
+                  alt="Foto de entrega"
+                  className="w-full h-48 object-cover rounded-lg border"
+                />
               </div>
             )}
 
