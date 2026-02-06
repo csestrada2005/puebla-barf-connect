@@ -67,7 +67,35 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Invalid email format");
     }
 
-    console.log(`Sending welcome email to ${email} for pet ${petName} (requested by user ${userId})`);
+    // SECURITY: Verify email matches the authenticated user's profile
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: profile, error: profileError } = await serviceClient
+      .from("profiles")
+      .select("email")
+      .eq("id", userId)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify email ownership' }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!profile || profile.email.toLowerCase() !== email.toLowerCase()) {
+      console.warn(`Email mismatch: requested ${email}, profile has ${profile?.email}`);
+      return new Response(
+        JSON.stringify({ error: 'Email does not match user profile' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log(`Sending welcome email to ${email} for pet ${petName} (verified user ${userId})`);
 
     const emailResponse = await resend.emails.send({
       from: "Raw Paw <hola@rawpaw.mx>",

@@ -1,20 +1,21 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Loader2, Image as ImageIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Camera, X, Loader2 } from "lucide-react";
 
 interface DeliveryPhotoUploadProps {
   orderId: string;
   onPhotoUploaded: (url: string) => void;
   existingPhoto?: string | null;
   disabled?: boolean;
+  deliveryToken?: string;
 }
 
 export default function DeliveryPhotoUpload({ 
   orderId, 
   onPhotoUploaded, 
   existingPhoto,
-  disabled 
+  disabled,
+  deliveryToken
 }: DeliveryPhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(existingPhoto || null);
@@ -37,37 +38,40 @@ export default function DeliveryPhotoUpload({
       return;
     }
 
+    if (!deliveryToken) {
+      setError("Token de entrega no disponible");
+      return;
+    }
+
     setError(null);
     setUploading(true);
 
     try {
-      // Create a unique filename
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${orderId}-${Date.now()}.${fileExt}`;
-      const filePath = `deliveries/${fileName}`;
+      // Create FormData for the edge function
+      const formData = new FormData();
+      formData.append("token", deliveryToken);
+      formData.append("file", file);
 
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from("delivery-photos")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      // Upload via edge function (validates token server-side)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-delivery-photo`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      if (uploadError) {
-        throw uploadError;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al subir la foto");
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from("delivery-photos")
-        .getPublicUrl(filePath);
-
-      setPreview(publicUrl);
-      onPhotoUploaded(publicUrl);
-    } catch (err) {
+      setPreview(result.url);
+      onPhotoUploaded(result.url);
+    } catch (err: any) {
       console.error("Error uploading photo:", err);
-      setError("Error al subir la foto. Intenta de nuevo.");
+      setError(err.message || "Error al subir la foto. Intenta de nuevo.");
     } finally {
       setUploading(false);
     }
