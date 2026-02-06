@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EditableField } from "./EditableField";
+import { EditableSelect } from "./EditableSelect";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Users, 
   Search, 
@@ -23,7 +26,17 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
+const ACQUISITION_OPTIONS = [
+  { value: "web", label: "Web" },
+  { value: "instagram", label: "Instagram" },
+  { value: "facebook", label: "Facebook" },
+  { value: "referido", label: "Referido" },
+  { value: "otro", label: "Otro" },
+];
+
 export default function CustomersView() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
 
@@ -76,6 +89,28 @@ export default function CustomersView() {
       return data || [];
     },
   });
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async ({ profileId, updates }: { profileId: string; updates: Record<string, any> }) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-customers-profiles"] });
+      toast({ title: "Cliente actualizado" });
+    },
+    onError: () => {
+      toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  const handleUpdateProfile = async (profileId: string, field: string, value: any) => {
+    await updateProfileMutation.mutateAsync({ profileId, updates: { [field]: value } });
+  };
 
   // Filter profiles
   const filteredProfiles = profiles?.filter((profile) => {
@@ -156,18 +191,30 @@ export default function CustomersView() {
                           {profile.family_name?.charAt(0)?.toUpperCase() || "?"}
                         </span>
                       </div>
-                      <div>
-                        <p className="font-medium">{profile.family_name}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {profile.email}
-                        </p>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <EditableField
+                          value={profile.family_name}
+                          onSave={(v) => handleUpdateProfile(profile.id, "family_name", v)}
+                          placeholder="Nombre"
+                          className="font-medium"
+                        />
+                        <EditableField
+                          value={profile.email}
+                          onSave={(v) => handleUpdateProfile(profile.id, "email", v)}
+                          placeholder="Email"
+                          prefix={<Mail className="h-3 w-3 text-muted-foreground" />}
+                          className="text-xs text-muted-foreground"
+                        />
                       </div>
-                      <div className="hidden md:block">
-                        <p className="text-sm flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {profile.phone}
-                        </p>
+                      <div className="hidden md:block" onClick={(e) => e.stopPropagation()}>
+                        <EditableField
+                          value={profile.phone}
+                          onSave={(v) => handleUpdateProfile(profile.id, "phone", v)}
+                          placeholder="Teléfono"
+                          type="tel"
+                          prefix={<Phone className="h-3 w-3" />}
+                          className="text-sm"
+                        />
                       </div>
                       <div className="flex gap-2">
                         {activeSubs.length > 0 && (
@@ -211,37 +258,62 @@ export default function CustomersView() {
                         {/* Contact Info */}
                         <div className="space-y-2">
                           <h4 className="text-sm font-medium">Información de Contacto</h4>
-                          <div className="text-sm space-y-1">
-                            <p className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-muted-foreground" />
-                              {profile.email}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              {profile.phone}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-muted-foreground" />
-                              {profile.address}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              CP: {profile.postal_code} {profile.colonia && `- ${profile.colonia}`}
-                            </p>
-                            {profile.references_notes && (
-                              <p className="text-xs text-muted-foreground">
-                                Ref: {profile.references_notes}
-                              </p>
-                            )}
+                          <div className="text-sm space-y-2">
+                            <EditableField
+                              value={profile.email}
+                              onSave={(v) => handleUpdateProfile(profile.id, "email", v)}
+                              placeholder="Email"
+                              prefix={<Mail className="h-4 w-4 text-muted-foreground" />}
+                            />
+                            <EditableField
+                              value={profile.phone}
+                              onSave={(v) => handleUpdateProfile(profile.id, "phone", v)}
+                              placeholder="Teléfono"
+                              type="tel"
+                              prefix={<Phone className="h-4 w-4 text-muted-foreground" />}
+                            />
+                            <EditableField
+                              value={profile.address}
+                              onSave={(v) => handleUpdateProfile(profile.id, "address", v)}
+                              placeholder="Dirección"
+                              prefix={<MapPin className="h-4 w-4 text-muted-foreground" />}
+                            />
+                            <div className="flex gap-2 items-center">
+                              <span className="text-xs text-muted-foreground">CP:</span>
+                              <EditableField
+                                value={profile.postal_code}
+                                onSave={(v) => handleUpdateProfile(profile.id, "postal_code", v)}
+                                placeholder="CP"
+                                className="text-xs"
+                                inputClassName="w-20"
+                              />
+                              <EditableField
+                                value={profile.colonia}
+                                onSave={(v) => handleUpdateProfile(profile.id, "colonia", v)}
+                                placeholder="Colonia"
+                                className="text-xs"
+                              />
+                            </div>
+                            <EditableField
+                              value={profile.references_notes}
+                              onSave={(v) => handleUpdateProfile(profile.id, "references_notes", v)}
+                              placeholder="Referencias..."
+                              emptyText="Sin referencias"
+                              className="text-xs text-muted-foreground"
+                            />
                           </div>
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             Registro: {format(new Date(profile.created_at), "d MMM yyyy", { locale: es })}
                           </p>
-                          {profile.acquisition_channel && (
-                            <Badge variant="outline" className="text-xs">
-                              {profile.acquisition_channel}
-                            </Badge>
-                          )}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <EditableSelect
+                              value={profile.acquisition_channel}
+                              options={ACQUISITION_OPTIONS}
+                              onSave={(v) => handleUpdateProfile(profile.id, "acquisition_channel", v)}
+                              placeholder="Canal"
+                            />
+                          </div>
                         </div>
 
                         {/* Dogs */}
@@ -324,28 +396,30 @@ export default function CustomersView() {
                       </div>
 
                       {/* Special Notes */}
-                      {(profile.special_notes || profile.special_needs) && (
-                        <div className="pt-2 border-t">
-                          <h4 className="text-sm font-medium mb-1">Notas Especiales</h4>
-                          {profile.special_needs && (
-                            <p className="text-sm text-muted-foreground">
-                              Necesidades: {profile.special_needs}
-                            </p>
-                          )}
-                          {profile.special_notes && (
-                            <p className="text-sm text-muted-foreground">
-                              Notas: {profile.special_notes}
-                            </p>
-                          )}
-                        </div>
-                      )}
+                      <div className="pt-2 border-t space-y-2">
+                        <h4 className="text-sm font-medium">Notas Especiales</h4>
+                        <EditableField
+                          value={profile.special_needs}
+                          onSave={(v) => handleUpdateProfile(profile.id, "special_needs", v)}
+                          placeholder="Necesidades especiales..."
+                          emptyText="Sin necesidades especiales"
+                          className="text-sm"
+                        />
+                        <EditableField
+                          value={profile.special_notes}
+                          onSave={(v) => handleUpdateProfile(profile.id, "special_notes", v)}
+                          placeholder="Notas adicionales..."
+                          emptyText="Sin notas"
+                          className="text-sm"
+                        />
+                      </div>
 
                       {/* Actions */}
                       <div className="flex gap-2 pt-2 border-t">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(`https://wa.me/52${profile.phone}`, "_blank")}
+                          onClick={() => window.open(`https://wa.me/52${profile.phone?.replace(/\D/g, '')}`, "_blank")}
                           className="gap-1"
                         >
                           <ExternalLink className="h-3 w-3" />

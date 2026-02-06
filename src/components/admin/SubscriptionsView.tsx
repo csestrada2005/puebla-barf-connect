@@ -1,22 +1,55 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EditableField } from "./EditableField";
+import { EditableSelect } from "./EditableSelect";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Package, 
   Search, 
   Loader2,
   Calendar,
-  DollarSign,
   User,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
+const STATUS_OPTIONS = [
+  { value: "active", label: "Activa", color: "bg-green-100 text-green-800" },
+  { value: "paused", label: "Pausada", color: "bg-yellow-100 text-yellow-800" },
+  { value: "cancelled", label: "Cancelada", color: "bg-red-100 text-red-800" },
+];
+
+const PLAN_OPTIONS = [
+  { value: "basico", label: "Básico" },
+  { value: "pro", label: "Pro" },
+];
+
+const FREQUENCY_OPTIONS = [
+  { value: "mensual", label: "Mensual" },
+  { value: "anual", label: "Anual" },
+];
+
+const PROTEIN_OPTIONS = [
+  { value: "pollo", label: "Pollo" },
+  { value: "res", label: "Res" },
+  { value: "mix", label: "Mix" },
+];
+
+const PRESENTATION_OPTIONS = [
+  { value: "500g", label: "500g" },
+  { value: "1kg", label: "1kg" },
+  { value: "2kg", label: "2kg" },
+  { value: "5kg", label: "5kg" },
+];
+
 export default function SubscriptionsView() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -45,6 +78,28 @@ export default function SubscriptionsView() {
     },
   });
 
+  // Update subscription mutation
+  const updateSubscriptionMutation = useMutation({
+    mutationFn: async ({ subId, updates }: { subId: string; updates: Record<string, any> }) => {
+      const { error } = await supabase
+        .from("subscriptions")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", subId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-subscriptions-full"] });
+      toast({ title: "Suscripción actualizada" });
+    },
+    onError: () => {
+      toast({ title: "Error al actualizar", variant: "destructive" });
+    },
+  });
+
+  const handleUpdateSubscription = async (subId: string, field: string, value: any) => {
+    await updateSubscriptionMutation.mutateAsync({ subId, updates: { [field]: value } });
+  };
+
   const getProfile = (userId: string) => profiles?.find(p => p.id === userId);
 
   // Filter subscriptions
@@ -59,19 +114,6 @@ export default function SubscriptionsView() {
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && sub.status === statusFilter;
   }) || [];
-
-  const getStatusBadge = (status: string | null) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-100 text-green-800 border-0">Activa</Badge>;
-      case "paused":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-0">Pausada</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-100 text-red-800 border-0">Cancelada</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
 
   // Calculate stats
   const activeCount = subscriptions?.filter(s => s.status === "active").length || 0;
@@ -186,26 +228,55 @@ export default function SubscriptionsView() {
                           </div>
                         </td>
                         <td className="py-3 px-2">
-                          <span className="capitalize">{sub.plan_type}</span>
-                          <p className="text-xs text-muted-foreground">{sub.presentation}</p>
-                        </td>
-                        <td className="py-3 px-2 capitalize">{sub.protein_line}</td>
-                        <td className="py-3 px-2 capitalize">{sub.frequency}</td>
-                        <td className="py-3 px-2">
-                          {sub.next_delivery_date ? (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {format(new Date(sub.next_delivery_date), "d MMM", { locale: es })}
-                            </div>
-                          ) : (
-                            "—"
-                          )}
+                          <EditableSelect
+                            value={sub.plan_type}
+                            options={PLAN_OPTIONS}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "plan_type", v)}
+                          />
+                          <EditableSelect
+                            value={sub.presentation}
+                            options={PRESENTATION_OPTIONS}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "presentation", v)}
+                            className="mt-1"
+                          />
                         </td>
                         <td className="py-3 px-2">
-                          {getStatusBadge(sub.status)}
+                          <EditableSelect
+                            value={sub.protein_line}
+                            options={PROTEIN_OPTIONS}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "protein_line", v)}
+                          />
                         </td>
                         <td className="py-3 px-2">
-                          <span className="font-medium">{sub.points || 0}</span>
+                          <EditableSelect
+                            value={sub.frequency}
+                            options={FREQUENCY_OPTIONS}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "frequency", v)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <EditableField
+                            value={sub.next_delivery_date}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "next_delivery_date", v)}
+                            type="date"
+                            prefix={<Calendar className="h-3 w-3" />}
+                            emptyText="Sin fecha"
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <EditableSelect
+                            value={sub.status}
+                            options={STATUS_OPTIONS}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "status", v)}
+                          />
+                        </td>
+                        <td className="py-3 px-2">
+                          <EditableField
+                            value={(sub.points || 0).toString()}
+                            onSave={(v) => handleUpdateSubscription(sub.id, "points", parseInt(v) || 0)}
+                            type="number"
+                            inputClassName="w-16"
+                          />
                         </td>
                       </tr>
                     );
