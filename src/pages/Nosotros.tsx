@@ -8,6 +8,7 @@ import { BrandImage } from "@/components/ui/BrandImage";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import nosotrosBrownDog from "@/assets/brand/nosotros-brown-dog.png";
+import familyDogs from "@/assets/brand/family-dogs.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -258,6 +259,22 @@ export default function Nosotros() {
                 </Link>
               </Button>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Family Section */}
+      <section className="py-16 md:py-20 bg-secondary">
+        <div className="container text-center">
+          <motion.div {...fadeInUp}>
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground">
+              Porque son un miembro más de la familia
+            </h2>
+            <img 
+              src={familyDogs} 
+              alt="Familia de perros" 
+              className="mx-auto mt-8 max-w-md w-full object-contain" 
+            />
           </motion.div>
         </div>
       </section>

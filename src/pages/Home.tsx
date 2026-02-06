@@ -24,29 +24,28 @@ import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 import herodog from "@/assets/brand/hero-dog.jpeg";
 import heroVideo from "@/assets/brand/hero-video.mp4";
-import stepDog1 from "@/assets/brand/step-dog-1.png";
-import stepDog2 from "@/assets/brand/step-dog-2.png";
-import stepDog3 from "@/assets/brand/step-dog-3.png";
+import stepPhoto1 from "@/assets/brand/step-photo-1.png";
+import stepPhoto2 from "@/assets/brand/step-photo-2.jpg";
+import stepPhoto3 from "@/assets/brand/step-photo-3.jpg";
 import decoBowlFull from "@/assets/brand/deco-bowl-full.png";
 import decoHappyDog from "@/assets/brand/deco-happy-dog.png";
-
-const stepDogImages = [stepDog1, stepDog2, stepDog3];
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
   description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
-  image: stepDog1
+  image: stepPhoto1
 }, {
   step: 2,
   title: "Recibe tu receta personalizada",
   description: "Calculamos la porción exacta y la proteína ideal para su perfil.",
-  image: stepDog2
+  image: stepPhoto2
 }, {
   step: 3,
   title: "Entrega en 24-48h",
   description: "Alimento fresco directo a tu puerta en Puebla.",
-  image: stepDog3
+  image: stepPhoto3
 }];
 
 export default function Home() {
@@ -234,7 +233,7 @@ export default function Home() {
                 align: "start",
                 loop: true,
               }}
-              className="w-full max-w-xs mx-auto"
+              className="w-full max-w-sm mx-auto"
             >
               <CarouselContent className="ml-0">
                 {howItWorks.map((item) => (
@@ -247,24 +246,25 @@ export default function Home() {
                       className="px-2"
                     >
                       <div className="flex flex-col items-center">
-                        {/* Sticker above card */}
-                        <img 
-                          src={item.image} 
-                          alt="" 
-                          className="w-24 h-24 object-contain mb-2"
-                        />
-                        
-                        <div className="relative pt-5 w-full">
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg z-10">
+                        {/* Image with badge overlay */}
+                        <div className="relative w-full mb-6">
+                          <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl">
+                            <img 
+                              src={item.image} 
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </AspectRatio>
+                          {/* Badge at bottom center */}
+                          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl shadow-lg z-10 border-4 border-background">
                             {item.step}
                           </div>
-
-                          <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                            <CardContent className="pt-8 pb-5 text-center">
-                              <h3 className="text-lg font-semibold mb-2 mt-2">{item.title}</h3>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
-                            </CardContent>
-                          </Card>
+                        </div>
+                        
+                        {/* Text below */}
+                        <div className="text-center pt-2">
+                          <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">{item.description}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -279,28 +279,29 @@ export default function Home() {
           </div>
 
           {/* Grid for desktop */}
-          <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {howItWorks.map((item, index) => (
               <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} viewport={{ once: true }}>
                 <div className="flex flex-col items-center">
-                  {/* Sticker above card */}
-                  <img 
-                    src={item.image} 
-                    alt="" 
-                    className="w-28 h-28 object-contain mb-2"
-                  />
-                  
-                  <div className="relative pt-5 w-full">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-lg z-10">
+                  {/* Image with badge overlay */}
+                  <div className="relative w-full mb-6">
+                    <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl shadow-lg">
+                      <img 
+                        src={item.image} 
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      />
+                    </AspectRatio>
+                    {/* Badge at bottom center */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-2xl shadow-lg z-10 border-4 border-background">
                       {item.step}
                     </div>
-
-                    <Card className="h-full border-2 hover:border-primary/30 transition-all duration-300 hover:shadow-lg rounded-3xl">
-                      <CardContent className="pt-8 pb-6 text-center">
-                        <h3 className="text-xl font-semibold mb-3 mt-2">{item.title}</h3>
-                        <p className="text-muted-foreground">{item.description}</p>
-                      </CardContent>
-                    </Card>
+                  </div>
+                  
+                  {/* Text below */}
+                  <div className="text-center pt-2">
+                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
                   </div>
                 </div>
               </motion.div>
