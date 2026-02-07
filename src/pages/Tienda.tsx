@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { PromoPopup } from "@/components/PromoPopup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,6 +91,7 @@ function ProteinCard({
 }
 export default function Tienda() {
   return <Layout>
+      <PromoPopup />
       <div className="container py-8 md:py-12">
         {/* Header */}
         <div className="text-center mb-6 md:mb-8">
