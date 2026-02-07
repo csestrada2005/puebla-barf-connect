@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, ProtectedRoute } from "@/components/auth";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
-import { PromoPopup } from "./components/PromoPopup";
+
 import { RouteSkeleton } from "@/components/ui/RouteSkeleton";
 
 // Eager load: Critical conversion routes
@@ -45,7 +45,7 @@ const App = () => (
         <div className="overflow-x-hidden w-full">
           <ScrollToTop />
           <AuthProvider>
-            <PromoPopup />
+            
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/tienda" element={<Tienda />} />
