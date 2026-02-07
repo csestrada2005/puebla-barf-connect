@@ -1,44 +1,54 @@
 
-# Plan: Resolver todos los problemas de seguridad ✅ COMPLETADO
+# Plan: Mover el PopUp Promocional de `/` a `/tienda`
 
-## Estado final
-
-| Nivel | Problema | Estado |
-|-------|----------|--------|
-| ~~Error~~ | ~~Historial de estados de pedidos expuesto~~ | ✅ Resuelto |
-| ~~Error~~ | ~~Fotos de entrega accesibles sin autenticación~~ | ✅ Resuelto |
-| ~~Warn~~ | ~~Formulario de checkout sin validación~~ | ✅ Resuelto |
-| ~~Warn~~ | ~~Email de bienvenida sin verificar propiedad~~ | ✅ Resuelto |
-| Warn | Protección de contraseñas filtradas desactivada | ⚠️ Requiere config manual |
-| ~~Info~~ | ~~Tokens de entrega revelan existencia de pedidos~~ | ✅ Ya protegido |
-| ~~Info~~ | ~~Panel admin solo protegido en frontend~~ | ✅ RLS en backend |
+## Resumen
+El popup de bienvenida con el código de descuento `BIENVENIDO15` actualmente aparece en cualquier página de la web. Se moverá para que solo aparezca cuando el usuario entre a la página `/tienda`.
 
 ---
 
-## Cambios implementados
+## Cambios a Realizar
 
-### Base de datos (Migraciones SQL)
-- ✅ Eliminada política pública `Anyone can view order statuses by order`
-- ✅ Agregada política `Admins can view all order statuses`
-- ✅ Bucket `delivery-photos` ahora es privado
-- ✅ Solo admins pueden ver/eliminar fotos de entrega
-- ✅ Agregados CHECK constraints en tabla `orders`:
-  - `customer_name`: 2-100 caracteres
-  - `customer_phone`: formato válido 7-20 dígitos
-  - `customer_address`: 10-500 caracteres
-  - `delivery_notes`: máximo 1000 caracteres
-- ✅ Política para admins ver waitlist
+### 1. Modificar `src/App.tsx`
+**Acción:** Remover el componente `<PromoPopup />` del nivel global
 
-### Edge Functions
-- ✅ **upload-delivery-photo**: Nueva función para subir fotos validando token
-- ✅ **send-welcome-email**: Verifica que email coincida con perfil del usuario
+- Eliminar la línea 48: `<PromoPopup />`
+- Eliminar la importación del componente (línea 9)
 
-### Frontend
-- ✅ **Checkout.tsx**: Validación Zod + sanitización para WhatsApp
-- ✅ **DeliveryPhotoUpload.tsx**: Usa nueva edge function con token
+El popup ya no aparecerá automáticamente en todas las páginas.
 
 ---
 
-## Nota: Leaked Password Protection
+### 2. Modificar `src/pages/Tienda.tsx`
+**Acción:** Agregar el `PromoPopup` dentro de la página de tienda
 
-La protección contra contraseñas filtradas se configura en el dashboard de Lovable Cloud > Auth Settings. No es configurable via código.
+```tsx
+import { PromoPopup } from "@/components/PromoPopup";
+
+export default function Tienda() {
+  return (
+    <Layout>
+      <PromoPopup />
+      {/* ... resto del contenido */}
+    </Layout>
+  );
+}
+```
+
+---
+
+## Comportamiento Final
+
+| Escenario | Antes | Después |
+|-----------|-------|---------|
+| Usuario entra a `/` | Popup aparece después de 3s | No aparece popup |
+| Usuario entra a `/tienda` | Popup aparece después de 3s | Popup aparece después de 3s |
+| Usuario ya vio el popup | No vuelve a aparecer (sessionStorage) | Sin cambios |
+| Usuario navega de `/` a `/tienda` | Ya se mostró en `/` | Se muestra en `/tienda` |
+
+---
+
+## Detalles Técnicos
+
+- La lógica existente del popup (delay de 3 segundos, sessionStorage para evitar mostrar de nuevo) se mantiene intacta
+- Solo cambia la ubicación donde se renderiza el componente
+- No se requieren cambios en la base de datos ni edge functions
