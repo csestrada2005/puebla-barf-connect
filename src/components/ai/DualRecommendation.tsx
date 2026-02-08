@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, FlaskConical } from "lucide-react";
+import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, FlaskConical, Crown, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,10 @@ interface DualRecommendationProps {
   planType: "standard" | "premium";
   optionA: RecommendationOption;
   optionB: RecommendationOption;
+  // NEW: Alternative protein options (only when no allergy)
+  optionA_alt?: RecommendationOption;
+  optionB_alt?: RecommendationOption;
+  hasAllergy?: boolean;
   deliveryFee?: number;
   zoneName?: string;
   reasoning?: RecommendationReasoning;
@@ -57,6 +61,9 @@ export function DualRecommendation({
   planType,
   optionA,
   optionB,
+  optionA_alt,
+  optionB_alt,
+  hasAllergy = false,
   deliveryFee = 0,
   zoneName,
   reasoning,
@@ -66,12 +73,25 @@ export function DualRecommendation({
 }: DualRecommendationProps) {
   const navigate = useNavigate();
   const [selectedFrequency, setSelectedFrequency] = useState<"A" | "B">("A");
+  const [selectedProteinTier, setSelectedProteinTier] = useState<"economico" | "premium">("economico");
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const currentOption = selectedFrequency === "A" ? optionA : optionB;
   
-  const getPlanBadge = () => {
-    return planType === "premium" ? "✨ Premium" : "🌿 Standard";
+  // Determine which options to show based on protein tier selection
+  const showProteinToggle = !hasAllergy && optionA_alt && optionB_alt;
+  
+  // Get current options based on protein tier
+  const getCurrentOptions = () => {
+    if (showProteinToggle && selectedProteinTier === "premium") {
+      return {
+        optionA: optionA_alt!,
+        optionB: optionB_alt!,
+      };
+    }
+    return { optionA, optionB };
   };
+  
+  const currentOptions = getCurrentOptions();
+  const currentOption = selectedFrequency === "A" ? currentOptions.optionA : currentOptions.optionB;
   
   return (
     <motion.div 
@@ -90,6 +110,40 @@ export function DualRecommendation({
           <span className="font-semibold">Ración diaria: {dailyGrams}g</span>
         </div>
       </div>
+
+      {/* NEW: Protein Tier Toggle (only when no allergy) */}
+      {showProteinToggle && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground text-center">Elige tu línea de proteína</p>
+          <ToggleGroup 
+            type="single" 
+            value={selectedProteinTier} 
+            onValueChange={value => value && setSelectedProteinTier(value as "economico" | "premium")} 
+            className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl"
+          >
+            <ToggleGroupItem 
+              value="economico" 
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all min-h-[60px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <Wallet className="h-4 w-4" />
+                <span className="text-sm font-semibold">Económico</span>
+              </div>
+              <span className="text-xs text-muted-foreground">BARF Pollo</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="premium" 
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-amber-500 transition-all min-h-[60px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <Crown className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-semibold">Premium</span>
+              </div>
+              <span className="text-xs text-muted-foreground">BARF Res</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
 
       {/* Frequency Toggle - Central Feature */}
       <div className="space-y-2">
@@ -119,7 +173,7 @@ export function DualRecommendation({
       {/* Dynamic Product Card with Animation */}
       <AnimatePresence mode="wait">
         <motion.div 
-          key={selectedFrequency} 
+          key={`${selectedFrequency}-${selectedProteinTier}`} 
           initial={{ opacity: 0, y: 10 }} 
           animate={{ opacity: 1, y: 0 }} 
           exit={{ opacity: 0, y: -10 }} 
@@ -135,7 +189,13 @@ export function DualRecommendation({
                 {selectedFrequency === "A" && (
                   <Badge className="bg-primary/10 text-primary border-0">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    Recomendado
+                    Mejor Valor
+                  </Badge>
+                )}
+                {selectedProteinTier === "premium" && showProteinToggle && (
+                  <Badge className="bg-amber-500/10 text-amber-600 border-0 ml-2">
+                    <Crown className="h-3 w-3 mr-1" />
+                    Premium
                   </Badge>
                 )}
               </div>

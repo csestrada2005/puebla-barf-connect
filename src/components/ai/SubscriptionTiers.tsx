@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Truck, Crown, Clock, Sparkles, RotateCcw } from "lucide-react";
+import { Check, Truck, Crown, Clock, Sparkles, RotateCcw, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useNavigate } from "react-router-dom";
 
 interface SubscriptionTier {
@@ -20,7 +22,9 @@ interface SubscriptionTiersProps {
   dailyGrams: number;
   weeklyKg: number;
   pricePerKg: number;
-  onSelectPlan: (planType: "monthly" | "annual") => void;
+  hasAllergy?: boolean;
+  recommendedProtein?: "chicken" | "beef" | "mix";
+  onSelectPlan: (planType: "monthly" | "annual", proteinLine?: "pollo" | "res") => void;
   onRestart: () => void;
 }
 
@@ -48,10 +52,17 @@ export function SubscriptionTiers({
   dailyGrams,
   weeklyKg,
   pricePerKg,
+  hasAllergy = false,
+  recommendedProtein = "chicken",
   onSelectPlan,
   onRestart,
 }: SubscriptionTiersProps) {
   const navigate = useNavigate();
+  const [selectedProteinTier, setSelectedProteinTier] = useState<"economico" | "premium">(
+    recommendedProtein === "beef" ? "premium" : "economico"
+  );
+  
+  const showProteinToggle = !hasAllergy;
 
   const calculatePrice = (tier: SubscriptionTier) => {
     const weeklyPrice = weeklyKg * pricePerKg;
@@ -63,6 +74,13 @@ export function SubscriptionTiers({
       weekly: Math.round(weeklyPrice * (1 - tier.discountPercent / 100)),
       savings: Math.round(discount),
     };
+  };
+  
+  const getProteinLine = (): "pollo" | "res" => {
+    if (hasAllergy) {
+      return recommendedProtein === "beef" ? "res" : "pollo";
+    }
+    return selectedProteinTier === "premium" ? "res" : "pollo";
   };
 
   return (
@@ -88,6 +106,40 @@ export function SubscriptionTiers({
           </div>
         </div>
       </div>
+
+      {/* NEW: Protein Tier Toggle (only when no allergy) */}
+      {showProteinToggle && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground text-center">Elige tu línea de proteína</p>
+          <ToggleGroup 
+            type="single" 
+            value={selectedProteinTier} 
+            onValueChange={value => value && setSelectedProteinTier(value as "economico" | "premium")} 
+            className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl"
+          >
+            <ToggleGroupItem 
+              value="economico" 
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all min-h-[60px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <Wallet className="h-4 w-4" />
+                <span className="text-sm font-semibold">Económico</span>
+              </div>
+              <span className="text-xs text-muted-foreground">BARF Pollo</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="premium" 
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-amber-500 transition-all min-h-[60px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <Crown className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-semibold">Premium</span>
+              </div>
+              <span className="text-xs text-muted-foreground">BARF Res</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
 
       {/* Delivery Promise */}
       <div className="flex items-center gap-2 justify-center p-3 bg-secondary/50 rounded-xl">
@@ -115,7 +167,7 @@ export function SubscriptionTiers({
                     ? "border-2 border-primary ring-2 ring-primary/20"
                     : "border"
                 }`}
-                onClick={() => onSelectPlan(tier.id)}
+                onClick={() => onSelectPlan(tier.id, getProteinLine())}
               >
                 {tier.badge && (
                   <Badge
@@ -172,7 +224,7 @@ export function SubscriptionTiers({
                     variant={tier.isRecommended ? "default" : "outline"}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectPlan(tier.id);
+                      onSelectPlan(tier.id, getProteinLine());
                     }}
                   >
                     <Check className="h-4 w-4" />
