@@ -1190,14 +1190,8 @@ export default function AIRecomendador() {
     
     setTimeout(async () => {
       if (products && products.length > 0) {
-        let recommendation = calculateRecommendation(updatedPetData, products);
-        
-        // Override protein based on allergy - if allergic to chicken, recommend beef; if allergic to beef, recommend chicken
-        if (updatedPetData.allergy === "chicken") {
-          recommendation = { ...recommendation, recommendedProtein: "beef" };
-        } else if (updatedPetData.allergy === "beef") {
-          recommendation = { ...recommendation, recommendedProtein: "chicken" };
-        }
+        // Calculate recommendation - allergy is now handled inside calculateRecommendation
+        const recommendation = calculateRecommendation(updatedPetData, products);
         
         setResult(recommendation);
         
@@ -1309,7 +1303,7 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
-  const handleSelectSubscription = (planType: "monthly" | "annual") => {
+  const handleSelectSubscription = (planType: "monthly" | "annual", selectedProtein?: "pollo" | "res") => {
     if (!isAuthenticated || !user) {
       setLoginDialogContext("edit");
       setShowLoginDialog(true);
@@ -1317,7 +1311,8 @@ export default function AIRecomendador() {
       return;
     }
 
-    const proteinLine = result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix";
+    // Use the selected protein from toggle, or fall back to recommended
+    const proteinLine = selectedProtein || (result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix");
     const presentation = result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g";
     const discountPercent = planType === "annual" ? 15 : 0;
     const pricePerKg = 150;
@@ -1609,8 +1604,10 @@ export default function AIRecomendador() {
                     dailyGrams={result.dailyGrams}
                     weeklyKg={result.weeklyKg}
                     pricePerKg={150}
-                    onSelectPlan={(planType) => {
-                      handleSelectSubscription(planType);
+                    hasAllergy={result.hasAllergy}
+                    recommendedProtein={result.recommendedProtein}
+                    onSelectPlan={(planType, proteinLine) => {
+                      handleSelectSubscription(planType, proteinLine);
                     }}
                     onRestart={() => {
                       setIsResultOpen(false);
@@ -1628,6 +1625,9 @@ export default function AIRecomendador() {
                     planType={result.planType}
                     optionA={result.optionA}
                     optionB={result.optionB}
+                    optionA_alt={result.optionA_alt}
+                    optionB_alt={result.optionB_alt}
+                    hasAllergy={result.hasAllergy}
                     deliveryFee={petData.deliveryFee}
                     zoneName={petData.zoneName}
                     reasoning={result.reasoning}
