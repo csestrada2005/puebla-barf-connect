@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   CreditCard, Banknote, MessageCircle, 
-  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar, Dog 
+  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar, Dog,
+  ChevronDown
 } from "lucide-react";
 import { z } from "zod";
 import { Layout } from "@/components/layout";
@@ -14,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useCart } from "@/hooks/useCart";
 import { useCoverage } from "@/hooks/useCoverage";
 import { useRecommendation } from "@/hooks/useRecommendation";
@@ -74,7 +76,7 @@ export default function Checkout() {
   const { items, getSubtotal, clearCart } = useCart();
   const { isConfirmed, zoneName, address: coverageAddress, deliveryFee } = useCoverage();
   const { recommendation } = useRecommendation();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { profile } = useProfile();
   
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
@@ -82,6 +84,13 @@ export default function Checkout() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  
+  // Collapsible section states
+  const [contactOpen, setContactOpen] = useState(true);
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [deliveryOpen, setDeliveryOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   
   const hasSubscription = items.some(i => i.isSubscription);
   const subscriptionItem = items.find(i => i.isSubscription);
@@ -124,6 +133,13 @@ export default function Checkout() {
     }
   }, [authLoading, isAuthenticated, hasSubscription]);
 
+  // Handle redirect outside render
+  useEffect(() => {
+    if (shouldRedirect) {
+      navigate("/carrito");
+    }
+  }, [shouldRedirect, navigate]);
+
   const getProductImage = (itemName: string) => {
     const nameLower = itemName.toLowerCase();
     if (nameLower.includes("res") || nameLower.includes("beef")) return productoRes;
@@ -159,7 +175,7 @@ export default function Checkout() {
     const newOrderNumber = generateOrderNumber();
     
     try {
-      const { error } = await supabase.from("orders").insert({
+      const orderPayload: any = {
         order_number: newOrderNumber,
         customer_name: formData.family_name,
         customer_phone: formData.phone,
@@ -173,7 +189,15 @@ export default function Checkout() {
         payment_status: "pending",
         status: "pending",
         ai_recommendation: recommendation as any,
-      }).select().single();
+        order_type: hasSubscription ? "subscription" : "single",
+      };
+
+      // Only set user_id if authenticated
+      if (isAuthenticated && user?.id) {
+        orderPayload.user_id = user.id;
+      }
+
+      const { error } = await supabase.from("orders").insert(orderPayload).select().single();
 
       if (error) throw error;
 
@@ -238,7 +262,10 @@ export default function Checkout() {
   };
 
   if (items.length === 0 && !orderComplete) {
-    navigate("/carrito");
+    // Use effect-based redirect instead of render-phase navigate
+    if (!shouldRedirect) {
+      setShouldRedirect(true);
+    }
     return null;
   }
 
@@ -279,6 +306,41 @@ export default function Checkout() {
       </Layout>
     );
   }
+
+  const CollapsibleSection = ({ 
+    title, 
+    open, 
+    onOpenChange, 
+    children, 
+    icon 
+  }: { 
+    title: string; 
+    open: boolean; 
+    onOpenChange: (v: boolean) => void; 
+    children: React.ReactNode;
+    icon?: React.ReactNode;
+  }) => (
+    <Collapsible open={open} onOpenChange={onOpenChange}>
+      <Card>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                {icon}
+                {title}
+              </span>
+              <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+            </CardTitle>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="space-y-4 pt-0">
+            {children}
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
+  );
 
   return (
     <Layout>
@@ -327,8 +389,8 @@ export default function Checkout() {
 
           <form onSubmit={handleSubmit}>
             <div className="grid gap-8 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-6">
-                {/* Perrito (for subscriptions) */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Perrito (for subscriptions) - NOT collapsible */}
                 {hasSubscription && dogName && (
                   <Card>
                     <CardHeader>
@@ -346,87 +408,79 @@ export default function Checkout() {
                   </Card>
                 )}
 
-                {/* Contact info - matches Mi Perfil */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Contacto</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="family_name">Apellido de la Familia *</Label>
-                        <Input
-                          id="family_name"
-                          placeholder="Tu apellido"
-                          value={formData.family_name}
-                          onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="tu@correo.com"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
+                {/* Contact info - Collapsible */}
+                <CollapsibleSection title="Contacto" open={contactOpen} onOpenChange={setContactOpen}>
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Teléfono WhatsApp *</Label>
+                      <Label htmlFor="family_name">Apellido de la Familia *</Label>
                       <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="221 360 6464"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        id="family_name"
+                        placeholder="Tu apellido"
+                        value={formData.family_name}
+                        onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
                         required
                       />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="tu@correo.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Teléfono WhatsApp *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="221 360 6464"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
+                  </div>
+                </CollapsibleSection>
 
-                {/* Address - matches Mi Perfil */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Dirección de Entrega</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+                {/* Address - Collapsible */}
+                <CollapsibleSection title="Dirección de Entrega" open={addressOpen} onOpenChange={setAddressOpen}>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Dirección completa *</Label>
+                    <Input
+                      id="address"
+                      placeholder="Calle, número, colonia, CP"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="address">Dirección completa *</Label>
+                      <Label htmlFor="colonia">Colonia</Label>
                       <Input
-                        id="address"
-                        placeholder="Calle, número, colonia, CP"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        required
+                        id="colonia"
+                        placeholder="Colonia"
+                        value={formData.colonia}
+                        onChange={(e) => setFormData({ ...formData, colonia: e.target.value })}
                       />
                     </div>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="colonia">Colonia</Label>
-                        <Input
-                          id="colonia"
-                          placeholder="Colonia"
-                          value={formData.colonia}
-                          onChange={(e) => setFormData({ ...formData, colonia: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="postal_code">Código Postal</Label>
-                        <Input
-                          id="postal_code"
-                          placeholder="72000"
-                          value={formData.postal_code}
-                          onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                        />
-                      </div>
-                    </div>
                     <div className="space-y-2">
-                      <Label htmlFor="references_notes">Referencias</Label>
+                      <Label htmlFor="postal_code">Código Postal</Label>
+                      <Input
+                        id="postal_code"
+                        placeholder="72000"
+                        value={formData.postal_code}
+                        onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="references_notes">Referencias (opcional)</Label>
                       <Input
                         id="references_notes"
                         placeholder="Casa azul, junto al parque..."
@@ -435,92 +489,81 @@ export default function Checkout() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="special_notes">Notas especiales</Label>
-                      <Textarea
+                      <Label htmlFor="special_notes">Notas especiales (opcional)</Label>
+                      <Input
                         id="special_notes"
                         placeholder="Instrucciones adicionales..."
                         value={formData.special_notes}
                         onChange={(e) => setFormData({ ...formData, special_notes: e.target.value })}
                       />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </CollapsibleSection>
 
-                {/* Delivery preferences */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Preferencias de Entrega</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
-                      <Input
-                        id="deliveryWindow"
-                        placeholder="Ej: 10am-2pm"
-                        value={formData.deliveryWindow}
-                        onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
-                      />
-                    </div>
+                {/* Delivery preferences - Collapsible */}
+                <CollapsibleSection title="Preferencias de Entrega" open={deliveryOpen} onOpenChange={setDeliveryOpen}>
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
+                    <Input
+                      id="deliveryWindow"
+                      placeholder="Ej: 10am-2pm"
+                      value={formData.deliveryWindow}
+                      onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
+                    />
+                  </div>
 
-                    <div className="space-y-3">
-                      <Label className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        Día de entrega preferencial
-                      </Label>
-                      <RadioGroup
-                        value={formData.preferredDeliveryDay}
-                        onValueChange={(v) => setFormData({ ...formData, preferredDeliveryDay: v as "monday" | "sunday" })}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="monday" id="delivery-monday" />
-                          <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">Lunes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="sunday" id="delivery-sunday" />
-                          <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">Domingo</Label>
-                        </div>
-                      </RadioGroup>
-                      <p className="text-xs text-muted-foreground">
-                        Selecciona el día que prefieres recibir tus entregas
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Payment method */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Método de pago</CardTitle>
-                    <CardDescription>Selecciona cómo deseas pagar</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                      {paymentMethods.map((method) => (
-                        <div key={method.id} className="relative">
-                          <RadioGroupItem value={method.id} id={method.id} className="peer sr-only" disabled={method.comingSoon} />
-                          <Label
-                            htmlFor={method.id}
-                            className={`flex items-center gap-4 rounded-lg border-2 p-4 transition-colors cursor-pointer
-                              ${method.comingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-accent"}
-                              peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5`}
-                          >
-                            <div className={`p-2 rounded-lg bg-muted ${method.color}`}>
-                              <method.icon className="h-5 w-5" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{method.name}</p>
-                              <p className="text-sm text-muted-foreground">{method.description}</p>
-                            </div>
-                            {method.comingSoon && (
-                              <span className="text-xs bg-muted px-2 py-1 rounded">Próximamente</span>
-                            )}
-                          </Label>
-                        </div>
-                      ))}
+                  <div className="space-y-3">
+                    <Label className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      Día de entrega preferencial
+                    </Label>
+                    <RadioGroup
+                      value={formData.preferredDeliveryDay}
+                      onValueChange={(v) => setFormData({ ...formData, preferredDeliveryDay: v as "monday" | "sunday" })}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="monday" id="delivery-monday" />
+                        <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">Lunes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="sunday" id="delivery-sunday" />
+                        <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">Domingo</Label>
+                      </div>
                     </RadioGroup>
-                  </CardContent>
-                </Card>
+                    <p className="text-xs text-muted-foreground">
+                      Selecciona el día que prefieres recibir tus entregas
+                    </p>
+                  </div>
+                </CollapsibleSection>
+
+                {/* Payment method - Collapsible */}
+                <CollapsibleSection title="Método de pago" open={paymentOpen} onOpenChange={setPaymentOpen}>
+                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                    {paymentMethods.map((method) => (
+                      <div key={method.id} className="relative">
+                        <RadioGroupItem value={method.id} id={method.id} className="peer sr-only" disabled={method.comingSoon} />
+                        <Label
+                          htmlFor={method.id}
+                          className={`flex items-center gap-4 rounded-lg border-2 p-4 transition-colors cursor-pointer
+                            ${method.comingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-accent"}
+                            peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5`}
+                        >
+                          <div className={`p-2 rounded-lg bg-muted ${method.color}`}>
+                            <method.icon className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{method.name}</p>
+                            <p className="text-sm text-muted-foreground">{method.description}</p>
+                          </div>
+                          {method.comingSoon && (
+                            <span className="text-xs bg-muted px-2 py-1 rounded">Próximamente</span>
+                          )}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CollapsibleSection>
               </div>
 
               {/* Order summary */}

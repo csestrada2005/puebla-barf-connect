@@ -11,9 +11,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Package, ShoppingCart } from "lucide-react";
+import { FileText, Package, ShoppingCart, Check } from "lucide-react";
 
 // ==================== TYPE DEFINITIONS ====================
 
@@ -1303,14 +1304,52 @@ export default function AIRecomendador() {
     navigate("/carrito");
   };
 
-  const handleSelectSubscription = (planType: "monthly" | "annual", selectedProtein?: "pollo" | "res") => {
+  const [showSaveDogDialog, setShowSaveDogDialog] = useState(false);
+  const [pendingSubscription, setPendingSubscription] = useState<{planType: "monthly" | "annual"; proteinLine?: "pollo" | "res"} | null>(null);
+
+  const handleSelectSubscription = async (planType: "monthly" | "annual", selectedProtein?: "pollo" | "res") => {
     if (!isAuthenticated || !user) {
       setLoginDialogContext("edit");
       setShowLoginDialog(true);
-      // Don't show toast - the dialog is enough
       return;
     }
 
+    // Check if this dog has been saved to the database
+    const dogExists = activeDogs.some(d => d.name.toLowerCase() === petData.name.toLowerCase());
+    
+    if (!dogExists && petData.name) {
+      // Dog not saved yet - prompt user to save
+      setPendingSubscription({ planType, proteinLine: selectedProtein });
+      setShowSaveDogDialog(true);
+      return;
+    }
+
+    proceedWithSubscription(planType, selectedProtein);
+  };
+
+  const handleSaveDogAndSubscribe = async () => {
+    if (!result || !pendingSubscription) return;
+    
+    try {
+      await saveDogProfile(petData, result);
+      await refetchDogs();
+      toast({
+        title: "¡Perfil guardado!",
+        description: `${petData.name} ha sido guardado en tu cuenta.`,
+      });
+      setShowSaveDogDialog(false);
+      proceedWithSubscription(pendingSubscription.planType, pendingSubscription.proteinLine);
+    } catch (error) {
+      console.error("Error saving dog:", error);
+      toast({
+        title: "Error al guardar",
+        description: "No se pudo guardar el perfil del perrito.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const proceedWithSubscription = (planType: "monthly" | "annual", selectedProtein?: "pollo" | "res") => {
     // Use the selected protein from toggle, or fall back to recommended
     const proteinLine = selectedProtein || (result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix");
     const presentation = result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g";
@@ -1648,6 +1687,37 @@ export default function AIRecomendador() {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Save Dog Profile Dialog */}
+      {showSaveDogDialog && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardHeader className="text-center">
+              <div className="text-4xl mb-2">🐶</div>
+              <CardTitle>Guardar perfil de {petData.name}</CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Para suscribirte, necesitas guardar el perfil de {petData.name} primero. 
+                ¿Deseas guardar a {petData.name} con la información que proporcionaste?
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
+                <p><strong>Nombre:</strong> {petData.name}</p>
+                <p><strong>Peso:</strong> {petData.weight}kg</p>
+                <p><strong>Actividad:</strong> {petData.activity}</p>
+                <p><strong>Ración diaria:</strong> {result?.dailyGrams}g</p>
+              </div>
+              <Button onClick={handleSaveDogAndSubscribe} className="w-full gap-2">
+                <Check className="h-4 w-4" />
+                Guardar y suscribirme
+              </Button>
+              <Button variant="outline" onClick={() => setShowSaveDogDialog(false)} className="w-full">
+                Cancelar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Login Dialog for in-chat authentication */}
       <LoginDialog
