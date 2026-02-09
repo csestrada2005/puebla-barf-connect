@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   CreditCard, Banknote, MessageCircle, 
-  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar 
+  ArrowLeft, Check, Loader2, AlertCircle, LogIn, UserPlus, Calendar, Dog 
 } from "lucide-react";
 import { z } from "zod";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
@@ -18,39 +19,35 @@ import { useCoverage } from "@/hooks/useCoverage";
 import { useRecommendation } from "@/hooks/useRecommendation";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { LoginDialog } from "@/components/ai/LoginDialog";
 import { supabase } from "@/integrations/supabase/client";
 
-// Product images
 import productoRes from "@/assets/products/producto-res.png";
 import productoPollo from "@/assets/products/producto-pollo.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
-// Validation schema for checkout form
 const checkoutSchema = z.object({
-  name: z.string()
-    .min(2, "El nombre debe tener al menos 2 caracteres")
-    .max(100, "El nombre no puede exceder 100 caracteres")
-    .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s'-]+$/, "El nombre contiene caracteres inválidos"),
+  family_name: z.string()
+    .min(2, "El apellido debe tener al menos 2 caracteres")
+    .max(100, "El apellido no puede exceder 100 caracteres"),
+  email: z.string().email("Correo electrónico inválido"),
   phone: z.string()
     .regex(/^[0-9+ ()-]{7,20}$/, "Formato de teléfono inválido (7-20 dígitos)"),
   address: z.string()
     .min(10, "La dirección debe tener al menos 10 caracteres")
     .max(500, "La dirección no puede exceder 500 caracteres"),
-  notes: z.string()
-    .max(1000, "Las notas no pueden exceder 1000 caracteres")
-    .optional()
-    .or(z.literal("")),
+  colonia: z.string().optional().or(z.literal("")),
+  postal_code: z.string().optional().or(z.literal("")),
+  references_notes: z.string().max(500).optional().or(z.literal("")),
+  special_notes: z.string().max(1000).optional().or(z.literal("")),
   deliveryWindow: z.string().optional(),
   preferredDeliveryDay: z.enum(["", "monday", "sunday"]).optional(),
 });
 
-// Sanitize text for WhatsApp messages (prevent injection)
 const sanitizeForWhatsApp = (text: string): string => {
-  return text
-    .replace(/[<>]/g, "") // Remove HTML-like characters
-    .replace(/[\r\n]+/g, " ") // Replace newlines with spaces
-    .trim();
+  return text.replace(/[<>]/g, "").replace(/[\r\n]+/g, " ").trim();
 };
 
 const paymentMethods = [
@@ -75,29 +72,63 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { items, getSubtotal, clearCart } = useCart();
-  const { isConfirmed, zoneName, address, deliveryFee } = useCoverage();
+  const { isConfirmed, zoneName, address: coverageAddress, deliveryFee } = useCoverage();
   const { recommendation } = useRecommendation();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { profile } = useProfile();
   
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   
+  const hasSubscription = items.some(i => i.isSubscription);
+  const subscriptionItem = items.find(i => i.isSubscription);
+  const dogName = subscriptionItem?.subscriptionDetails?.dogName || recommendation?.petName || "";
+
   const [formData, setFormData] = useState({
-    name: "",
+    family_name: "",
+    email: "",
     phone: "",
-    address: address || "",
-    notes: "",
+    address: coverageAddress || "",
+    colonia: "",
+    postal_code: "",
+    references_notes: "",
+    special_notes: "",
     deliveryWindow: "",
     preferredDeliveryDay: "" as "" | "monday" | "sunday",
   });
+
+  // Pre-fill from profile when available
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        family_name: prev.family_name || profile.family_name || "",
+        email: prev.email || profile.email || "",
+        phone: prev.phone || profile.phone || "",
+        address: prev.address || profile.address || "",
+        colonia: prev.colonia || profile.colonia || "",
+        postal_code: prev.postal_code || profile.postal_code || "",
+        references_notes: prev.references_notes || profile.references_notes || "",
+        special_notes: prev.special_notes || profile.special_notes || "",
+      }));
+    }
+  }, [profile]);
+
+  // Block subscription checkout for unauthenticated users
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated && hasSubscription) {
+      setShowLoginDialog(true);
+    }
+  }, [authLoading, isAuthenticated, hasSubscription]);
 
   const getProductImage = (itemName: string) => {
     const nameLower = itemName.toLowerCase();
     if (nameLower.includes("res") || nameLower.includes("beef")) return productoRes;
     if (nameLower.includes("pollo") || nameLower.includes("chicken")) return productoPollo;
-    return productoRes; // default
+    return productoRes;
   };
 
   const subtotal = getSubtotal();
@@ -112,44 +143,32 @@ export default function Checkout() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form data with Zod
     const validationResult = checkoutSchema.safeParse(formData);
-    
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
-      toast({
-        title: "Error de validación",
-        description: firstError.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error de validación", description: firstError.message, variant: "destructive" });
       return;
     }
 
     if (!isConfirmed) {
-      toast({
-        title: "Verifica tu cobertura",
-        description: "Necesitas confirmar que entregamos en tu zona.",
-        variant: "destructive",
-      });
+      toast({ title: "Verifica tu cobertura", description: "Necesitas confirmar que entregamos en tu zona.", variant: "destructive" });
       return;
     }
 
     setIsSubmitting(true);
-    
     const newOrderNumber = generateOrderNumber();
     
     try {
-      // Save order to database
-      const { data: orderData, error } = await supabase.from("orders").insert({
+      const { error } = await supabase.from("orders").insert({
         order_number: newOrderNumber,
-        customer_name: formData.name,
+        customer_name: formData.family_name,
         customer_phone: formData.phone,
         customer_address: formData.address,
-        delivery_notes: formData.notes || null,
+        delivery_notes: [formData.references_notes, formData.special_notes].filter(Boolean).join(" | ") || null,
         items: items as any,
-        subtotal: subtotal,
+        subtotal,
         delivery_fee: deliveryFee,
-        total: total,
+        total,
         payment_method: paymentMethod,
         payment_status: "pending",
         status: "pending",
@@ -160,41 +179,34 @@ export default function Checkout() {
 
       setOrderNumber(newOrderNumber);
 
-      // Sync to Google Sheets via Edge Function (fire and forget)
-      const hasSubscription = items.some(i => i.isSubscription);
-      const petInfo = recommendation?.breed 
+      // Sync to Google Sheets
+      const petInfo = dogName || (recommendation?.breed 
         ? `${recommendation.breed}${recommendation?.weight ? ` - ${recommendation.weight}kg` : ""}`
-        : "";
+        : "");
 
       supabase.functions.invoke("sync-to-sheets", {
         body: {
           order_number: newOrderNumber,
           created_at: new Date().toISOString(),
-          customer_name: formData.name,
+          customer_name: formData.family_name,
           customer_phone: formData.phone,
           customer_address: formData.address,
-          items: items,
-          subtotal: subtotal,
+          items,
+          subtotal,
           delivery_fee: deliveryFee,
-          total: total,
+          total,
           payment_method: paymentMethod,
           order_type: hasSubscription ? "subscription" : "single",
           pet_info: petInfo,
-          delivery_notes: formData.notes || "",
+          delivery_notes: formData.references_notes || "",
         },
       }).then(({ error }) => {
         if (error) console.error("Error syncing to sheets:", error);
-        else console.log("Order synced to sheets");
       });
       
-      // Generate WhatsApp message with sanitized, structured format
-      const sanitizedName = sanitizeForWhatsApp(formData.name);
+      const sanitizedName = sanitizeForWhatsApp(formData.family_name);
       const sanitizedAddress = sanitizeForWhatsApp(formData.address);
-      const sanitizedNotes = formData.notes ? sanitizeForWhatsApp(formData.notes) : "";
-      const sanitizedWindow = formData.deliveryWindow ? sanitizeForWhatsApp(formData.deliveryWindow) : "";
-      
       const itemsList = items.map(i => `• ${sanitizeForWhatsApp(i.name)} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
-      const familyName = sanitizedName.split(" ").slice(-1)[0];
       
       const message = encodeURIComponent(
         `*Nuevo Pedido Raw Paw*\n` +
@@ -202,11 +214,13 @@ export default function Checkout() {
         `*Productos:*\n${itemsList}\n\n` +
         `*Total:* $${total.toLocaleString("es-MX")}\n` +
         `*Pago:* ${paymentMethod === "efectivo" ? "Efectivo por cobrar" : "Tarjeta"}\n\n` +
-        `*Cliente:* ${petInfo || "No especificado"} - Fam. ${familyName}\n` +
+        (dogName ? `*Perrito:* ${dogName}\n` : "") +
+        `*Cliente:* Fam. ${sanitizedName}\n` +
         `*Tel:* ${formData.phone}\n` +
         `*Dirección:* ${sanitizedAddress}\n` +
-        (sanitizedNotes ? `*Referencias:* ${sanitizedNotes}\n` : "") +
-        (sanitizedWindow ? `*Ventana horaria:* ${sanitizedWindow}\n` : "") +
+        (formData.colonia ? `*Colonia:* ${formData.colonia}\n` : "") +
+        (formData.references_notes ? `*Referencias:* ${sanitizeForWhatsApp(formData.references_notes)}\n` : "") +
+        (formData.deliveryWindow ? `*Ventana horaria:* ${sanitizeForWhatsApp(formData.deliveryWindow)}\n` : "") +
         (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "monday" ? "Lunes" : "Domingo"}\n` : "") +
         `\n*Entrega:* 24-48h`
       );
@@ -215,14 +229,9 @@ export default function Checkout() {
       
       setOrderComplete(true);
       clearCart();
-      
     } catch (error) {
       console.error("Error creating order:", error);
-      toast({
-        title: "Error al crear pedido",
-        description: "Intenta de nuevo o contáctanos por WhatsApp.",
-        variant: "destructive",
-      });
+      toast({ title: "Error al crear pedido", description: "Intenta de nuevo o contáctanos por WhatsApp.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -242,9 +251,7 @@ export default function Checkout() {
               <Check className="h-10 w-10 text-green-600" />
             </div>
             <h1 className="text-3xl font-bold mb-2">¡Pedido recibido!</h1>
-            <p className="text-muted-foreground mb-4">
-              Tu número de orden es:
-            </p>
+            <p className="text-muted-foreground mb-4">Tu número de orden es:</p>
             <p className="text-2xl font-mono font-bold text-primary mb-6">{orderNumber}</p>
             
             <Card className="mb-6 text-left">
@@ -286,8 +293,8 @@ export default function Checkout() {
 
           <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
-          {/* Guest Gate */}
-          {!authLoading && !isAuthenticated && (
+          {/* Guest suggestion (non-blocking for non-subscription) */}
+          {!authLoading && !isAuthenticated && !hasSubscription && (
             <Card className="mb-6 border-primary/30 bg-primary/5">
               <CardContent className="py-4">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -297,16 +304,10 @@ export default function Checkout() {
                   </div>
                   <div className="flex gap-2">
                     <Button asChild variant="outline" size="sm" className="gap-2">
-                      <Link to="/login">
-                        <LogIn className="h-4 w-4" />
-                        Iniciar Sesión
-                      </Link>
+                      <Link to="/login"><LogIn className="h-4 w-4" />Iniciar Sesión</Link>
                     </Button>
                     <Button asChild size="sm" className="gap-2">
-                      <Link to="/registro">
-                        <UserPlus className="h-4 w-4" />
-                        Crear Cuenta
-                      </Link>
+                      <Link to="/registro"><UserPlus className="h-4 w-4" />Crear Cuenta</Link>
                     </Button>
                   </div>
                 </div>
@@ -319,48 +320,83 @@ export default function Checkout() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Necesitas verificar tu cobertura antes de continuar.{" "}
-                <Link to="/cobertura" className="underline font-medium">
-                  Verificar ahora
-                </Link>
+                <Link to="/cobertura" className="underline font-medium">Verificar ahora</Link>
               </AlertDescription>
             </Alert>
           )}
 
           <form onSubmit={handleSubmit}>
             <div className="grid gap-8 lg:grid-cols-3">
-              {/* Form */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Contact info */}
+                {/* Perrito (for subscriptions) */}
+                {hasSubscription && dogName && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Dog className="h-5 w-5 text-primary" />
+                        Perrito
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl">
+                        <span className="text-2xl">🐶</span>
+                        <span className="font-semibold">{dogName}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Contact info - matches Mi Perfil */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Información de contacto</CardTitle>
+                    <CardTitle>Contacto</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Nombre completo *</Label>
+                        <Label htmlFor="family_name">Apellido de la Familia *</Label>
                         <Input
-                          id="name"
-                          placeholder="Tu nombre"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          id="family_name"
+                          placeholder="Tu apellido"
+                          value={formData.family_name}
+                          onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Teléfono (WhatsApp) *</Label>
+                        <Label htmlFor="email">Email *</Label>
                         <Input
-                          id="phone"
-                          type="tel"
-                          placeholder="221 360 6464"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          id="email"
+                          type="email"
+                          placeholder="tu@correo.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           required
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="address">Dirección de entrega *</Label>
+                      <Label htmlFor="phone">Teléfono WhatsApp *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="221 360 6464"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Address - matches Mi Perfil */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Dirección de Entrega</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Dirección completa *</Label>
                       <Input
                         id="address"
                         placeholder="Calle, número, colonia, CP"
@@ -371,27 +407,62 @@ export default function Checkout() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="notes">Referencias (opcional)</Label>
+                        <Label htmlFor="colonia">Colonia</Label>
                         <Input
-                          id="notes"
-                          placeholder="Casa azul, junto al parque..."
-                          value={formData.notes}
-                          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                          id="colonia"
+                          placeholder="Colonia"
+                          value={formData.colonia}
+                          onChange={(e) => setFormData({ ...formData, colonia: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
+                        <Label htmlFor="postal_code">Código Postal</Label>
                         <Input
-                          id="deliveryWindow"
-                          placeholder="Ej: 10am-2pm"
-                          value={formData.deliveryWindow}
-                          onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
+                          id="postal_code"
+                          placeholder="72000"
+                          value={formData.postal_code}
+                          onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
                         />
                       </div>
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="references_notes">Referencias</Label>
+                      <Input
+                        id="references_notes"
+                        placeholder="Casa azul, junto al parque..."
+                        value={formData.references_notes}
+                        onChange={(e) => setFormData({ ...formData, references_notes: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="special_notes">Notas especiales</Label>
+                      <Textarea
+                        id="special_notes"
+                        placeholder="Instrucciones adicionales..."
+                        value={formData.special_notes}
+                        onChange={(e) => setFormData({ ...formData, special_notes: e.target.value })}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
 
-                    {/* Preferred Delivery Day */}
-                    <div className="space-y-3 pt-2">
+                {/* Delivery preferences */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Preferencias de Entrega</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
+                      <Input
+                        id="deliveryWindow"
+                        placeholder="Ej: 10am-2pm"
+                        value={formData.deliveryWindow}
+                        onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-3">
                       <Label className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-primary" />
                         Día de entrega preferencial
@@ -403,15 +474,11 @@ export default function Checkout() {
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="monday" id="delivery-monday" />
-                          <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">
-                            Lunes
-                          </Label>
+                          <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">Lunes</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="sunday" id="delivery-sunday" />
-                          <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">
-                            Domingo
-                          </Label>
+                          <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">Domingo</Label>
                         </div>
                       </RadioGroup>
                       <p className="text-xs text-muted-foreground">
@@ -428,19 +495,10 @@ export default function Checkout() {
                     <CardDescription>Selecciona cómo deseas pagar</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RadioGroup
-                      value={paymentMethod}
-                      onValueChange={setPaymentMethod}
-                      className="space-y-3"
-                    >
+                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
                       {paymentMethods.map((method) => (
                         <div key={method.id} className="relative">
-                          <RadioGroupItem
-                            value={method.id}
-                            id={method.id}
-                            className="peer sr-only"
-                            disabled={method.comingSoon}
-                          />
+                          <RadioGroupItem value={method.id} id={method.id} className="peer sr-only" disabled={method.comingSoon} />
                           <Label
                             htmlFor={method.id}
                             className={`flex items-center gap-4 rounded-lg border-2 p-4 transition-colors cursor-pointer
@@ -543,6 +601,25 @@ export default function Checkout() {
           </form>
         </div>
       </div>
+
+      {/* Login Dialog for subscription checkout */}
+      <LoginDialog
+        open={showLoginDialog}
+        onOpenChange={(open) => {
+          setShowLoginDialog(open);
+          // If closing without logging in and has subscription, redirect to cart
+          if (!open && !isAuthenticated && hasSubscription) {
+            toast({
+              title: "Registro requerido",
+              description: "Necesitas una cuenta para comprar una suscripción.",
+              variant: "destructive",
+            });
+            navigate("/carrito");
+          }
+        }}
+        title="Regístrate para suscribirte"
+        description="Para comprar una suscripción, primero necesitas una cuenta Raw Paw."
+      />
     </Layout>
   );
 }

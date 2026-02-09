@@ -8,6 +8,7 @@ export interface SubscriptionDetails {
   frequency: string;
   weeklyKg?: number;
   discountPercent: number;
+  dogName?: string;
 }
 
 export interface CartItem {

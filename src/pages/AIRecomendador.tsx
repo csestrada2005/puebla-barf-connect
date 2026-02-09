@@ -1334,6 +1334,7 @@ export default function AIRecomendador() {
         frequency: "mensual",
         weeklyKg,
         discountPercent,
+        dogName: petData.name,
       },
     };
 

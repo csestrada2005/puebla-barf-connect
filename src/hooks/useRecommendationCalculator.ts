@@ -436,9 +436,14 @@ export function calculateRecommendation(
     );
   }
   
-  // Calculate cart options with the recommended protein
-  const optionAData = calculateOptionA(dailyGrams, products, recommendedProtein);
-  const optionBData = calculateOptionB(dailyGrams, products, recommendedProtein);
+  // When NO allergy: always use chicken for base (económico) and beef for alt (premium)
+  // When allergy: use the single allowed protein
+  const baseProtein: "chicken" | "beef" = hasAllergy 
+    ? recommendedProtein as "chicken" | "beef"
+    : "chicken";
+  
+  const optionAData = calculateOptionA(dailyGrams, products, baseProtein);
+  const optionBData = calculateOptionB(dailyGrams, products, baseProtein);
   
   // Generate reasoning
   const reasoning = generateReasoning(petData, planType, recommendedProtein, dailyGrams);
@@ -474,27 +479,24 @@ export function calculateRecommendation(
     reasoning,
   };
   
-  // If NO allergy, also calculate alternative protein options (for toggle)
-  // Primary = recommended (usually chicken/económico), Alt = beef (premium)
+  // If NO allergy, generate beef (premium) alternatives for toggle
   if (!hasAllergy) {
-    // Calculate alternative options with the "other" protein
-    const altProtein: "chicken" | "beef" = recommendedProtein === "chicken" ? "beef" : "chicken";
-    const optionAAltData = calculateOptionA(dailyGrams, products, altProtein);
-    const optionBAltData = calculateOptionB(dailyGrams, products, altProtein);
+    const optionAAltData = calculateOptionA(dailyGrams, products, "beef");
+    const optionBAltData = calculateOptionB(dailyGrams, products, "beef");
     
     result.optionA_alt = {
       title: "Porción Quincenal",
-      subtitle: `BARF ${altProtein === "beef" ? "Res Premium" : "Pollo"} - ~2 semanas`,
+      subtitle: "BARF Res Premium - ~2 semanas",
       products: optionAAltData.products,
       totalPrice: optionAAltData.totalPrice,
-      badge: altProtein === "beef" ? "✨ Premium" : undefined,
-      isRecommended: altProtein === "beef",
+      badge: "✨ Premium",
+      isRecommended: true,
       durationDays: optionAAltData.durationDays,
     };
     
     result.optionB_alt = {
       title: "Porción Semanal",
-      subtitle: `BARF ${altProtein === "beef" ? "Res Premium" : "Pollo"} - ~1 semana`,
+      subtitle: "BARF Res Premium - ~1 semana",
       products: optionBAltData.products,
       totalPrice: optionBAltData.totalPrice,
       durationDays: optionBAltData.durationDays,
