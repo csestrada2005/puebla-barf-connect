@@ -83,7 +83,7 @@ const checkoutSchema = z.object({
   address: z.string()
     .min(5, "La dirección debe tener al menos 5 caracteres")
     .max(500, "La dirección no puede exceder 500 caracteres"),
-  colonia: z.string().optional().or(z.literal("")),
+  colonia: z.string().min(3, "La colonia debe tener al menos 3 caracteres").max(200, "La colonia no puede exceder 200 caracteres"),
   postal_code: z.string().optional().or(z.literal("")),
   references_notes: z.string().max(500).optional().or(z.literal("")),
   special_notes: z.string().max(1000).optional().or(z.literal("")),
@@ -222,7 +222,7 @@ export default function Checkout() {
         order_number: newOrderNumber,
         customer_name: formData.family_name,
         customer_phone: formData.phone,
-        customer_address: formData.address,
+        customer_address: [formData.address, formData.colonia ? `Col. ${formData.colonia}` : "", formData.postal_code ? `CP ${formData.postal_code}` : ""].filter(Boolean).join(", "),
         delivery_notes: [formData.references_notes, formData.special_notes].filter(Boolean).join(" | ") || null,
         items: items as any,
         subtotal,
@@ -257,7 +257,7 @@ export default function Checkout() {
           created_at: new Date().toISOString(),
           customer_name: formData.family_name,
           customer_phone: formData.phone,
-          customer_address: formData.address,
+          customer_address: [formData.address, formData.colonia ? `Col. ${formData.colonia}` : "", formData.postal_code ? `CP ${formData.postal_code}` : ""].filter(Boolean).join(", "),
           items,
           subtotal,
           delivery_fee: deliveryFee,
@@ -272,7 +272,8 @@ export default function Checkout() {
       });
       
       const sanitizedName = sanitizeForWhatsApp(formData.family_name);
-      const sanitizedAddress = sanitizeForWhatsApp(formData.address);
+      const fullAddress = [formData.address, formData.colonia ? `Col. ${formData.colonia}` : "", formData.postal_code ? `CP ${formData.postal_code}` : ""].filter(Boolean).join(", ");
+      const sanitizedAddress = sanitizeForWhatsApp(fullAddress);
       const itemsList = items.map(i => `• ${sanitizeForWhatsApp(i.name)} x${i.quantity} - $${(i.price * i.quantity).toLocaleString("es-MX")}`).join("\n");
       
       const message = encodeURIComponent(
@@ -285,7 +286,6 @@ export default function Checkout() {
         `*Cliente:* Fam. ${sanitizedName}\n` +
         `*Tel:* ${formData.phone}\n` +
         `*Dirección:* ${sanitizedAddress}\n` +
-        (formData.colonia ? `*Colonia:* ${formData.colonia}\n` : "") +
         (formData.references_notes ? `*Referencias:* ${sanitizeForWhatsApp(formData.references_notes)}\n` : "") +
         (formData.deliveryWindow ? `*Ventana horaria:* ${sanitizeForWhatsApp(formData.deliveryWindow)}\n` : "") +
         (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "monday" ? "Lunes" : "Domingo"}\n` : "") +
