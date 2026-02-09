@@ -198,18 +198,26 @@ export default function Suscripcion() {
                     </Button>
                   </div>
                 ) : (
-                  <Select value={selectedDogId} onValueChange={setSelectedDogId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un perrito..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activeDogs.map(dog => (
-                        <SelectItem key={dog.id} value={dog.id}>
-                          🐶 {dog.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-3">
+                    <Select value={selectedDogId} onValueChange={setSelectedDogId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un perrito..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeDogs.map(dog => (
+                          <SelectItem key={dog.id} value={dog.id}>
+                            🐶 {dog.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button asChild variant="outline" size="sm" className="w-full gap-2">
+                      <Link to="/ia?intent=new_profile">
+                        <Sparkles className="h-4 w-4" />
+                        Añadir otro perrito
+                      </Link>
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>

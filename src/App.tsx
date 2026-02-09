@@ -66,11 +66,9 @@ const App = () => (
                 </Suspense>
               } />
               <Route path="/checkout" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<RouteSkeleton />}>
-                    <Checkout />
-                  </Suspense>
-                </ProtectedRoute>
+                <Suspense fallback={<RouteSkeleton />}>
+                  <Checkout />
+                </Suspense>
               } />
               <Route path="/suscripcion" element={
                 <Suspense fallback={<RouteSkeleton />}>
