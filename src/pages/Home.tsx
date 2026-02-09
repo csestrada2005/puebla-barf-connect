@@ -65,10 +65,8 @@ export default function Home() {
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      toast({
-        title: "¡Gracias por suscribirte!",
-        description: "Recibirás nuestras ofertas y novedades."
-      });
+      // Silent success
+      setEmail("");
       setEmail("");
     }
   };
