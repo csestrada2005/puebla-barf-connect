@@ -1,54 +1,53 @@
 
-# Plan: Mover el PopUp Promocional de `/` a `/tienda`
+## Fix: Collapsible sections closing when typing in Checkout
 
-## Resumen
-El popup de bienvenida con el código de descuento `BIENVENIDO15` actualmente aparece en cualquier página de la web. Se moverá para que solo aparezca cuando el usuario entre a la página `/tienda`.
+### Problem
+The `CollapsibleSection` component is defined **inside** the `Checkout` component's render body. Every time any state changes (e.g., typing in an input field updates form state), React creates a brand-new component reference. React sees it as a completely different component, so it **unmounts and remounts** the entire section — causing inputs to lose focus and sections to appear to "close."
 
----
+### Solution
+Extract `CollapsibleSection` as a standalone component **outside** of the `Checkout` function. This ensures React maintains a stable component identity across renders, preserving input focus and collapsible state.
 
-## Cambios a Realizar
+### Technical Details
 
-### 1. Modificar `src/App.tsx`
-**Acción:** Remover el componente `<PromoPopup />` del nivel global
+**File: `src/pages/Checkout.tsx`**
 
-- Eliminar la línea 48: `<PromoPopup />`
-- Eliminar la importación del componente (línea 9)
-
-El popup ya no aparecerá automáticamente en todas las páginas.
-
----
-
-### 2. Modificar `src/pages/Tienda.tsx`
-**Acción:** Agregar el `PromoPopup` dentro de la página de tienda
+1. Move the `CollapsibleSection` component definition **before** the `Checkout` function (or into its own file), making it a top-level component instead of an inline one.
 
 ```tsx
-import { PromoPopup } from "@/components/PromoPopup";
-
-export default function Tienda() {
-  return (
-    <Layout>
-      <PromoPopup />
-      {/* ... resto del contenido */}
-    </Layout>
-  );
-}
+// BEFORE the Checkout component
+const CollapsibleSection = ({ title, open, onOpenChange, children, icon }: {
+  title: string;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}) => (
+  <Collapsible open={open}>
+    <Card>
+      <div
+        role="button"
+        tabIndex={0}
+        className="cursor-pointer hover:bg-accent/50 transition-colors"
+        onClick={() => onOpenChange(!open)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target === e.currentTarget) onOpenChange(!open);
+        }}
+      >
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">{icon}{title}</span>
+            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+          </CardTitle>
+        </CardHeader>
+      </div>
+      <CollapsibleContent>
+        <CardContent className="space-y-4 pt-0" onClick={(e) => e.stopPropagation()}>
+          {children}
+        </CardContent>
+      </CollapsibleContent>
+    </Card>
+  </Collapsible>
+);
 ```
 
----
-
-## Comportamiento Final
-
-| Escenario | Antes | Después |
-|-----------|-------|---------|
-| Usuario entra a `/` | Popup aparece después de 3s | No aparece popup |
-| Usuario entra a `/tienda` | Popup aparece después de 3s | Popup aparece después de 3s |
-| Usuario ya vio el popup | No vuelve a aparecer (sessionStorage) | Sin cambios |
-| Usuario navega de `/` a `/tienda` | Ya se mostró en `/` | Se muestra en `/tienda` |
-
----
-
-## Detalles Técnicos
-
-- La lógica existente del popup (delay de 3 segundos, sessionStorage para evitar mostrar de nuevo) se mantiene intacta
-- Solo cambia la ubicación donde se renderiza el componente
-- No se requieren cambios en la base de datos ni edge functions
+That's it -- one move, no logic changes. This fixes the root cause.
