@@ -240,7 +240,9 @@ export default function Checkout() {
         orderPayload.user_id = user.id;
       }
 
-      const { error } = await supabase.from("orders").insert(orderPayload).select().single();
+      const { error } = isAuthenticated
+        ? await supabase.from("orders").insert(orderPayload).select().single()
+        : await supabase.from("orders").insert(orderPayload);
 
       if (error) throw error;
 
