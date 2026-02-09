@@ -6,16 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, Repeat, Star, Gift, Truck, MessageCircle, CreditCard, Info, ShoppingCart } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Check, Repeat, Star, Gift, Truck, CreditCard, Info, ShoppingCart, Dog, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
-const WHATSAPP_NUMBER = "5212213606464";
+
 const proteinOptions = [{
   value: "pollo",
   label: "Pollo",
@@ -27,6 +27,7 @@ const proteinOptions = [{
   emoji: "🥩",
   description: "Línea premium, mayor proteína"
 }];
+
 const presentationOptions = [{
   value: "500g",
   label: "500g",
@@ -36,6 +37,7 @@ const presentationOptions = [{
   label: "1kg",
   description: "Perros medianos y grandes"
 }];
+
 const billingOptions = [{
   value: "mensual",
   label: "Mensual",
@@ -58,6 +60,7 @@ const frequencyOptions = [{
   label: "Cada 15 días",
   description: "Entregas cada 2 semanas"
 }];
+
 export default function Suscripcion() {
   const navigate = useNavigate();
   const { addItem } = useCart();
@@ -66,24 +69,39 @@ export default function Suscripcion() {
   const [presentation, setPresentation] = useState("500g");
   const [billing, setBilling] = useState("mensual");
   const [frequency, setFrequency] = useState("semanal");
+  const [selectedDogId, setSelectedDogId] = useState<string>("");
   const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const { isAuthenticated } = useAuth();
-  const {
-    data: products
-  } = useQuery({
+  const { isAuthenticated, user } = useAuth();
+
+  const { data: products } = useQuery({
     queryKey: ["subscription-products"],
     queryFn: async () => {
-      const {
-        data
-      } = await supabase.from("products").select("*").eq("is_active", true).eq("is_subscription", false);
+      const { data } = await supabase.from("products").select("*").eq("is_active", true).eq("is_subscription", false);
       return data || [];
     }
   });
 
-  // Find matching product
-  const selectedProduct = products?.find(p => p.protein_line === protein && p.presentation === presentation);
+  // Fetch user's dog profiles
+  const { data: dogProfiles } = useQuery({
+    queryKey: ["my-dogs-subscription", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("dog_profiles")
+        .select("id, name, status")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
 
-  // Calculate price
+  const activeDogs = dogProfiles || [];
+  const selectedDog = activeDogs.find(d => d.id === selectedDogId);
+
+  const selectedProduct = products?.find(p => p.protein_line === protein && p.presentation === presentation);
   const basePrice = selectedProduct ? Number(selectedProduct.price) : 0;
   const billingDiscount = billing === "anual" ? 0.85 : 1;
   const finalPrice = Math.round(basePrice * billingDiscount);
@@ -91,6 +109,16 @@ export default function Suscripcion() {
   const handleSubscribe = () => {
     if (!isAuthenticated) {
       setShowLoginDialog(true);
+      return;
+    }
+
+    // Must select a dog
+    if (!selectedDogId || !selectedDog) {
+      toast({
+        title: "Selecciona un perrito",
+        description: "Debes seleccionar para qué perrito es esta suscripción.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -108,6 +136,7 @@ export default function Suscripcion() {
         presentation,
         frequency: billing,
         discountPercent,
+        dogName: selectedDog.name,
       },
     };
 
@@ -115,12 +144,14 @@ export default function Suscripcion() {
 
     toast({
       title: "Plan agregado al carrito 🛒",
-      description: `Tu suscripción ${billing === "anual" ? "anual" : "mensual"} está lista para pagar.`,
+      description: `Suscripción para ${selectedDog.name} lista para pagar.`,
     });
 
     navigate("/carrito");
   };
-  return <Layout>
+
+  return (
+    <Layout>
       <div className="container py-4 pt-12 md:pt-14 relative">
         {/* Hero */}
         <div className="text-center max-w-2xl mx-auto mb-4">
@@ -133,10 +164,56 @@ export default function Suscripcion() {
           </h1>
         </div>
 
-
         <div className="grid lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
           {/* Configurator */}
           <div className="space-y-4">
+            {/* Dog Selector */}
+            <Card>
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Dog className="h-5 w-5 text-primary" />
+                  Perrito
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-4">
+                {!isAuthenticated ? (
+                  <div className="text-center py-3">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Inicia sesión para ver tus perritos registrados
+                    </p>
+                    <Button variant="outline" size="sm" onClick={() => setShowLoginDialog(true)} className="gap-2">
+                      Iniciar Sesión
+                    </Button>
+                  </div>
+                ) : activeDogs.length === 0 ? (
+                  <div className="text-center py-3">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Aún no tienes perritos registrados
+                    </p>
+                    <Button asChild size="sm" className="gap-2">
+                      <Link to="/ia">
+                        <Sparkles className="h-4 w-4" />
+                        Añadir perrito
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <Select value={selectedDogId} onValueChange={setSelectedDogId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un perrito..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeDogs.map(dog => (
+                        <SelectItem key={dog.id} value={dog.id}>
+                          🐶 {dog.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Protein Line */}
             <Card>
               <CardHeader className="pb-2 pt-4">
@@ -144,18 +221,19 @@ export default function Suscripcion() {
               </CardHeader>
               <CardContent className="pb-4">
                 <RadioGroup value={protein} onValueChange={setProtein} className="grid grid-cols-2 gap-2">
-                  {proteinOptions.map(option => <div key={option.value}>
+                  {proteinOptions.map(option => (
+                    <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`protein-${option.value}`} className="peer sr-only" />
                       <Label htmlFor={`protein-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
                         <span className="text-2xl">{option.emoji}</span>
                         <span className="font-semibold text-sm">{option.label}</span>
                         <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
-                    </div>)}
+                    </div>
+                  ))}
                 </RadioGroup>
               </CardContent>
             </Card>
-
 
             {/* Presentation */}
             <Card>
@@ -164,13 +242,15 @@ export default function Suscripcion() {
               </CardHeader>
               <CardContent className="pb-4">
                 <RadioGroup value={presentation} onValueChange={setPresentation} className="grid grid-cols-2 gap-2">
-                  {presentationOptions.map(option => <div key={option.value}>
+                  {presentationOptions.map(option => (
+                    <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`pres-${option.value}`} className="peer sr-only" />
                       <Label htmlFor={`pres-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
                         <span className="text-lg font-bold">{option.label}</span>
                         <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
-                    </div>)}
+                    </div>
+                  ))}
                 </RadioGroup>
               </CardContent>
             </Card>
@@ -182,22 +262,26 @@ export default function Suscripcion() {
               </CardHeader>
               <CardContent className="pb-4">
                 <RadioGroup value={billing} onValueChange={setBilling} className="grid grid-cols-2 gap-2">
-                  {billingOptions.map(option => <div key={option.value}>
+                  {billingOptions.map(option => (
+                    <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`billing-${option.value}`} className="peer sr-only" />
                       <Label htmlFor={`billing-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
                         <span className="font-semibold text-sm">{option.label}</span>
                         {option.discount > 0 && <Badge variant="secondary" className="text-[10px]">-{option.discount}%</Badge>}
                         <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
-                    </div>)}
+                    </div>
+                  ))}
                 </RadioGroup>
 
-                {billing === "anual" && <Alert className="mt-3">
+                {billing === "anual" && (
+                  <Alert className="mt-3">
                     <CreditCard className="h-4 w-4" />
                     <AlertDescription className="text-xs">
                       El plan anual requiere pago con tarjeta.
                     </AlertDescription>
-                  </Alert>}
+                  </Alert>
+                )}
               </CardContent>
             </Card>
 
@@ -208,32 +292,31 @@ export default function Suscripcion() {
               </CardHeader>
               <CardContent className="pb-4">
                 <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-2">
-                  {frequencyOptions.map(option => <div key={option.value}>
+                  {frequencyOptions.map(option => (
+                    <div key={option.value}>
                       <RadioGroupItem value={option.value} id={`freq-${option.value}`} className="peer sr-only" />
                       <Label htmlFor={`freq-${option.value}`} className="flex flex-col items-center gap-1 rounded-xl border-2 p-3 cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
                         <span className="font-semibold text-sm">{option.label}</span>
                         <span className="text-[10px] text-muted-foreground text-center">{option.description}</span>
                       </Label>
-                    </div>)}
+                    </div>
+                  ))}
                 </RadioGroup>
               </CardContent>
             </Card>
           </div>
 
-          {/* Summary & Benefits - Sticky container */}
+          {/* Summary & Benefits */}
           <div className="lg:sticky lg:top-16 space-y-3 h-fit">
-            {/* Price Card with Bulldogs inside */}
-            <div className="relative">
-              
-              <Card className="border-primary border-2 relative z-10">
-                <CardHeader className="pb-2 pt-4">
-                  <CardTitle className="text-lg">Tu suscripción</CardTitle>
+            <Card className="border-primary border-2 relative z-10">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-lg">Tu suscripción</CardTitle>
                 <CardDescription className="text-xs">
+                  {selectedDog ? `Para ${selectedDog.name} • ` : ""}
                   BARF {protein === "res" ? "Res" : "Pollo"} {presentation} - {billing === "anual" ? "Anual" : "Mensual"} - {frequency === "semanal" ? "Semanal" : "Cada 15 días"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pb-4">
-                {/* Package Summary */}
                 <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Paquetes al mes</span>
@@ -256,11 +339,12 @@ export default function Suscripcion() {
                   </div>
                 </div>
 
-                {/* Total Price */}
                 <div className="flex items-baseline gap-2">
-                  {basePrice !== finalPrice && <span className="text-lg text-muted-foreground line-through">
+                  {basePrice !== finalPrice && (
+                    <span className="text-lg text-muted-foreground line-through">
                       ${basePrice.toLocaleString("es-MX")}
-                    </span>}
+                    </span>
+                  )}
                   <span className="text-3xl font-bold text-primary">
                     ${finalPrice.toLocaleString("es-MX")}
                   </span>
@@ -268,24 +352,18 @@ export default function Suscripcion() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-2.5 w-2.5 text-primary" />
+                  {[
+                    `Entrega automática ${frequency === "semanal" ? "cada semana" : "cada 15 días"}`,
+                    "Sin compromiso, cancela cuando quieras",
+                    "Regalos sorpresa cada mes",
+                  ].map((text) => (
+                    <div key={text} className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="h-2.5 w-2.5 text-primary" />
+                      </div>
+                      <span className="text-xs">{text}</span>
                     </div>
-                    <span className="text-xs">Entrega automática {frequency === "semanal" ? "cada semana" : "cada 15 días"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-2.5 w-2.5 text-primary" />
-                    </div>
-                    <span className="text-xs">Sin compromiso, cancela cuando quieras</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-2.5 w-2.5 text-primary" />
-                    </div>
-                    <span className="text-xs">Regalos sorpresa cada mes</span>
-                  </div>
+                  ))}
                 </div>
 
                 <Button onClick={handleSubscribe} className="w-full gap-2" size="default">
@@ -297,8 +375,7 @@ export default function Suscripcion() {
                   Sin compromiso. Cancela cuando quieras.
                 </p>
               </CardContent>
-              </Card>
-            </div>
+            </Card>
 
             {/* Extra Benefits */}
             <Card>
@@ -351,5 +428,6 @@ export default function Suscripcion() {
         title="Regístrate para suscribirte"
         description="Para crear tu suscripción mensual, primero necesitas una cuenta Raw Paw."
       />
-    </Layout>;
+    </Layout>
+  );
 }

@@ -166,21 +166,55 @@ export default function Producto() {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Product Image */}
-          <div className="relative flex justify-center">
-            <div className="aspect-square max-h-64 md:max-h-none w-full max-w-sm md:max-w-none rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6">
-              <img 
-                src={productImages[product.protein_line || "res"]} 
-                alt={product.name}
-                className="w-full h-full object-contain"
-              />
+          {/* Left Column: Image + Benefits (desktop) */}
+          <div className="space-y-6">
+            {/* Product Image - compact on desktop */}
+            <div className="relative flex justify-center">
+              <div className="aspect-square max-h-64 md:max-h-72 lg:max-h-56 w-full max-w-sm lg:max-w-xs rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6 mx-auto">
+                <img 
+                  src={productImages[product.protein_line || "res"]} 
+                  alt={product.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <Badge className="absolute top-4 left-4 text-sm">
+                {product.protein_line === "pollo" ? "🐔 Pollo" : "🥩 Res"}
+              </Badge>
             </div>
-            <Badge className="absolute top-4 left-4 text-sm">
-              {product.protein_line === "pollo" ? "🐔 Pollo" : "🥩 Res"}
-            </Badge>
+
+            {/* Benefits - horizontal below image on desktop */}
+            {benefits.length > 0 && (
+              <div className="hidden lg:block">
+                <h3 className="text-lg font-bold mb-4">Ingredientes</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {benefits.map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-3 p-2 bg-secondary/30 rounded-xl">
+                      <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-foreground">
+                        {benefitIcons[benefit] || <Check className="h-4 w-4" />}
+                      </div>
+                      <span className="text-sm font-medium">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Ingredients - horizontal below benefits on desktop */}
+            {ingredients.length > 0 && (
+              <div className="hidden lg:block">
+                <h3 className="text-lg font-bold mb-4">Beneficios</h3>
+                <div className="flex flex-wrap gap-2">
+                  {ingredients.map((ingredient, i) => (
+                    <Badge key={i} variant="default" className="text-sm bg-primary/10 text-primary border-0">
+                      {ingredient}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Product Info */}
+          {/* Right Column: Product Info */}
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
@@ -290,13 +324,13 @@ export default function Producto() {
               </CardContent>
             </Card>
 
-            {/* Benefits */}
-            <div>
-              <h3 className="text-lg font-bold mb-4">Beneficios</h3>
+            {/* Benefits - mobile only (uses swapped colors) */}
+            <div className="lg:hidden">
+              <h3 className="text-lg font-bold mb-4">Ingredientes</h3>
               <div className="space-y-3">
                 {benefits.map((benefit, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-foreground">
                       {benefitIcons[benefit] || <Check className="h-5 w-5" />}
                     </div>
                     <span className="font-medium">{benefit}</span>
@@ -305,12 +339,12 @@ export default function Producto() {
               </div>
             </div>
 
-            {/* Ingredients */}
-            <div>
-              <h3 className="text-lg font-bold mb-4">Ingredientes</h3>
+            {/* Ingredients - mobile only (uses swapped colors) */}
+            <div className="lg:hidden">
+              <h3 className="text-lg font-bold mb-4">Beneficios</h3>
               <div className="flex flex-wrap gap-2">
                 {ingredients.map((ingredient, i) => (
-                  <Badge key={i} variant="secondary" className="text-sm">
+                  <Badge key={i} variant="default" className="text-sm bg-primary/10 text-primary border-0">
                     {ingredient}
                   </Badge>
                 ))}
