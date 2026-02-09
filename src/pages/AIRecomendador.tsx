@@ -1296,10 +1296,7 @@ export default function AIRecomendador() {
       }
     });
     
-    toast({
-      title: "¡Agregado al carrito!",
-      description: `Opción ${option} para ${petData.name}`,
-    });
+    // Navigate silently - no toast
     
     navigate("/carrito");
   };
@@ -1379,10 +1376,7 @@ export default function AIRecomendador() {
 
     addItem(subscriptionItem);
     
-    toast({
-      title: "Plan agregado al carrito 🛒",
-      description: `Tu suscripción ${planType === "annual" ? "anual" : "mensual"} está lista para pagar.`,
-    });
+    // Navigate silently - no toast
 
     setIsResultOpen(false);
     navigate("/carrito");
