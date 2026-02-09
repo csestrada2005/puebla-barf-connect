@@ -30,6 +30,49 @@ import productoPollo from "@/assets/products/producto-pollo.png";
 
 const WHATSAPP_NUMBER = "5212213606464";
 
+const CollapsibleSection = ({ 
+  title, 
+  open, 
+  onOpenChange, 
+  children, 
+  icon 
+}: { 
+  title: string; 
+  open: boolean; 
+  onOpenChange: (v: boolean) => void; 
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}) => (
+  <Collapsible open={open}>
+    <Card>
+      <div 
+        role="button"
+        tabIndex={0}
+        className="cursor-pointer hover:bg-accent/50 transition-colors"
+        onClick={() => onOpenChange(!open)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target === e.currentTarget) onOpenChange(!open);
+        }}
+      >
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              {icon}
+              {title}
+            </span>
+            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+          </CardTitle>
+        </CardHeader>
+      </div>
+      <CollapsibleContent>
+        <CardContent className="space-y-4 pt-0" onClick={(e) => e.stopPropagation()}>
+          {children}
+        </CardContent>
+      </CollapsibleContent>
+    </Card>
+  </Collapsible>
+);
+
 const checkoutSchema = z.object({
   family_name: z.string()
     .min(2, "El apellido debe tener al menos 2 caracteres")
@@ -306,49 +349,6 @@ export default function Checkout() {
       </Layout>
     );
   }
-
-  const CollapsibleSection = ({ 
-    title, 
-    open, 
-    onOpenChange, 
-    children, 
-    icon 
-  }: { 
-    title: string; 
-    open: boolean; 
-    onOpenChange: (v: boolean) => void; 
-    children: React.ReactNode;
-    icon?: React.ReactNode;
-  }) => (
-    <Collapsible open={open}>
-      <Card>
-        <div 
-          role="button"
-          tabIndex={0}
-          className="cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => onOpenChange(!open)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.target === e.currentTarget) onOpenChange(!open);
-          }}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                {icon}
-                {title}
-              </span>
-              <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
-            </CardTitle>
-          </CardHeader>
-        </div>
-        <CollapsibleContent>
-          <CardContent className="space-y-4 pt-0" onClick={(e) => e.stopPropagation()}>
-            {children}
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
-  );
 
   return (
     <Layout>
