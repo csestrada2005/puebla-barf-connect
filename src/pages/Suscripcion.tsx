@@ -142,10 +142,7 @@ export default function Suscripcion() {
 
     addItem(subscriptionItem);
 
-    toast({
-      title: "Plan agregado al carrito 🛒",
-      description: `Suscripción para ${selectedDog.name} lista para pagar.`,
-    });
+    // Navigate silently - no toast
 
     navigate("/carrito");
   };

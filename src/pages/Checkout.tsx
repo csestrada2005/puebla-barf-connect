@@ -38,7 +38,7 @@ const checkoutSchema = z.object({
   phone: z.string()
     .regex(/^[0-9+ ()-]{7,20}$/, "Formato de teléfono inválido (7-20 dígitos)"),
   address: z.string()
-    .min(10, "La dirección debe tener al menos 10 caracteres")
+    .min(5, "La dirección debe tener al menos 5 caracteres")
     .max(500, "La dirección no puede exceder 500 caracteres"),
   colonia: z.string().optional().or(z.literal("")),
   postal_code: z.string().optional().or(z.literal("")),
@@ -322,8 +322,16 @@ export default function Checkout() {
   }) => (
     <Collapsible open={open} onOpenChange={onOpenChange}>
       <Card>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+        <div 
+          role="button"
+          tabIndex={0}
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => onOpenChange(!open)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') onOpenChange(!open);
+          }}
+        >
+          <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 {icon}
@@ -332,7 +340,7 @@ export default function Checkout() {
               <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
             </CardTitle>
           </CardHeader>
-        </CollapsibleTrigger>
+        </div>
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-0">
             {children}
@@ -449,10 +457,10 @@ export default function Checkout() {
                 {/* Address - Collapsible */}
                 <CollapsibleSection title="Dirección de Entrega" open={addressOpen} onOpenChange={setAddressOpen}>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Dirección completa *</Label>
+                    <Label htmlFor="address">Dirección *</Label>
                     <Input
                       id="address"
-                      placeholder="Calle, número, colonia, CP"
+                      placeholder="Calle y número"
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       required

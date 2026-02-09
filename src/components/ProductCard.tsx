@@ -58,10 +58,7 @@ export function ProductCard({
       isSubscription,
       imageUrl,
     });
-    toast({
-      title: "¡Agregado al carrito!",
-      description: name,
-    });
+    // Silent add - no toast
   };
 
   const proteinEmoji = proteinLine === "pollo" ? "🐔" : proteinLine === "res" ? "🥩" : null;
