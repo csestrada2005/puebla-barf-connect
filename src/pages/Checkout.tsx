@@ -240,11 +240,11 @@ export default function Checkout() {
         orderPayload.user_id = user.id;
       }
 
-      const { error } = isAuthenticated
+      const result = isAuthenticated
         ? await supabase.from("orders").insert(orderPayload).select().single()
         : await supabase.from("orders").insert(orderPayload);
-
-      if (error) throw error;
+      
+      if (result.error) throw result.error;
 
       setOrderNumber(newOrderNumber);
 
