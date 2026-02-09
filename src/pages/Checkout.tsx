@@ -320,7 +320,7 @@ export default function Checkout() {
     children: React.ReactNode;
     icon?: React.ReactNode;
   }) => (
-    <Collapsible open={open} onOpenChange={onOpenChange}>
+    <Collapsible open={open}>
       <Card>
         <div 
           role="button"
@@ -328,7 +328,7 @@ export default function Checkout() {
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => onOpenChange(!open)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') onOpenChange(!open);
+            if (e.key === 'Enter' && e.target === e.currentTarget) onOpenChange(!open);
           }}
         >
           <CardHeader>
@@ -342,7 +342,7 @@ export default function Checkout() {
           </CardHeader>
         </div>
         <CollapsibleContent>
-          <CardContent className="space-y-4 pt-0">
+          <CardContent className="space-y-4 pt-0" onClick={(e) => e.stopPropagation()}>
             {children}
           </CardContent>
         </CollapsibleContent>
