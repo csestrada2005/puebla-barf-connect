@@ -41,6 +41,7 @@ type Step =
   | "profile_bodyCondition"
   | "profile_allergies"
   | "profile_goal"
+  | "edit_plan_choice"
   | "profile_done"
   | "guest_save_prompt";
 
@@ -661,7 +662,7 @@ export default function AIRecomendador() {
 
     setTimeout(async () => {
       switch (value) {
-        case "edit_name":
+      case "edit_name":
           setSingleFieldEdit("name");
           addMessage(`¿Cuál es el nuevo nombre? (actual: ${profileDraft.name})`, true);
           setStep("profile_name");
@@ -675,6 +676,11 @@ export default function AIRecomendador() {
           setSingleFieldEdit("weight");
           addMessage(`¿Cuánto pesa ahora? (actual: ${profileDraft.weightKg} kg) ⚖️`, true);
           setStep("profile_weight");
+          break;
+        case "change_plan":
+          setSingleFieldEdit(null);
+          addMessage(`¿Qué quieres hacer con el plan de ${profileDraft.name}? 🔄`, true);
+          setStep("edit_plan_choice");
           break;
         case "view_plan":
           setSingleFieldEdit(null);
@@ -846,6 +852,32 @@ export default function AIRecomendador() {
     }
 
     setIsProcessing(false);
+  };
+
+  // ==================== HANDLERS: EDIT PLAN CHOICE ====================
+
+  const handleEditPlanChoiceSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    addMessage(label, false);
+
+    const dog = selectedDog || activeDogs.find((d) => d.id === editingDogId);
+
+    setTimeout(async () => {
+      if (value === "change_protein") {
+        // Just show the plan with protein toggle
+        if (dog) {
+          showPlanForDog(dog);
+        }
+      } else if (value === "redo_plan") {
+        // Re-do plan: skip name/birthday, ask weight → activity → bodyCondition → allergies → goal
+        setResult(null);
+        setIsResultOpen(false);
+        await addBotMessage(`Perfecto, vamos a recalcular el plan de ${profileDraft.name}. ¿Cuánto pesa ahora? ⚖️`);
+        setStep("profile_weight");
+      }
+      setIsProcessing(false);
+    }, 400);
   };
 
   // ==================== HANDLERS: PROFILE FLOW ====================
@@ -1397,18 +1429,10 @@ export default function AIRecomendador() {
     setIsResultOpen(false);
     localStorage.removeItem("ai-recommender-state");
     
-    if (selectedDog) {
-      // Re-edit the same dog
-      startNewDogFlow(selectedDog);
-    } else if (petData.name) {
-      // Guest mode - restart the flow with current data
-      setResult(null);
-      setStep("name");
-      setMessages([{
-        id: "change-plan",
-        content: `¡Vamos a recalcular el plan para ${petData.name}! ¿Cómo se llama? 🐾`,
-        isBot: true,
-      }]);
+    if (petData.name) {
+      // Show the edit plan choice
+      addMessage(`¿Qué quieres hacer con el plan de ${petData.name}? 🔄`, true);
+      setStep("edit_plan_choice");
     } else {
       handleRestart();
     }
@@ -1522,10 +1546,19 @@ export default function AIRecomendador() {
           { value: "edit_name", label: "Cambiar Nombre", emoji: "✏️" },
           { value: "edit_birthday", label: "Cambiar Edad", emoji: "🎂" },
           { value: "edit_weight", label: "Cambiar Peso", emoji: "⚖️" },
+          { value: "change_plan", label: "Cambiar Plan", emoji: "🔄" },
           { value: "view_plan", label: "Ver Plan", emoji: "📄" },
           { value: "cancel_subscription", label: "Cancelar", emoji: "❌" },
         ];
         return <QuickReplies options={editMenuOptions} onSelect={handleEditMenuSelect} columns={2} disabled={isProcessing} />;
+      }
+
+      case "edit_plan_choice": {
+        const planChoiceOptions = [
+          { value: "change_protein", label: "Cambiar Proteína", emoji: "🥩" },
+          { value: "redo_plan", label: "Re-hacer Plan", emoji: "🔄" },
+        ];
+        return <QuickReplies options={planChoiceOptions} onSelect={handleEditPlanChoiceSelect} columns={2} disabled={isProcessing} />;
       }
 
       case "cancel_reason":
@@ -1679,7 +1712,6 @@ export default function AIRecomendador() {
                       setIsResultOpen(false);
                       handleRestart();
                     }}
-                    onChangePlan={handleChangePlan}
                   />
                 </TabsContent>
 
@@ -1707,7 +1739,6 @@ export default function AIRecomendador() {
                       setIsResultOpen(false);
                       handleRestart();
                     }}
-                    onChangePlan={handleChangePlan}
                   />
                 </TabsContent>
               </Tabs>

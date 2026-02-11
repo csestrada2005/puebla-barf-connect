@@ -26,7 +26,6 @@ interface SubscriptionTiersProps {
   recommendedProtein?: "chicken" | "beef" | "mix";
   onSelectPlan: (planType: "monthly" | "annual", proteinLine?: "pollo" | "res") => void;
   onRestart: () => void;
-  onChangePlan?: () => void;
 }
 
 const tiers: SubscriptionTier[] = [
@@ -57,7 +56,6 @@ export function SubscriptionTiers({
   recommendedProtein = "chicken",
   onSelectPlan,
   onRestart,
-  onChangePlan,
 }: SubscriptionTiersProps) {
   const navigate = useNavigate();
   const [selectedProteinTier, setSelectedProteinTier] = useState<"economico" | "premium">(
@@ -271,14 +269,8 @@ export function SubscriptionTiers({
         </div>
       </div>
 
-      {/* Change Plan / Restart */}
+      {/* Restart */}
       <div className="text-center pt-2 space-y-2">
-        {onChangePlan && (
-          <Button variant="outline" size="sm" onClick={onChangePlan} className="gap-2 w-full">
-            <RotateCcw className="h-4 w-4" />
-            Cambiar plan para {petName}
-          </Button>
-        )}
         <Button variant="ghost" size="sm" onClick={onRestart} className="gap-2 text-muted-foreground">
           <RotateCcw className="h-4 w-4" />
           Nueva consulta
