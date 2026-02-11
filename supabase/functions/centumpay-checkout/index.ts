@@ -1,10 +1,30 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// ── Base32 decode ────────────────────────────────────────────────────
+function base32Decode(input: string): Uint8Array {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const cleaned = input.replace(/[=\s]/g, "").toUpperCase();
+  let bits = "";
+  for (const c of cleaned) {
+    const val = alphabet.indexOf(c);
+    if (val === -1) throw new Error(`Invalid base32 char: ${c}`);
+    bits += val.toString(2).padStart(5, "0");
+  }
+  const bytes = new Uint8Array(Math.floor(bits.length / 8));
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
+  }
+  return bytes;
+}
+
+// Check if string looks like Base32
+function isBase32(s: string): boolean {
+  return /^[A-Z2-7=\s]+$/i.test(s) && s.length >= 8;
+}
 
 // ── TOTP (RFC 6238) ──────────────────────────────────────────────────
 async function generateTOTP(secret: string): Promise<string> {
@@ -14,12 +34,21 @@ async function generateTOTP(secret: string): Promise<string> {
   // T as 8-byte big-endian buffer
   const buf = new ArrayBuffer(8);
   const view = new DataView(buf);
-  view.setUint32(4, T, false); // lower 32 bits
+  view.setUint32(4, T, false);
 
-  const encoder = new TextEncoder();
+  // Decode secret: Base32 if applicable, otherwise raw bytes
+  let keyBytes: Uint8Array;
+  if (isBase32(secret)) {
+    keyBytes = base32Decode(secret);
+    console.log("TOTP: Using Base32-decoded secret");
+  } else {
+    keyBytes = new TextEncoder().encode(secret);
+    console.log("TOTP: Using raw string secret");
+  }
+
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(secret),
+    keyBytes,
     { name: "HMAC", hash: "SHA-1" },
     false,
     ["sign"],
@@ -35,7 +64,9 @@ async function generateTOTP(secret: string): Promise<string> {
     ((sig[offset + 2] & 0xff) << 8) |
     (sig[offset + 3] & 0xff);
 
-  return String(code % 1_000_000).padStart(6, "0");
+  const otp = String(code % 1_000_000).padStart(6, "0");
+  console.log("Generated TOTP (first 2 chars):", otp.substring(0, 2) + "****");
+  return otp;
 }
 
 // ── HMAC-SHA256 token ────────────────────────────────────────────────
@@ -147,7 +178,7 @@ Deno.serve(async (req) => {
     const result = await response.json();
     console.log("CentumPay response:", JSON.stringify(result));
 
-    if (result.code !== "0" && result.code !== 0) {
+    if (result?.status?.code !== "0" && result?.status?.code !== 0) {
       const desc =
         result?.status?.description ||
         result?.message ||
@@ -158,7 +189,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const saleToken = result?.payload?.[0]?.token;
+    const saleToken = result?.payload?.token || result?.payload?.[0]?.token;
     if (!saleToken) {
       return new Response(
         JSON.stringify({ error: "No se recibió token de venta" }),
