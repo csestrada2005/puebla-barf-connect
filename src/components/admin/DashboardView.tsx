@@ -165,8 +165,66 @@ export default function DashboardView() {
   const postponedByDriver = orders?.filter(o => o.driver_status === "postponed").length || 0;
   const failedByDriver = orders?.filter(o => o.driver_status === "failed").length || 0;
 
+  // Pending deliveries (confirmed orders waiting to be sent to driver)
+  const pendingDeliveries = orders?.filter(o => 
+    o.status === "confirmed" || o.status === "new"
+  ) || [];
+
   return (
     <div className="space-y-6">
+      {/* 🔴 PENDING DELIVERIES - PROMINENT SECTION */}
+      <Card className="border-2 border-primary bg-primary/5 shadow-lg">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2 text-primary">
+              <Truck className="h-5 w-5 animate-bounce" />
+              🚨 Entregas Pendientes
+            </CardTitle>
+            <Badge variant="destructive" className="text-lg px-3 py-1">
+              {pendingDeliveries.length}
+            </Badge>
+          </div>
+          <CardDescription>
+            Pedidos confirmados/nuevos listos para enviar al chofer — Mar/Mié/Vie 8-10 AM
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {pendingDeliveries.length > 0 ? (
+            <div className="space-y-3">
+              {pendingDeliveries.slice(0, 8).map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-card border">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${order.status === "new" ? "bg-blue-500 animate-pulse" : "bg-yellow-500"}`} />
+                    <div>
+                      <p className="font-mono text-sm font-bold">{order.order_number}</p>
+                      <p className="text-sm text-muted-foreground">{order.customer_name} — {order.customer_address?.slice(0, 40)}...</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-primary">${order.total}</p>
+                    <Badge variant="outline" className="text-xs">
+                      {order.status === "new" ? "Nuevo" : "Confirmado"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              {pendingDeliveries.length > 8 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  +{pendingDeliveries.length - 8} más...
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                👉 Ve a <strong>Pedidos</strong> para seleccionar y enviar al chofer por WhatsApp
+              </p>
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              <CheckCircle className="h-10 w-10 mx-auto mb-2 text-green-500" />
+              <p className="font-medium">¡Todo al día! No hay entregas pendientes.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>
