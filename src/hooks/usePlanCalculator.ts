@@ -53,8 +53,13 @@ export interface SubscriptionTier {
   priceAfterDiscount: number;
 }
 
-// Constants
-const PRICE_PER_KG = 150; // $150 MXN per kg
+// Constants - Price per kg by protein line
+const PRICES: Record<string, { perKg: number; perHalfKg: number }> = {
+  res: { perKg: 90, perHalfKg: 70 },
+  pollo: { perKg: 80, perHalfKg: 60 },
+};
+
+const DEFAULT_PRICE_PER_KG = 90; // fallback
 
 export const PLAN_DURATIONS: PlanDuration[] = [
   { days: 7, label: 'Plan 7 Días', description: 'Una semana de alimento' },
@@ -114,7 +119,8 @@ export function calculateBagBreakdown(
 export function calculatePlan(
   dailyGrams: number,
   durationDays: 7 | 15,
-  packagingSize: '500g' | '1kg'
+  packagingSize: '500g' | '1kg',
+  proteinLine: string = 'res'
 ): PlanCalculation {
   const totalKg = calculateTotalKg(dailyGrams, durationDays);
   const totalGrams = dailyGrams * durationDays;
@@ -122,17 +128,25 @@ export function calculatePlan(
   
   // Calculate actual grams from bags (may be slightly more due to rounding)
   const actualGrams = bags.reduce((sum, bag) => sum + (bag.quantity * bag.gramsPerBag), 0);
-  const actualKg = actualGrams / 1000;
   
   const totalBags = bags.reduce((sum, bag) => sum + bag.quantity, 0);
-  const subtotal = Math.round(actualKg * PRICE_PER_KG);
+  
+  // Calculate price based on actual bag sizes and protein line
+  const pricing = PRICES[proteinLine] || PRICES.res;
+  const subtotal = bags.reduce((sum, bag) => {
+    const price = bag.size === '1kg' ? pricing.perKg : pricing.perHalfKg;
+    return sum + (bag.quantity * price);
+  }, 0);
+  
+  const actualKg = actualGrams / 1000;
+  const effectivePricePerKg = actualKg > 0 ? Math.round(subtotal / actualKg) : pricing.perKg;
   
   return {
     totalKg: actualKg,
     totalGrams: actualGrams,
     bags,
     totalBags,
-    pricePerKg: PRICE_PER_KG,
+    pricePerKg: effectivePricePerKg,
     subtotal,
     durationDays,
   };
@@ -141,31 +155,36 @@ export function calculatePlan(
 /**
  * Get subscription tier details
  */
-export function getSubscriptionTiers(basePrice: number): SubscriptionTier[] {
+export function getSubscriptionTiers(basePrice: number, totalBags: number = 1): SubscriptionTier[] {
+  // Subscription discount: $10 off per bag
+  const subscriptionDiscount = totalBags * 10;
+  const discountPercent = basePrice > 0 ? Math.round((subscriptionDiscount / basePrice) * 100) : 0;
+  
   return [
     {
       type: 'basic',
       label: 'Básico',
-      discountPercent: 5,
+      discountPercent,
       benefits: [
         'Entrega automática',
+        '$10 menos por paquete',
         'Sin compromiso',
         'Cancela cuando quieras',
       ],
-      priceAfterDiscount: Math.round(basePrice * 0.95),
+      priceAfterDiscount: Math.max(0, basePrice - subscriptionDiscount),
     },
     {
       type: 'pro',
       label: 'Pro',
-      discountPercent: 15,
+      discountPercent: Math.round(discountPercent * 1.5),
       benefits: [
         'Entrega automática',
-        '15% de descuento',
+        '$10 menos por paquete + extras',
         'Prioridad en entregas',
         'Acceso a recetas exclusivas',
         'Soporte prioritario',
       ],
-      priceAfterDiscount: Math.round(basePrice * 0.85),
+      priceAfterDiscount: Math.max(0, Math.round(basePrice - subscriptionDiscount * 1.5)),
     },
   ];
 }

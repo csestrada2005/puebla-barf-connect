@@ -88,7 +88,7 @@ const checkoutSchema = z.object({
   references_notes: z.string().max(500).optional().or(z.literal("")),
   special_notes: z.string().max(1000).optional().or(z.literal("")),
   deliveryWindow: z.string().optional(),
-  preferredDeliveryDay: z.enum(["", "monday", "sunday"]).optional(),
+  preferredDeliveryDay: z.enum(["", "tuesday", "wednesday", "friday"]).optional(),
 });
 
 const sanitizeForWhatsApp = (text: string): string => {
@@ -149,7 +149,7 @@ export default function Checkout() {
     references_notes: "",
     special_notes: "",
     deliveryWindow: "",
-    preferredDeliveryDay: "" as "" | "monday" | "sunday",
+    preferredDeliveryDay: "" as "" | "tuesday" | "wednesday" | "friday",
   });
 
   // Pre-fill from profile when available
@@ -290,8 +290,8 @@ export default function Checkout() {
         `*Dirección:* ${sanitizedAddress}\n` +
         (formData.references_notes ? `*Referencias:* ${sanitizeForWhatsApp(formData.references_notes)}\n` : "") +
         (formData.deliveryWindow ? `*Ventana horaria:* ${sanitizeForWhatsApp(formData.deliveryWindow)}\n` : "") +
-        (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "monday" ? "Lunes" : "Domingo"}\n` : "") +
-        `\n*Entrega:* 24-48h`
+        (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "tuesday" ? "Martes" : formData.preferredDeliveryDay === "wednesday" ? "Miércoles" : "Viernes"}\n` : "") +
+        `\n*Entrega:* Mar/Mié/Vie 8-10 AM`
       );
       
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
@@ -529,20 +529,24 @@ export default function Checkout() {
                     </Label>
                     <RadioGroup
                       value={formData.preferredDeliveryDay}
-                      onValueChange={(v) => setFormData({ ...formData, preferredDeliveryDay: v as "monday" | "sunday" })}
-                      className="flex gap-4"
+                      onValueChange={(v) => setFormData({ ...formData, preferredDeliveryDay: v as "tuesday" | "wednesday" | "friday" })}
+                      className="flex flex-wrap gap-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="monday" id="delivery-monday" />
-                        <Label htmlFor="delivery-monday" className="cursor-pointer font-normal">Lunes</Label>
+                        <RadioGroupItem value="tuesday" id="delivery-tuesday" />
+                        <Label htmlFor="delivery-tuesday" className="cursor-pointer font-normal">Martes</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="sunday" id="delivery-sunday" />
-                        <Label htmlFor="delivery-sunday" className="cursor-pointer font-normal">Domingo</Label>
+                        <RadioGroupItem value="wednesday" id="delivery-wednesday" />
+                        <Label htmlFor="delivery-wednesday" className="cursor-pointer font-normal">Miércoles</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="friday" id="delivery-friday" />
+                        <Label htmlFor="delivery-friday" className="cursor-pointer font-normal">Viernes</Label>
                       </div>
                     </RadioGroup>
                     <p className="text-xs text-muted-foreground">
-                      Selecciona el día que prefieres recibir tus entregas
+                      Días de entrega: Martes, Miércoles y Viernes de 8 a 10 AM
                     </p>
                   </div>
                 </CollapsibleSection>

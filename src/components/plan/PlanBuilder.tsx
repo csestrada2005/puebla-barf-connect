@@ -52,12 +52,12 @@ export function PlanBuilder({ dogs, onAddToCart, onAddDog }: PlanBuilderProps) {
   
   const planCalc = useMemo(() => {
     if (!selectedDog) return null;
-    return calculatePlan(selectedDog.daily_grams, duration, packaging);
+    return calculatePlan(selectedDog.daily_grams, duration, packaging, selectedDog.recommended_protein);
   }, [selectedDog, duration, packaging]);
   
   const subscriptionTiers = useMemo(() => {
     if (!planCalc) return [];
-    return getSubscriptionTiers(planCalc.subtotal);
+    return getSubscriptionTiers(planCalc.subtotal, planCalc.totalBags);
   }, [planCalc]);
   
   const finalPrice = useMemo(() => {
