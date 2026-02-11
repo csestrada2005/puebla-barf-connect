@@ -437,7 +437,7 @@ export function calculateRecommendation(
     petData.isSportDog
   );
   
-  const weeklyKg = (dailyGrams * 7) / 1000;
+  const weeklyKg = Math.ceil(((dailyGrams * 7) / 1000) * 2) / 2; // Round up to nearest 0.5kg
   const monthlyKg = (dailyGrams * 30) / 1000;
   
   // Determine plan type and protein
