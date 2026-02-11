@@ -51,6 +51,7 @@ interface DualRecommendationProps {
   onSelectOption: (option: "A" | "B", products: ProductOption[]) => void;
   onViewProduct: (productSlug: string) => void;
   onRestart: () => void;
+  onChangePlan?: () => void;
 }
 
 export function DualRecommendation({
@@ -69,7 +70,8 @@ export function DualRecommendation({
   reasoning,
   onSelectOption,
   onViewProduct,
-  onRestart
+  onRestart,
+  onChangePlan,
 }: DualRecommendationProps) {
   const navigate = useNavigate();
   const [selectedFrequency, setSelectedFrequency] = useState<"A" | "B">("A");
@@ -269,8 +271,14 @@ export function DualRecommendation({
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Restart */}
-      <div className="text-center pt-2">
+      {/* Change Plan / Restart */}
+      <div className="text-center pt-2 space-y-2">
+        {onChangePlan && (
+          <Button variant="outline" size="sm" onClick={onChangePlan} className="gap-2 w-full">
+            <RotateCcw className="h-4 w-4" />
+            Cambiar plan para {petName}
+          </Button>
+        )}
         <Button variant="ghost" size="sm" onClick={onRestart} className="gap-2 text-muted-foreground">
           <RotateCcw className="h-4 w-4" />
           Nueva consulta

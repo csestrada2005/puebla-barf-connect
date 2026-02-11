@@ -1351,11 +1351,21 @@ export default function AIRecomendador() {
     const proteinLine = selectedProtein || (result?.recommendedProtein === "chicken" ? "pollo" : result?.recommendedProtein === "beef" ? "res" : "mix");
     const presentation = result?.weeklyKg && result.weeklyKg >= 3 ? "1kg" : "500g";
     const discountPercent = planType === "annual" ? 15 : 0;
-    const pricePerKg = 150;
     const weeklyKg = result?.weeklyKg || 1;
     
+    // Calculate price using actual per-unit prices with $10 subscription discount
+    const weeklyGrams = weeklyKg * 1000;
+    const prices = proteinLine === "res" 
+      ? { perKg: 80, perHalf: 60 }  // 90-10, 70-10
+      : { perKg: 70, perHalf: 50 };  // 80-10, 60-10
+    
+    const packs1kg = Math.floor(weeklyGrams / 1000);
+    const remainder = weeklyGrams % 1000;
+    const packs500 = remainder > 0 ? Math.ceil(remainder / 500) : 0;
+    const weeklyPrice = (packs1kg * prices.perKg) + (packs500 * prices.perHalf);
+    
     // Calculate monthly price (4 weeks)
-    const baseMonthlyPrice = weeklyKg * pricePerKg * 4;
+    const baseMonthlyPrice = weeklyPrice * 4;
     const finalPrice = Math.round(baseMonthlyPrice * (1 - discountPercent / 100));
 
     const subscriptionItem = {
@@ -1380,6 +1390,28 @@ export default function AIRecomendador() {
 
     setIsResultOpen(false);
     navigate("/carrito");
+  };
+
+  const handleChangePlan = () => {
+    // Close the result drawer and go back to editing this dog's profile
+    setIsResultOpen(false);
+    localStorage.removeItem("ai-recommender-state");
+    
+    if (selectedDog) {
+      // Re-edit the same dog
+      startNewDogFlow(selectedDog);
+    } else if (petData.name) {
+      // Guest mode - restart the flow with current data
+      setResult(null);
+      setStep("name");
+      setMessages([{
+        id: "change-plan",
+        content: `¡Vamos a recalcular el plan para ${petData.name}! ¿Cómo se llama? 🐾`,
+        isBot: true,
+      }]);
+    } else {
+      handleRestart();
+    }
   };
 
   const handleViewProduct = (productSlug: string) => {
@@ -1637,7 +1669,7 @@ export default function AIRecomendador() {
                     petName={petData.name}
                     dailyGrams={result.dailyGrams}
                     weeklyKg={result.weeklyKg}
-                    pricePerKg={150}
+                    pricePerKg={90}
                     hasAllergy={result.hasAllergy}
                     recommendedProtein={result.recommendedProtein}
                     onSelectPlan={(planType, proteinLine) => {
@@ -1647,6 +1679,7 @@ export default function AIRecomendador() {
                       setIsResultOpen(false);
                       handleRestart();
                     }}
+                    onChangePlan={handleChangePlan}
                   />
                 </TabsContent>
 
@@ -1674,6 +1707,7 @@ export default function AIRecomendador() {
                       setIsResultOpen(false);
                       handleRestart();
                     }}
+                    onChangePlan={handleChangePlan}
                   />
                 </TabsContent>
               </Tabs>
