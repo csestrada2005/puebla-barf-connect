@@ -67,7 +67,7 @@ export function ChatContainer({
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute right-0 bottom-full z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl -mb-2"
+          className="absolute right-0 bottom-full z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl -mb-3"
         />
 
         {/* Mobile: Dog LEFT */}
