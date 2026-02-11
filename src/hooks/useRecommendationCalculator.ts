@@ -3,11 +3,14 @@ export interface PetData {
   name: string;
   weight: number;
   age: string; // puppy, adult, senior
+  birthday?: string; // ISO date string for exact age calculation
   activity: string; // low, normal, high
   bodyCondition: string; // underweight, ideal, overweight
   sensitivity: string; // high, medium, low
   goal: string; // trial, routine, variety
-  allergy?: "chicken" | "beef" | "none"; // NEW: allergy filter
+  allergy?: "chicken" | "beef" | "none";
+  isSterilized?: boolean;
+  isSportDog?: boolean;
 }
 
 export interface ProductOption {
@@ -62,62 +65,90 @@ export interface Product {
 // ===== FORMULA CALCULATIONS =====
 
 /**
- * Calculate the base percentage based on age stage
- * Puppy: 6%, Adult: 2.5%, Senior: 2.0%
+ * Calculate the exact age in months from a birthday ISO string.
+ * Returns null if birthday is not provided or invalid.
  */
-function getBasePercentage(age: string): number {
-  switch (age) {
-    case "puppy": return 6.0;
-    case "senior": return 2.0;
-    case "adult":
-    default: return 2.5;
-  }
+export function getMonthsOld(birthday: string | undefined): number | null {
+  if (!birthday) return null;
+  const birth = new Date(birthday + "T00:00:00");
+  if (Number.isNaN(birth.getTime())) return null;
+
+  const today = new Date();
+  const months =
+    (today.getFullYear() - birth.getFullYear()) * 12 +
+    (today.getMonth() - birth.getMonth()) +
+    (today.getDate() < birth.getDate() ? -1 : 0);
+
+  return Math.max(0, months);
 }
 
 /**
- * Calculate activity adjustment
- * Low: -0.5%, Normal: 0%, High: +0.5%
+ * Get the feeding percentage for puppies based on exact age in months.
+ *  2-4 months: 10%
+ *  4-6 months: 8%
+ *  6-8 months: 6%
+ *  8-10 months: 4%
+ * 10-12 months: 3%
  */
-function getActivityAdjustment(activity: string): number {
-  switch (activity) {
-    case "low": return -0.5;
-    case "high": return 0.5;
-    case "normal":
-    default: return 0;
-  }
+function getPuppyPercentage(months: number): number {
+  if (months < 4) return 10;
+  if (months < 6) return 8;
+  if (months < 8) return 6;
+  if (months < 10) return 4;
+  return 3; // 10-12 months
 }
 
 /**
- * Calculate body condition adjustment
- * Underweight: +0.5%, Ideal: 0%, Overweight: -0.5%
+ * Get the feeding percentage for adult dogs based on activity, sterilization, and sport status.
+ *
+ * Priority order:
+ *  1. isSportDog (Minis, Deportistas, Galgos) → 3.5%
+ *  2. isSterilized OR low activity → 2%
+ *  3. High activity or nervous → 3%
+ *  4. Normal activity → 2.5%
  */
-function getConditionAdjustment(bodyCondition: string): number {
-  switch (bodyCondition) {
-    case "underweight": return 0.5;
-    case "overweight": return -0.5;
-    case "ideal":
-    default: return 0;
-  }
+function getAdultPercentage(
+  activity: string,
+  isSterilized?: boolean,
+  isSportDog?: boolean
+): number {
+  if (isSportDog) return 3.5;
+  if (isSterilized || activity === "low") return 2.0;
+  if (activity === "high") return 3.0;
+  return 2.5; // normal activity
 }
 
 /**
- * Calculate daily grams using the formula:
- * Final % = Base + Activity Adjustment + Condition Adjustment
- * Grams/Day = Weight * (Final % / 100) * 1000
+ * Calculate daily grams using the new veterinary rules:
+ * - Puppies (<12 months): percentage based on exact month range
+ * - Adults (≥12 months): percentage based on activity/sterilization/sport
+ *
+ * Grams/Day = Weight * (percentage / 100) * 1000
  */
 export function calculateDailyGrams(
-  weight: number, 
-  age: string, 
-  activity: string, 
-  bodyCondition: string
+  weight: number,
+  age: string,
+  activity: string,
+  bodyCondition: string,
+  birthday?: string,
+  isSterilized?: boolean,
+  isSportDog?: boolean
 ): number {
-  const basePercent = getBasePercentage(age);
-  const activityAdj = getActivityAdjustment(activity);
-  const conditionAdj = getConditionAdjustment(bodyCondition);
-  
-  const finalPercent = basePercent + activityAdj + conditionAdj;
-  const dailyGrams = weight * (finalPercent / 100) * 1000;
-  
+  const months = getMonthsOld(birthday);
+  let percentage: number;
+
+  // Puppy logic takes priority when we have exact birthday data
+  if (months !== null && months < 12) {
+    percentage = getPuppyPercentage(months);
+  } else if (age === "puppy" && months === null) {
+    // Fallback for puppies without birthday — use midpoint 6%
+    percentage = 6.0;
+  } else {
+    // Adult / Senior
+    percentage = getAdultPercentage(activity, isSterilized, isSportDog);
+  }
+
+  const dailyGrams = weight * (percentage / 100) * 1000;
   return Math.round(dailyGrams);
 }
 
@@ -395,12 +426,15 @@ export function calculateRecommendation(
   petData: PetData,
   products: Product[]
 ): RecommendationResult {
-  // Calculate daily grams with new formula
+  // Calculate daily grams with veterinary formula
   const dailyGrams = calculateDailyGrams(
-    petData.weight, 
-    petData.age, 
-    petData.activity, 
-    petData.bodyCondition
+    petData.weight,
+    petData.age,
+    petData.activity,
+    petData.bodyCondition,
+    petData.birthday,
+    petData.isSterilized,
+    petData.isSportDog
   );
   
   const weeklyKg = (dailyGrams * 7) / 1000;

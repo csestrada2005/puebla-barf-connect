@@ -409,6 +409,22 @@ export default function Suscripcion() {
               </CardContent>
             </Card>
 
+            {/* Personalized Plan CTA */}
+            <Alert className="border-primary/20 bg-primary/5">
+              <Sparkles className="h-4 w-4" />
+              <AlertDescription className="text-xs space-y-2">
+                <p>
+                  Para obtener un plan completamente personalizado según el peso, edad y actividad de tu perro, usa nuestro asesor nutricional:
+                </p>
+                <Button asChild size="sm" variant="outline" className="w-full gap-2">
+                  <Link to="/ia">
+                    <Sparkles className="h-4 w-4" />
+                    Ir al Dogtor
+                  </Link>
+                </Button>
+              </AlertDescription>
+            </Alert>
+
             {/* Policies */}
             <Card className="bg-muted/50">
               <CardHeader className="pb-1 pt-3">

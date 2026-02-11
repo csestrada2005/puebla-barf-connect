@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 import { ChatMessage, QuickReplies, ChatInput, ChatContainer, DualRecommendation, SubscriptionTiers, BirthdayPicker, WeightPicker } from "@/components/ai";
 import { LoginDialog } from "@/components/ai/LoginDialog";
 import { useRecommendation } from "@/hooks/useRecommendation";
-import { calculateRecommendation, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
+import { calculateRecommendation, calculateDailyGrams as calcDailyGrams, getMonthsOld, PetData, RecommendationResult } from "@/hooks/useRecommendationCalculator";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,8 @@ type Step =
   | "birthday"
   | "weight"
   | "activity"
+  | "sterilized"
+  | "sportDog"
   | "bodyCondition"
   | "sensitivity"
   | "goal"
@@ -38,6 +40,8 @@ type Step =
   | "profile_birthday"
   | "profile_weight"
   | "profile_activity"
+  | "profile_sterilized"
+  | "profile_sportDog"
   | "profile_bodyCondition"
   | "profile_allergies"
   | "profile_goal"
@@ -80,6 +84,8 @@ interface ProfileDraft {
   bodyCondition: "underweight" | "ideal" | "overweight";
   allergy: Allergy;
   goal: string;
+  isSterilized: boolean;
+  isSportDog: boolean;
 }
 
 interface ExtendedPetData extends PetData {
@@ -87,6 +93,8 @@ interface ExtendedPetData extends PetData {
   zoneName: string;
   deliveryFee: number;
   allergy?: "chicken" | "beef" | "none";
+  isSterilized?: boolean;
+  isSportDog?: boolean;
 }
 
 // ==================== STATIC OPTIONS ====================
@@ -176,14 +184,19 @@ function computeDailyGrams(params: {
   ageStage: "puppy" | "adult" | "senior";
   activity: "low" | "normal" | "high";
   bodyCondition: "underweight" | "ideal" | "overweight";
+  birthday?: string | null;
+  isSterilized?: boolean;
+  isSportDog?: boolean;
 }): number {
-  const base = params.ageStage === "puppy" ? 6 : params.ageStage === "senior" ? 2.0 : 2.5;
-  const activityAdj = params.activity === "high" ? 0.5 : params.activity === "low" ? -0.5 : 0;
-  const conditionAdj =
-    params.bodyCondition === "underweight" ? 0.5 : params.bodyCondition === "overweight" ? -0.5 : 0;
-  const finalPercent = base + activityAdj + conditionAdj;
-  const grams = params.weightKg * (finalPercent / 100) * 1000;
-  return Math.max(1, Math.round(grams));
+  return calcDailyGrams(
+    params.weightKg,
+    params.ageStage,
+    params.activity,
+    params.bodyCondition,
+    params.birthday || undefined,
+    params.isSterilized,
+    params.isSportDog
+  );
 }
 
 // Typing delay for more human-like responses
@@ -235,6 +248,8 @@ export default function AIRecomendador() {
     bodyCondition: "ideal",
     allergy: "none",
     goal: "routine",
+    isSterilized: false,
+    isSportDog: false,
   });
   const [selectedDog, setSelectedDog] = useState<DogProfileRow | null>(null);
   const [editingDogId, setEditingDogId] = useState<string | null>(null);
@@ -375,6 +390,8 @@ export default function AIRecomendador() {
           bodyCondition: "ideal",
           allergy: "none",
           goal: "routine",
+          isSterilized: false,
+          isSportDog: false,
         });
         setResult(null);
         setIsResultOpen(false);
@@ -451,6 +468,8 @@ export default function AIRecomendador() {
           bodyCondition: (dogToEdit.body_condition as any) || "ideal",
           allergy: "none",
           goal: dogToEdit.goal || "routine",
+          isSterilized: false,
+          isSportDog: false,
         }
       : {
           name: "",
@@ -460,6 +479,8 @@ export default function AIRecomendador() {
           bodyCondition: "ideal",
           allergy: "none",
           goal: "routine",
+          isSterilized: false,
+          isSportDog: false,
         };
 
     setEditingDogId(dogToEdit?.id ?? null);
@@ -497,6 +518,9 @@ export default function AIRecomendador() {
       ageStage,
       activity: draft.activity,
       bodyCondition: draft.bodyCondition,
+      birthday: draft.birthday,
+      isSterilized: draft.isSterilized,
+      isSportDog: draft.isSportDog,
     });
 
     const weeklyKg = Number(((dailyGrams * 7) / 1000).toFixed(2));
@@ -642,6 +666,8 @@ export default function AIRecomendador() {
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
             goal: dog.goal || "routine",
+            isSterilized: false,
+            isSportDog: false,
           });
           addMessage(`¿Qué quieres hacer con ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -909,6 +935,8 @@ export default function AIRecomendador() {
             bodyCondition: (dog.body_condition as any) || "ideal",
             allergy: "none",
             goal: dog.goal || "routine",
+            isSterilized: false,
+            isSportDog: false,
           });
           addMessage(`¿Qué quieres cambiar de ${dog.name}? 🐾`, true);
           setStep("edit_menu");
@@ -1021,6 +1049,30 @@ export default function AIRecomendador() {
       addMessage(`igual (${profileDraft.activity})`, false);
     }
     setTimeout(async () => {
+      await addBotMessage(`¿${profileDraft.name} está esterilizado/a? 🏥`);
+      setStep("profile_sterilized");
+      setIsProcessing(false);
+    }, 350);
+  };
+
+  const handleProfileSterilizedSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setProfileDraft((prev) => ({ ...prev, isSterilized: value === "yes" }));
+    addMessage(label, false);
+    setTimeout(async () => {
+      await addBotMessage(`¿${profileDraft.name} es de raza Mini, Galgo o hace deportes de alto rendimiento? 🏅`);
+      setStep("profile_sportDog");
+      setIsProcessing(false);
+    }, 350);
+  };
+
+  const handleProfileSportDogSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setProfileDraft((prev) => ({ ...prev, isSportDog: value === "yes" }));
+    addMessage(label, false);
+    setTimeout(async () => {
       await addBotMessage(`Ahora una pregunta importante. ¿Cómo describirías la condición corporal de ${profileDraft.name}? ⚖️`);
       setStep("profile_bodyCondition");
       setIsProcessing(false);
@@ -1093,10 +1145,13 @@ export default function AIRecomendador() {
         name: profileDraft.name,
         weight: profileDraft.weightKg,
         age: ageStage,
+        birthday: profileDraft.birthday || undefined,
         activity: profileDraft.activity,
         bodyCondition: profileDraft.bodyCondition,
         sensitivity: profileDraft.allergy === "none" ? "low" : "high",
         goal: profileDraft.goal || "routine",
+        isSterilized: profileDraft.isSterilized,
+        isSportDog: profileDraft.isSportDog,
         zoneId: "",
         zoneName: "",
         deliveryFee: 0,
@@ -1148,7 +1203,7 @@ export default function AIRecomendador() {
     if (isProcessing) return;
     setIsProcessing(true);
     const ageStage = getAgeStageFromBirthday(dateStr);
-    setPetData(prev => ({ ...prev, age: ageStage }));
+    setPetData(prev => ({ ...prev, age: ageStage, birthday: dateStr }));
     addMessage(dateStr, false);
     setTimeout(async () => {
       await addBotMessage(`Perfecto, anotado. ¿Cuánto pesa ${petData.name}? ⚖️`);
@@ -1173,6 +1228,30 @@ export default function AIRecomendador() {
     if (isProcessing) return;
     setIsProcessing(true);
     setPetData(prev => ({ ...prev, activity: value }));
+    addMessage(label, false);
+    setTimeout(async () => {
+      await addBotMessage(`¿${petData.name} está esterilizado/a? 🏥`);
+      setStep("sterilized");
+      setIsProcessing(false);
+    }, 400);
+  };
+
+  const handleSterilizedSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setPetData(prev => ({ ...prev, isSterilized: value === "yes" }));
+    addMessage(label, false);
+    setTimeout(async () => {
+      await addBotMessage(`¿${petData.name} es de raza Mini, Galgo o hace deportes de alto rendimiento? 🏅`);
+      setStep("sportDog");
+      setIsProcessing(false);
+    }, 400);
+  };
+
+  const handleSportDogSelect = (value: string, label: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setPetData(prev => ({ ...prev, isSportDog: value === "yes" }));
     addMessage(label, false);
     setTimeout(async () => {
       await addBotMessage(`Ahora una pregunta importante para su nutrición. ¿Cómo describirías la condición corporal de ${petData.name}? ⚖️`);
@@ -1595,6 +1674,30 @@ export default function AIRecomendador() {
             disabled={isProcessing}
           />
         );
+      case "profile_sterilized":
+        return (
+          <QuickReplies
+            options={[
+              { value: "yes", label: "Sí", emoji: "✅" },
+              { value: "no", label: "No", emoji: "❌" },
+            ]}
+            onSelect={handleProfileSterilizedSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
+      case "profile_sportDog":
+        return (
+          <QuickReplies
+            options={[
+              { value: "yes", label: "Sí", emoji: "✅" },
+              { value: "no", label: "No", emoji: "❌" },
+            ]}
+            onSelect={handleProfileSportDogSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
       case "profile_bodyCondition":
         return (
           <QuickReplies
@@ -1628,6 +1731,30 @@ export default function AIRecomendador() {
         return <WeightPicker onSubmit={handleWeightSubmit} disabled={isProcessing} />;
       case "activity":
         return <QuickReplies options={activityOptions} onSelect={handleActivitySelect} columns={3} disabled={isProcessing} />;
+      case "sterilized":
+        return (
+          <QuickReplies
+            options={[
+              { value: "yes", label: "Sí", emoji: "✅" },
+              { value: "no", label: "No", emoji: "❌" },
+            ]}
+            onSelect={handleSterilizedSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
+      case "sportDog":
+        return (
+          <QuickReplies
+            options={[
+              { value: "yes", label: "Sí", emoji: "✅" },
+              { value: "no", label: "No", emoji: "❌" },
+            ]}
+            onSelect={handleSportDogSelect}
+            columns={2}
+            disabled={isProcessing}
+          />
+        );
       case "bodyCondition":
         return <QuickReplies options={bodyConditionOptions} onSelect={handleBodyConditionSelect} columns={3} disabled={isProcessing} />;
       case "sensitivity":
