@@ -14,7 +14,12 @@ interface ChatContainerProps {
   hasActiveInput?: boolean;
 }
 
-export function ChatContainer({ children, inputSection, scrollToEnd = true, hasActiveInput = true }: ChatContainerProps) {
+export function ChatContainer({
+  children,
+  inputSection,
+  scrollToEnd = true,
+  hasActiveInput = true,
+}: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,11 +41,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
       {/* Messages Area - Scrollable */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col gap-4"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
             {children}
             <div ref={messagesEndRef} />
           </motion.div>
@@ -50,7 +51,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
       {/* Fixed Input Section at Bottom - with dog decorations */}
       <div className="flex-shrink-0 relative">
         {/* Desktop: Pomeranian LEFT */}
-        <motion.img 
+        <motion.img
           src={playPomeranian}
           alt="Pomeranian mirando el chat"
           initial={{ opacity: 0, x: -40 }}
@@ -60,7 +61,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         />
 
         {/* Desktop: Hound RIGHT */}
-        <motion.img 
+        <motion.img
           src={aiHoundRight}
           alt="Perro atento mirando el chat"
           initial={{ opacity: 0, x: 40 }}
@@ -70,30 +71,28 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         />
 
         {/* Mobile: Dog LEFT */}
-        <motion.img 
+        <motion.img
           src={mobileDogRight}
           alt="Perrito acostado"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute left-0 bottom-full z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg -mb-10"
+          className="absolute left-0 bottom-full z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg -mb-11"
         />
 
         {/* Mobile: Dog RIGHT */}
-        <motion.img 
+        <motion.img
           src={mobileDogLeft}
           alt="Perrito sentado"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-8"
+          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-7"
         />
 
         {/* Input bar */}
         <div className="border-t-2 border-foreground/80 bg-background/95 backdrop-blur-sm p-4">
-          <div className="max-w-2xl mx-auto">
-            {inputSection}
-          </div>
+          <div className="max-w-2xl mx-auto">{inputSection}</div>
         </div>
       </div>
     </div>
