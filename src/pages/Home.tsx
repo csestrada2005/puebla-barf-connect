@@ -249,8 +249,8 @@ export default function Home() {
                       <div className="flex flex-col items-center">
                         {/* Image with badge overlay */}
                         <div className="relative w-full mb-6">
-                          <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl">
-                            <img 
+                          <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl bg-muted">
+                            <BrandImage
                               src={item.image} 
                               alt={item.title}
                               className="w-full h-full object-cover"
@@ -287,8 +287,8 @@ export default function Home() {
                 <div className="flex flex-col items-center">
                   {/* Image with badge overlay */}
                   <div className="relative w-full mb-6">
-                    <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl shadow-lg">
-                      <img 
+                    <AspectRatio ratio={4/3} className="overflow-hidden rounded-3xl shadow-lg bg-muted">
+                      <BrandImage
                         src={item.image} 
                         alt={item.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
@@ -390,7 +390,7 @@ export default function Home() {
                 <div key={t.id} className="relative">
                   {/* Decorative sticker on first card (left) - happy dog */}
                   {index === 0 && (
-                    <img 
+                    <BrandImage
                       src={decoHappyDog} 
                       alt="" 
                       className="absolute -top-36 left-1/2 -translate-x-1/2 w-48 h-48 object-contain pointer-events-none z-10"
@@ -398,7 +398,7 @@ export default function Home() {
                   )}
                   {/* Decorative sticker on last card (right) - bowl */}
                   {index === 2 && (
-                    <img 
+                    <BrandImage
                       src={decoBowlFull} 
                       alt="" 
                       className="absolute -top-24 left-1/2 -translate-x-1/2 w-36 h-36 object-contain pointer-events-none z-10"

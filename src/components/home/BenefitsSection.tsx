@@ -92,7 +92,7 @@ export function BenefitsSection() {
 
           {/* Right: Image */}
           <motion.div
-            className="relative"
+            className="relative rounded-3xl bg-muted"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}

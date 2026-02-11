@@ -71,6 +71,8 @@ export function ProductCard({
             <BrandImage
               src={imageUrl}
               alt={name}
+              width={500}
+              height={500}
               className="w-full h-full object-cover transition-transform group-hover:scale-105"
             />
           ) : (
