@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCoverage } from "@/hooks/useCoverage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { BrandImage } from "@/components/ui/BrandImage";
 import coberturaPitbull from "@/assets/brand/cobertura-pitbull.png";
 
@@ -19,9 +19,7 @@ export default function Cobertura() {
   const [selectedZone, setSelectedZone] = useState<any>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const { setCoverage } = useCoverage();
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState(400);
-
+  
   const { data: zones } = useQuery({
     queryKey: ["coverage-zones"],
     queryFn: async () => {
@@ -30,18 +28,6 @@ export default function Cobertura() {
     }
   });
 
-  // Track content height for reactive dog positioning
-  useEffect(() => {
-    if (contentRef.current) {
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          setContentHeight(entry.contentRect.height);
-        }
-      });
-      observer.observe(contentRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
 
   const handleSearch = () => {
     if (!search.trim()) return;
@@ -61,7 +47,7 @@ export default function Cobertura() {
   return (
     <Layout>
       <div className="container py-4 lg:py-6 relative min-h-[60vh]">
-        <div ref={contentRef} className="flex flex-col lg:flex-row lg:items-start lg:gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:gap-4">
           {/* Left side - Content */}
           <div className="w-full lg:w-[55%]">
             <div className="max-w-xl mx-auto lg:mx-0 lg:ml-auto lg:mr-8">
@@ -108,26 +94,21 @@ export default function Cobertura() {
             </div>
           </div>
 
-          {/* Right side - Pitbull B&W - positioned relative to content */}
-          <div className="hidden lg:block lg:w-[45%] relative">
-            <AnimatePresence>
-              <motion.div 
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-                className="absolute right-0 pointer-events-none"
-                style={{ 
-                  top: Math.max(0, contentHeight - 335),
-                }}
-              >
-                <BrandImage 
-                  src={coberturaPitbull} 
-                  alt="Perro atento mirando" 
-                  className="w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl"
-                  priority
-                />
-              </motion.div>
-            </AnimatePresence>
+          {/* Right side - Pitbull B&W - aligned to bottom via flexbox */}
+          <div className="hidden lg:block lg:w-[45%] self-end">
+            <motion.div 
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+              className="flex justify-end pointer-events-none"
+            >
+              <BrandImage 
+                src={coberturaPitbull} 
+                alt="Perro atento mirando" 
+                className="w-56 lg:w-64 xl:w-72 object-contain drop-shadow-xl"
+                priority
+              />
+            </motion.div>
           </div>
         </div>
       </div>

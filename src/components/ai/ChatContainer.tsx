@@ -1,5 +1,5 @@
-import { useRef, useEffect, ReactNode, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useEffect, ReactNode } from "react";
+import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import aiHoundRight from "@/assets/brand/ai-hound-right.png";
 import playPomeranian from "@/assets/brand/play-pomeranian.png";
@@ -16,8 +16,6 @@ interface ChatContainerProps {
 
 export function ChatContainer({ children, inputSection, scrollToEnd = true, hasActiveInput = true }: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputSectionRef = useRef<HTMLDivElement>(null);
-  const [inputHeight, setInputHeight] = useState(80);
 
   useEffect(() => {
     if (scrollToEnd) {
@@ -25,85 +23,8 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
     }
   }, [children, scrollToEnd]);
 
-  // Track input section height for reactive dog positioning
-  useEffect(() => {
-    if (inputSectionRef.current) {
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          setInputHeight(entry.contentRect.height + 32); // +32 for padding
-        }
-      });
-      observer.observe(inputSectionRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
-
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100dvh-80px)] relative">
-      {/* Desktop: Pomeranian (looking right) - LEFT side, standing on input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={playPomeranian}
-          alt="Pomeranian mirando el chat"
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed -left-12 z-10 pointer-events-none hidden md:block w-64 md:w-72 lg:w-80 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight - 42 }}
-        />
-      </AnimatePresence>
-
-      {/* Desktop: Hound (looking LEFT) - RIGHT side, standing on input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={aiHoundRight}
-          alt="Perro atento mirando el chat"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed right-0 z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl"
-          style={{ bottom: inputHeight + 16 }}
-        />
-      </AnimatePresence>
-
-      {/* Mobile: Fluffy dog (laying) - LEFT side, on top of input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={mobileDogRight}
-          alt="Perrito acostado"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0
-          }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed left-0 z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg"
-          style={{ bottom: inputHeight - 12 }}
-        />
-      </AnimatePresence>
-
-      {/* Mobile: Dog (sitting, looking left) - RIGHT side, on top of input bar */}
-      <AnimatePresence>
-        <motion.img 
-          src={mobileDogLeft}
-          alt="Perrito sentado"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0
-          }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed -right-4 z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg"
-          style={{ bottom: inputHeight - 16 }}
-        />
-      </AnimatePresence>
-
       {/* Header Badge */}
       <div className="flex-shrink-0 text-center py-4">
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
@@ -126,10 +47,53 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
         </div>
       </div>
 
-      {/* Fixed Input Section at Bottom - with delineated border */}
-      <div ref={inputSectionRef} className="flex-shrink-0 border-t-2 border-foreground/80 bg-background/95 backdrop-blur-sm p-4">
-        <div className="max-w-2xl mx-auto">
-          {inputSection}
+      {/* Fixed Input Section at Bottom - with dog decorations */}
+      <div className="flex-shrink-0 relative">
+        {/* Desktop: Pomeranian LEFT */}
+        <motion.img 
+          src={playPomeranian}
+          alt="Pomeranian mirando el chat"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="absolute -left-12 bottom-full z-10 pointer-events-none hidden md:block w-64 md:w-72 lg:w-80 object-contain drop-shadow-xl -mb-10"
+        />
+
+        {/* Desktop: Hound RIGHT */}
+        <motion.img 
+          src={aiHoundRight}
+          alt="Perro atento mirando el chat"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="absolute right-0 bottom-full z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl mb-4"
+        />
+
+        {/* Mobile: Dog LEFT */}
+        <motion.img 
+          src={mobileDogRight}
+          alt="Perrito acostado"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="absolute left-0 bottom-full z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg -mb-3"
+        />
+
+        {/* Mobile: Dog RIGHT */}
+        <motion.img 
+          src={mobileDogLeft}
+          alt="Perrito sentado"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-4"
+        />
+
+        {/* Input bar */}
+        <div className="border-t-2 border-foreground/80 bg-background/95 backdrop-blur-sm p-4">
+          <div className="max-w-2xl mx-auto">
+            {inputSection}
+          </div>
         </div>
       </div>
     </div>
