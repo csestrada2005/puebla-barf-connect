@@ -56,7 +56,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute -left-12 bottom-full z-10 pointer-events-none hidden md:block w-64 md:w-72 lg:w-80 object-contain drop-shadow-xl -mb-10"
+          className="absolute -left-12 bottom-full z-10 pointer-events-none hidden md:block w-64 md:w-72 lg:w-80 object-contain drop-shadow-xl -mb-16"
         />
 
         {/* Desktop: Hound RIGHT */}
@@ -66,7 +66,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute right-0 bottom-full z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl mb-4"
+          className="absolute right-0 bottom-full z-10 pointer-events-none hidden md:block w-52 md:w-64 lg:w-72 object-contain drop-shadow-xl -mb-2"
         />
 
         {/* Mobile: Dog LEFT */}
@@ -76,7 +76,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute left-0 bottom-full z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg -mb-3"
+          className="absolute left-0 bottom-full z-10 pointer-events-none md:hidden w-28 object-contain drop-shadow-lg -mb-6"
         />
 
         {/* Mobile: Dog RIGHT */}
@@ -86,7 +86,7 @@ export function ChatContainer({ children, inputSection, scrollToEnd = true, hasA
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-4"
+          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-8"
         />
 
         {/* Input bar */}
