@@ -167,10 +167,10 @@ export default function Tienda() {
               <Clock className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium">Entrega 24-48h</span>
             </div>
-            <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
-              <Check className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Pago contra entrega</span>
-            </div>
+            
+
+
+
           </div>
         </div>
         
