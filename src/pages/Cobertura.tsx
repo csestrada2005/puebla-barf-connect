@@ -132,7 +132,7 @@ export default function Cobertura() {
               <BrandImage
                 src={coberturaPitbull}
                 alt="Perro atento mirando"
-                className="w-53 lg:w-64 xl:w-72 object-contain drop-shadow-xl"
+                className="w-53 lg:w-64 xl:w-70 object-contain drop-shadow-xl"
                 priority
               />
             </motion.div>
