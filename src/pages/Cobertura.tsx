@@ -92,6 +92,18 @@ export default function Cobertura() {
                       </CardContent>
                     </Card>
                   )}
+
+                  <Button
+                    variant="ghost"
+                    className="w-full mt-3"
+                    onClick={() => {
+                      setHasSearched(false);
+                      setSelectedZone(null);
+                      setSearch("");
+                    }}
+                  >
+                    Verificar otra zona
+                  </Button>
                 </>
               )}
 
