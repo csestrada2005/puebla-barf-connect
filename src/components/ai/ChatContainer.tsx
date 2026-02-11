@@ -87,7 +87,7 @@ export function ChatContainer({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-6"
+          className="absolute -right-4 bottom-full z-10 pointer-events-none md:hidden w-32 object-contain drop-shadow-lg -mb-5"
         />
 
         {/* Input bar */}
