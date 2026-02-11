@@ -42,7 +42,13 @@ export function TestimonialCard({
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-lg overflow-hidden">
             {imageUrl ? (
-              <BrandImage src={imageUrl} alt={customerName} className="h-full w-full object-cover" />
+              <BrandImage
+                src={imageUrl}
+                alt={customerName}
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+              />
             ) : (
               "🐕"
             )}
