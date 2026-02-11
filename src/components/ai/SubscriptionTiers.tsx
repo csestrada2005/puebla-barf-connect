@@ -26,6 +26,7 @@ interface SubscriptionTiersProps {
   recommendedProtein?: "chicken" | "beef" | "mix";
   onSelectPlan: (planType: "monthly" | "annual", proteinLine?: "pollo" | "res") => void;
   onRestart: () => void;
+  onChangePlan?: () => void;
 }
 
 const tiers: SubscriptionTier[] = [
@@ -56,6 +57,7 @@ export function SubscriptionTiers({
   recommendedProtein = "chicken",
   onSelectPlan,
   onRestart,
+  onChangePlan,
 }: SubscriptionTiersProps) {
   const navigate = useNavigate();
   const [selectedProteinTier, setSelectedProteinTier] = useState<"economico" | "premium">(
@@ -64,8 +66,22 @@ export function SubscriptionTiers({
   
   const showProteinToggle = !hasAllergy;
 
+  // Pricing: use per-unit prices
+  // Weekly grams → how many 1kg and 500g packs needed
   const calculatePrice = (tier: SubscriptionTier) => {
-    const weeklyPrice = weeklyKg * pricePerKg;
+    const weeklyGrams = weeklyKg * 1000;
+    const proteinLine = getProteinLine();
+    
+    // Per-unit prices (subscription = regular - $10)
+    const prices = proteinLine === "res" 
+      ? { perKg: 80, perHalf: 60 }  // 90-10, 70-10
+      : { perKg: 70, perHalf: 50 };  // 80-10, 60-10
+    
+    const packs1kg = Math.floor(weeklyGrams / 1000);
+    const remainder = weeklyGrams % 1000;
+    const packs500 = remainder > 0 ? Math.ceil(remainder / 500) : 0;
+    
+    const weeklyPrice = (packs1kg * prices.perKg) + (packs500 * prices.perHalf);
     const totalWeeks = tier.billingWeeks;
     const basePrice = weeklyPrice * totalWeeks;
     const discount = basePrice * (tier.discountPercent / 100);
@@ -255,8 +271,14 @@ export function SubscriptionTiers({
         </div>
       </div>
 
-      {/* Restart */}
-      <div className="text-center pt-2">
+      {/* Change Plan / Restart */}
+      <div className="text-center pt-2 space-y-2">
+        {onChangePlan && (
+          <Button variant="outline" size="sm" onClick={onChangePlan} className="gap-2 w-full">
+            <RotateCcw className="h-4 w-4" />
+            Cambiar plan para {petName}
+          </Button>
+        )}
         <Button variant="ghost" size="sm" onClick={onRestart} className="gap-2 text-muted-foreground">
           <RotateCcw className="h-4 w-4" />
           Nueva consulta
