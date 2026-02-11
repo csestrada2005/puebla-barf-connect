@@ -316,7 +316,7 @@ export default function Producto() {
                   Entrega Mar/Mié/Vie de 8 a 10 AM
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Envío incluido • Pago contra entrega disponible
+                  Envío gratis (excepto Juárez y Centro Histórico: $25) • Pago contra entrega disponible
                 </p>
               </CardContent>
             </Card>

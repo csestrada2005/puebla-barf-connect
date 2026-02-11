@@ -123,7 +123,7 @@ export default function Tienda() {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/30">
               <Truck className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Envío incluido</span>
+              <span className="text-sm font-medium">Envío gratis (excepto Juárez y Centro Histórico: $25)</span>
             </div>
             <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/30">
               <Clock className="h-4 w-4 text-primary" />
@@ -141,7 +141,7 @@ export default function Tienda() {
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
               <Truck className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Envío incluido</span>
+              <span className="text-sm font-medium">Envío gratis (excepto Juárez y Centro Histórico: $25)</span>
             </div>
             <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
               <Clock className="h-5 w-5 text-primary" />
