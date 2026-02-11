@@ -100,7 +100,26 @@ export default function Tienda() {
             🐾 Alimentación Natural BARF
           </Badge>
           <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Nuestra Tienda</h1>
-          
+        </div>
+
+        {/* Feeding Guide Disclaimer */}
+        <div className="max-w-4xl mx-auto mb-6">
+          <Alert className="border-amber-500/40 bg-amber-50 dark:bg-amber-950/30">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-sm font-semibold text-amber-800 dark:text-amber-300">⚠️ Guía de Raciones para Pruebas</AlertTitle>
+            <AlertDescription className="text-xs space-y-2 mt-2 text-amber-900/80 dark:text-amber-200/80">
+              <p>Esta compra única es ideal para probar, pero recuerda que cada perro es único:</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><strong>Perritos Sedentarios/Esterilizados:</strong> Calculan al 2% de su peso.</li>
+                <li><strong>Activos/Nerviosos:</strong> Calculan al 3%.</li>
+                <li><strong>Cachorros:</strong> Requieren entre 3% y 10% según su edad.</li>
+              </ul>
+              <p className="pt-1">
+                <strong>Recomendación:</strong> Para una ración exacta y personalizada,{" "}
+                <Link to="/ia" className="text-primary underline font-semibold">usa nuestro Dogtor IA</Link>.
+              </p>
+            </AlertDescription>
+          </Alert>
         </div>
 
         {/* Products - Carousel on mobile, Grid on desktop */}
@@ -159,25 +178,6 @@ export default function Tienda() {
           {proteinProducts.map(product => <ProteinCard key={product.protein} {...product} />)}
         </div>
 
-        {/* Feeding Guide Disclaimer */}
-        <div className="max-w-4xl mx-auto mt-8">
-          <Alert className="border-primary/20 bg-primary/5">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-sm font-semibold">⚠️ Guía de Raciones para Pruebas</AlertTitle>
-            <AlertDescription className="text-xs space-y-2 mt-2">
-              <p>Esta compra única es ideal para probar, pero recuerda que cada perro es único:</p>
-              <ul className="list-disc pl-4 space-y-1">
-                <li><strong>Perritos Sedentarios/Esterilizados:</strong> Calculan al 2% de su peso.</li>
-                <li><strong>Activos/Nerviosos:</strong> Calculan al 3%.</li>
-                <li><strong>Cachorros:</strong> Requieren entre 3% y 10% según su edad.</li>
-              </ul>
-              <p className="pt-1">
-                <strong>Recomendación:</strong> Para una ración exacta y ajuste automático mensual según el crecimiento de tu perro, te recomendamos nuestra{" "}
-                <Link to="/suscripcion" className="text-primary underline font-semibold">Suscripción Personalizada</Link>.
-              </p>
-            </AlertDescription>
-          </Alert>
-        </div>
       </div>
     </Layout>;
 }

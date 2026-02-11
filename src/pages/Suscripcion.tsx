@@ -161,6 +161,24 @@ export default function Suscripcion() {
           </h1>
         </div>
 
+        {/* Personalized Plan CTA - Top */}
+        <div className="max-w-5xl mx-auto mb-4">
+          <Alert className="border-amber-500/40 bg-amber-50 dark:bg-amber-950/30">
+            <Sparkles className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-xs space-y-2 text-amber-900/80 dark:text-amber-200/80">
+              <p>
+                Para obtener un plan completamente personalizado según el peso, edad y actividad de tu perro, usa nuestro asesor nutricional:
+              </p>
+              <Button asChild size="sm" variant="outline" className="w-full gap-2 border-amber-500/40 hover:bg-amber-100 dark:hover:bg-amber-900/30">
+                <Link to="/ia">
+                  <Sparkles className="h-4 w-4" />
+                  Ir al Dogtor
+                </Link>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
           {/* Configurator */}
           <div className="space-y-4">
@@ -409,21 +427,6 @@ export default function Suscripcion() {
               </CardContent>
             </Card>
 
-            {/* Personalized Plan CTA */}
-            <Alert className="border-primary/20 bg-primary/5">
-              <Sparkles className="h-4 w-4" />
-              <AlertDescription className="text-xs space-y-2">
-                <p>
-                  Para obtener un plan completamente personalizado según el peso, edad y actividad de tu perro, usa nuestro asesor nutricional:
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full gap-2">
-                  <Link to="/ia">
-                    <Sparkles className="h-4 w-4" />
-                    Ir al Dogtor
-                  </Link>
-                </Button>
-              </AlertDescription>
-            </Alert>
 
             {/* Policies */}
             <Card className="bg-muted/50">
