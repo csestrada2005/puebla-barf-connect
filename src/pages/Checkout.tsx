@@ -296,6 +296,12 @@ export default function Checkout() {
           return;
         }
 
+        // Store sale token for confirmation page polling
+        if (cpData.saleToken) {
+          localStorage.setItem("centumpay_sale_token", cpData.saleToken);
+          localStorage.setItem("centumpay_order_number", newOrderNumber);
+        }
+
         // Redirect to CentumPay checkout
         window.location.href = cpData.checkoutUrl;
         return;
