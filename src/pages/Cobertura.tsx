@@ -122,7 +122,7 @@ export default function Cobertura() {
           </div>
 
           {/* Right side - Pitbull B&W - aligned to bottom via flexbox */}
-          <div className="hidden lg:block lg:w-[45%] self-end mb-[-1rem]">
+          <div className="hidden lg:block lg:w-[45%] self-end mb-[-2rem]">
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
