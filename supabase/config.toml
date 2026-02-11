@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.upload-delivery-photo]
 verify_jwt = false
+
+[functions.centumpay-checkout]
+verify_jwt = false
+
+[functions.centumpay-webhook]
+verify_jwt = false
+
+[functions.centumpay-status]
+verify_jwt = false

@@ -106,10 +106,9 @@ const paymentMethods = [
   {
     id: "tarjeta",
     name: "Tarjeta de crédito/débito",
-    description: "Pago seguro con tarjeta",
+    description: "Pago seguro con CentumPay",
     icon: CreditCard,
     color: "text-purple-600",
-    comingSoon: true,
   },
 ];
 
@@ -272,7 +271,37 @@ export default function Checkout() {
       }).then(({ error }) => {
         if (error) console.error("Error syncing to sheets:", error);
       });
-      
+
+      // ── CentumPay flow (tarjeta) ──
+      if (paymentMethod === "tarjeta") {
+        const { data: cpData, error: cpError } = await supabase.functions.invoke("centumpay-checkout", {
+          body: {
+            items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+            total,
+            subtotal,
+            discount: 0,
+            orderNumber: newOrderNumber,
+            customerEmail: formData.email,
+            customerName: formData.family_name,
+          },
+        });
+
+        if (cpError || cpData?.error) {
+          toast({
+            title: "Error de pago",
+            description: cpData?.error || "No se pudo conectar con CentumPay. Intenta de nuevo.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Redirect to CentumPay checkout
+        window.location.href = cpData.checkoutUrl;
+        return;
+      }
+
+      // ── Cash/WhatsApp flow (efectivo) ──
       const sanitizedName = sanitizeForWhatsApp(formData.family_name);
       const fullAddress = [formData.address, formData.colonia ? `Col. ${formData.colonia}` : "", formData.postal_code ? `CP ${formData.postal_code}` : ""].filter(Boolean).join(", ");
       const sanitizedAddress = sanitizeForWhatsApp(fullAddress);
@@ -556,11 +585,10 @@ export default function Checkout() {
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
                     {paymentMethods.map((method) => (
                       <div key={method.id} className="relative">
-                        <RadioGroupItem value={method.id} id={method.id} className="peer sr-only" disabled={method.comingSoon} />
+                        <RadioGroupItem value={method.id} id={method.id} className="peer sr-only" />
                         <Label
                           htmlFor={method.id}
-                          className={`flex items-center gap-4 rounded-lg border-2 p-4 transition-colors cursor-pointer
-                            ${method.comingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-accent"}
+                          className={`flex items-center gap-4 rounded-lg border-2 p-4 transition-colors cursor-pointer hover:bg-accent
                             peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5`}
                         >
                           <div className={`p-2 rounded-lg bg-muted ${method.color}`}>
@@ -570,9 +598,6 @@ export default function Checkout() {
                             <p className="font-medium">{method.name}</p>
                             <p className="text-sm text-muted-foreground">{method.description}</p>
                           </div>
-                          {method.comingSoon && (
-                            <span className="text-xs bg-muted px-2 py-1 rounded">Próximamente</span>
-                          )}
                         </Label>
                       </div>
                     ))}
@@ -640,6 +665,11 @@ export default function Checkout() {
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Procesando...
                         </>
+                      ) : paymentMethod === "tarjeta" ? (
+                        <>
+                          <CreditCard className="h-4 w-4" />
+                          Pagar con Tarjeta
+                        </>
                       ) : (
                         <>
                           <MessageCircle className="h-4 w-4" />
@@ -649,7 +679,9 @@ export default function Checkout() {
                     </Button>
                     
                     <p className="text-xs text-center text-muted-foreground">
-                      Al confirmar, te redirigiremos a WhatsApp para finalizar tu pedido
+                      {paymentMethod === "tarjeta"
+                        ? "Serás redirigido a CentumPay para completar tu pago de forma segura"
+                        : "Al confirmar, te redirigiremos a WhatsApp para finalizar tu pedido"}
                     </p>
                   </CardContent>
                 </Card>
