@@ -29,23 +29,23 @@ interface SubscriptionTiersProps {
 }
 
 const tiers: SubscriptionTier[] = [
-  {
-    id: "monthly",
-    name: "Plan Mensual",
-    description: "Flexibilidad total, pago en efectivo disponible",
-    billingWeeks: 4,
-    discountPercent: 0,
-  },
-  {
-    id: "annual",
-    name: "Plan Anual",
-    description: "15% de descuento, solo tarjeta",
-    billingWeeks: 52,
-    discountPercent: 15,
-    badge: "15% OFF",
-    isRecommended: true,
-  },
-];
+{
+  id: "monthly",
+  name: "Plan Mensual",
+  description: "Flexibilidad total, pago en efectivo disponible",
+  billingWeeks: 4,
+  discountPercent: 0
+},
+{
+  id: "annual",
+  name: "Plan Anual",
+  description: "15% de descuento, solo tarjeta",
+  billingWeeks: 52,
+  discountPercent: 15,
+  badge: "15% OFF",
+  isRecommended: true
+}];
+
 
 export function SubscriptionTiers({
   petName,
@@ -55,13 +55,13 @@ export function SubscriptionTiers({
   hasAllergy = false,
   recommendedProtein = "chicken",
   onSelectPlan,
-  onRestart,
+  onRestart
 }: SubscriptionTiersProps) {
   const navigate = useNavigate();
   const [selectedProteinTier, setSelectedProteinTier] = useState<"economico" | "premium">(
     recommendedProtein === "beef" ? "premium" : "economico"
   );
-  
+
   const showProteinToggle = !hasAllergy;
 
   // Pricing: use per-unit prices
@@ -69,27 +69,27 @@ export function SubscriptionTiers({
   const calculatePrice = (tier: SubscriptionTier) => {
     const weeklyGrams = weeklyKg * 1000;
     const proteinLine = getProteinLine();
-    
+
     // Per-unit prices (subscription = regular - $10)
-    const prices = proteinLine === "res" 
-      ? { perKg: 80, perHalf: 60 }  // 90-10, 70-10
-      : { perKg: 70, perHalf: 50 };  // 80-10, 60-10
-    
+    const prices = proteinLine === "res" ?
+    { perKg: 80, perHalf: 60 } // 90-10, 70-10
+    : { perKg: 70, perHalf: 50 }; // 80-10, 60-10
+
     const packs1kg = Math.floor(weeklyGrams / 1000);
     const remainder = weeklyGrams % 1000;
     const packs500 = remainder > 0 ? Math.ceil(remainder / 500) : 0;
-    
-    const weeklyPrice = (packs1kg * prices.perKg) + (packs500 * prices.perHalf);
+
+    const weeklyPrice = packs1kg * prices.perKg + packs500 * prices.perHalf;
     const totalWeeks = tier.billingWeeks;
     const basePrice = weeklyPrice * totalWeeks;
     const discount = basePrice * (tier.discountPercent / 100);
     return {
       total: Math.round(basePrice - discount),
       weekly: Math.round(weeklyPrice * (1 - tier.discountPercent / 100)),
-      savings: Math.round(discount),
+      savings: Math.round(discount)
     };
   };
-  
+
   const getProteinLine = (): "pollo" | "res" => {
     if (hasAllergy) {
       return recommendedProtein === "beef" ? "res" : "pollo";
@@ -101,8 +101,8 @@ export function SubscriptionTiers({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full space-y-6"
-    >
+      className="w-full space-y-6">
+
       {/* Header - Formula Summary */}
       <div className="border-dashed border-2 border-primary rounded-xl p-4 bg-primary/5">
         <div className="flex items-center gap-2 mb-3">
@@ -122,29 +122,29 @@ export function SubscriptionTiers({
       </div>
 
       {/* NEW: Protein Tier Toggle (only when no allergy) */}
-      {showProteinToggle && (
-        <div className="space-y-2">
+      {showProteinToggle &&
+      <div className="space-y-2">
           <p className="text-xs text-muted-foreground text-center">Elige tu línea de proteína</p>
-          <ToggleGroup 
-            type="single" 
-            value={selectedProteinTier} 
-            onValueChange={value => value && setSelectedProteinTier(value as "economico" | "premium")} 
-            className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl"
-          >
-            <ToggleGroupItem 
-              value="economico" 
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all min-h-[60px]"
-            >
+          <ToggleGroup
+          type="single"
+          value={selectedProteinTier}
+          onValueChange={(value) => value && setSelectedProteinTier(value as "economico" | "premium")}
+          className="w-full grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
+
+            <ToggleGroupItem
+            value="economico"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm transition-all min-h-[60px]">
+
               <div className="flex items-center gap-1.5">
                 <Wallet className="h-4 w-4" />
                 <span className="text-sm font-semibold">Económico</span>
               </div>
               <span className="text-xs text-muted-foreground">BARF Pollo</span>
             </ToggleGroupItem>
-            <ToggleGroupItem 
-              value="premium" 
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-amber-500 transition-all min-h-[60px]"
-            >
+            <ToggleGroupItem
+            value="premium"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm data-[state=on]:ring-2 data-[state=on]:ring-amber-500 transition-all min-h-[60px]">
+
               <div className="flex items-center gap-1.5">
                 <Crown className="h-4 w-4 text-amber-500" />
                 <span className="text-sm font-semibold">Premium</span>
@@ -153,13 +153,13 @@ export function SubscriptionTiers({
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-      )}
+      }
 
       {/* Delivery Promise */}
       <div className="flex items-center gap-2 justify-center p-3 bg-secondary/50 rounded-xl">
         <Truck className="h-5 w-5 text-primary" />
-        <span className="text-sm font-medium">
-          Recibes tu caja cada semana en tu puerta 🚚
+        <span className="text-sm font-medium">Recibes tu caja cada semana en tu puerta 
+
         </span>
       </div>
 
@@ -167,34 +167,34 @@ export function SubscriptionTiers({
       <div className="space-y-4">
         {tiers.map((tier, index) => {
           const pricing = calculatePrice(tier);
-          
+
           return (
             <motion.div
               key={tier.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
+              transition={{ delay: index * 0.1 }}>
+
               <Card
                 className={`relative cursor-pointer transition-all hover:shadow-md ${
-                  tier.isRecommended
-                    ? "border-2 border-primary ring-2 ring-primary/20"
-                    : "border"
-                }`}
-                onClick={() => onSelectPlan(tier.id, getProteinLine())}
-              >
-                {tier.badge && (
-                  <Badge
-                    className={`absolute -top-2.5 right-4 ${
-                      tier.isRecommended
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
-                  >
+                tier.isRecommended ?
+                "border-2 border-primary ring-2 ring-primary/20" :
+                "border"}`
+                }
+                onClick={() => onSelectPlan(tier.id, getProteinLine())}>
+
+                {tier.badge &&
+                <Badge
+                  className={`absolute -top-2.5 right-4 ${
+                  tier.isRecommended ?
+                  "bg-primary text-primary-foreground" :
+                  "bg-secondary text-secondary-foreground"}`
+                  }>
+
                     {tier.isRecommended && <Crown className="h-3 w-3 mr-1" />}
                     {tier.badge}
                   </Badge>
-                )}
+                }
                 
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
@@ -220,17 +220,17 @@ export function SubscriptionTiers({
                         <Clock className="h-4 w-4" />
                         <span>${pricing.weekly}/semana</span>
                       </div>
-                      {tier.discountPercent > 0 && (
-                        <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-0">
+                      {tier.discountPercent > 0 &&
+                      <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-0">
                           -{tier.discountPercent}%
                         </Badge>
-                      )}
+                      }
                     </div>
-                    {pricing.savings > 0 && (
-                      <span className="text-primary text-xs font-medium">
+                    {pricing.savings > 0 &&
+                    <span className="text-primary text-xs font-medium">
                         Ahorras ${pricing.savings.toLocaleString("es-MX")}
                       </span>
-                    )}
+                    }
                   </div>
                   
                   <Button
@@ -239,15 +239,15 @@ export function SubscriptionTiers({
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectPlan(tier.id, getProteinLine());
-                    }}
-                  >
+                    }}>
+
                     <Check className="h-4 w-4" />
                     Suscribirme al {tier.name}
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
-          );
+            </motion.div>);
+
         })}
       </div>
 
@@ -256,16 +256,16 @@ export function SubscriptionTiers({
         <p className="font-medium text-sm mb-3">Todos los planes incluyen:</p>
         <div className="grid grid-cols-2 gap-2 text-sm">
           {[
-            "Entrega semanal",
-            "Sin contratos",
-            "Cancela cuando quieras",
-            "Soporte WhatsApp",
-          ].map((benefit) => (
-            <div key={benefit} className="flex items-center gap-2 text-muted-foreground">
+          "Entrega semanal",
+          "Sin contratos",
+          "Cancela cuando quieras",
+          "Soporte WhatsApp"].
+          map((benefit) =>
+          <div key={benefit} className="flex items-center gap-2 text-muted-foreground">
               <Check className="h-4 w-4 text-primary flex-shrink-0" />
               <span>{benefit}</span>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -279,6 +279,6 @@ export function SubscriptionTiers({
           ⚠️ Consulta a tu veterinario para casos especiales
         </p>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
