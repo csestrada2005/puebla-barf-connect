@@ -4,6 +4,27 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ── Base32 decode ────────────────────────────────────────────────────
+function base32Decode(input: string): Uint8Array {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const cleaned = input.replace(/[=\s]/g, "").toUpperCase();
+  let bits = "";
+  for (const c of cleaned) {
+    const val = alphabet.indexOf(c);
+    if (val === -1) throw new Error(`Invalid base32 char: ${c}`);
+    bits += val.toString(2).padStart(5, "0");
+  }
+  const bytes = new Uint8Array(Math.floor(bits.length / 8));
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
+  }
+  return bytes;
+}
+
+function isBase32(s: string): boolean {
+  return /^[A-Z2-7=\s]+$/i.test(s) && s.length >= 8;
+}
+
 // ── TOTP (RFC 6238) ──────────────────────────────────────────────────
 async function generateTOTP(secret: string): Promise<string> {
   const epoch = Math.floor(Date.now() / 1000);
@@ -12,10 +33,16 @@ async function generateTOTP(secret: string): Promise<string> {
   const view = new DataView(buf);
   view.setUint32(4, T, false);
 
-  const encoder = new TextEncoder();
+  let keyBytes: Uint8Array;
+  if (isBase32(secret)) {
+    keyBytes = base32Decode(secret);
+  } else {
+    keyBytes = new TextEncoder().encode(secret);
+  }
+
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(secret),
+    keyBytes,
     { name: "HMAC", hash: "SHA-1" },
     false,
     ["sign"],
