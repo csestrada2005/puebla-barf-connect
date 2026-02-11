@@ -68,7 +68,7 @@ function ProteinCard({
           </div>
 
           <ul className="space-y-1.5">
-            {benefits.map(benefit => <li key={benefit} className="flex items-center gap-2 text-xs">
+            {benefits.map((benefit) => <li key={benefit} className="flex items-center gap-2 text-xs">
                 <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span>{benefit}</span>
               </li>)}
@@ -129,7 +129,7 @@ export default function Tienda() {
           loop: true
         }}>
             <CarouselContent className="-ml-2">
-              {proteinProducts.map(product => <CarouselItem key={product.protein} className="pl-2 basis-full">
+              {proteinProducts.map((product) => <CarouselItem key={product.protein} className="pl-2 basis-full">
                   <ProteinCard {...product} />
                 </CarouselItem>)}
             </CarouselContent>
@@ -159,10 +159,10 @@ export default function Tienda() {
         {/* Benefits Bar - Desktop only (above products) */}
         <div className="mb-10 hidden md:block">
           <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
-              <Truck className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Envío gratis (excepto Juárez y Centro Histórico: $25)</span>
-            </div>
+            
+
+
+
             <div className="flex items-center gap-2 p-4 justify-center rounded-lg bg-secondary/30">
               <Clock className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium">Entrega 24-48h</span>
@@ -175,7 +175,7 @@ export default function Tienda() {
         </div>
         
         <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {proteinProducts.map(product => <ProteinCard key={product.protein} {...product} />)}
+          {proteinProducts.map((product) => <ProteinCard key={product.protein} {...product} />)}
         </div>
 
       </div>
