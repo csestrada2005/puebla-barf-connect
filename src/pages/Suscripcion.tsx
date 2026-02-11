@@ -170,7 +170,7 @@ export default function Suscripcion() {
                 Para obtener un plan completamente personalizado según el peso, edad y actividad de tu perro, usa nuestro asesor nutricional:
               </p>
               <Button asChild size="sm" variant="outline" className="w-full gap-2 border-amber-500/40 hover:bg-amber-100 dark:hover:bg-amber-900/30">
-                <Link to="/ia">
+                <Link to="/ai">
                   <Sparkles className="h-4 w-4" />
                   Ir al Dogtor
                 </Link>
@@ -206,7 +206,7 @@ export default function Suscripcion() {
                       Aún no tienes perritos registrados
                     </p>
                     <Button asChild size="sm" className="gap-2">
-                      <Link to="/ia">
+                      <Link to="/ai">
                         <Sparkles className="h-4 w-4" />
                         Añadir perrito
                       </Link>
@@ -227,7 +227,7 @@ export default function Suscripcion() {
                       </SelectContent>
                     </Select>
                     <Button asChild variant="outline" size="sm" className="w-full gap-2">
-                      <Link to="/ia?intent=new_profile">
+                      <Link to="/ai?intent=new_profile">
                         <Sparkles className="h-4 w-4" />
                         Añadir otro perrito
                       </Link>

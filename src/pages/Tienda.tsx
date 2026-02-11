@@ -116,7 +116,7 @@ export default function Tienda() {
               </ul>
               <p className="pt-1">
                 <strong>Recomendación:</strong> Para una ración exacta y personalizada,{" "}
-                <Link to="/ia" className="text-primary underline font-semibold">usa nuestro Dogtor IA</Link>.
+                <Link to="/ai" className="text-primary underline font-semibold">usa nuestro Dogtor IA</Link>.
               </p>
             </AlertDescription>
           </Alert>
