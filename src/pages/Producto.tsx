@@ -167,11 +167,11 @@ export default function Producto() {
           <div className="space-y-6">
             {/* Product Image - compact on desktop */}
             <div className="relative flex justify-center">
-              <div className="aspect-square max-h-72 md:max-h-80 lg:max-h-72 w-full max-w-md lg:max-w-sm rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-6 mx-auto">
+              <div className="aspect-square max-h-96 md:max-h-[28rem] lg:max-h-96 w-full max-w-lg lg:max-w-md rounded-2xl bg-gradient-to-br from-secondary/30 to-muted/50 overflow-hidden p-4 mx-auto">
                 <img 
                   src={productImages[product.protein_line || "res"]} 
                   alt={product.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain scale-110"
                 />
               </div>
               <Badge className="absolute top-4 left-4 text-sm">
@@ -313,7 +313,7 @@ export default function Producto() {
               <CardContent className="pt-4 pb-4">
                 <p className="text-sm font-medium flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary" />
-                  Entrega en 24-48h en zonas con cobertura
+                  Entrega Mar/Mié/Vie de 8 a 10 AM
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Envío incluido • Pago contra entrega disponible
