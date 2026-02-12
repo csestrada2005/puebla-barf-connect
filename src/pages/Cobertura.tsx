@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { CoverageResult } from "@/components";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,8 @@ export default function Cobertura() {
   const [selectedZone, setSelectedZone] = useState<any>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const { setCoverage } = useCoverage();
+  const [searchParams] = useSearchParams();
+  const fromCheckout = searchParams.get("from") === "checkout";
 
   const { data: zones } = useQuery({
     queryKey: ["coverage-zones"],
@@ -70,6 +73,7 @@ export default function Cobertura() {
                     zoneName={selectedZone?.zone_name}
                     deliveryFee={selectedZone?.delivery_fee}
                     onJoinWaitlist={handleRequestCoverage}
+                    returnTo={fromCheckout && selectedZone ? "/checkout" : undefined}
                   />
 
                   {/* Enhanced no-coverage CTA */}
