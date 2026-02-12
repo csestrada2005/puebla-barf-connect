@@ -48,10 +48,7 @@ export function PromoPopup() {
     setShowCode(true);
     setIsSubmitting(false);
     
-    toast({
-      title: "¡Código activado!",
-      description: "Usa BIENVENIDO15 en tu primer pedido.",
-    });
+    // Code shown in UI, no toast needed
   };
 
   const handleClose = () => {

@@ -101,10 +101,6 @@ export default function SettingsView() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-driver-config"] });
-      toast({
-        title: "Configuración guardada",
-        description: "Los datos de los choferes se han actualizado.",
-      });
     },
     onError: (error) => {
       console.error("Error saving driver config:", error);
@@ -141,18 +137,12 @@ export default function SettingsView() {
     setDrivers([...drivers, newDriver]);
     setNewDriverName("");
     setNewDriverPhone("");
-    toast({
-      title: "Chofer añadido",
-      description: "Recuerda guardar los cambios.",
-    });
+    // Driver added, no toast
   };
 
   const removeDriver = (driverId: string) => {
     setDrivers(drivers.filter(d => d.id !== driverId));
-    toast({
-      title: "Chofer eliminado",
-      description: "Recuerda guardar los cambios.",
-    });
+    // Driver removed, no toast
   };
 
   const updateDriver = (driverId: string, field: keyof Driver, value: string) => {

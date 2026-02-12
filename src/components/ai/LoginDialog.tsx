@@ -58,10 +58,6 @@ export function LoginDialog({
           variant: "destructive",
         });
       } else {
-        toast({
-          title: "¡Bienvenido! 🐾",
-          description: "Has iniciado sesión correctamente.",
-        });
         onOpenChange(false);
         onSuccess?.();
       }
