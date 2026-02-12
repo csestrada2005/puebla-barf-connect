@@ -78,10 +78,6 @@ export function RegisterForm() {
       const { error: signInError } = await signIn(formData.email, formData.password);
       
       if (signInError) {
-        toast({
-          title: "Cuenta creada",
-          description: "Tu cuenta fue creada. Por favor inicia sesión.",
-        });
         navigate("/login");
         return;
       }
@@ -113,10 +109,8 @@ export function RegisterForm() {
         // Don't block registration if email fails
       }
 
-      toast({
-        title: "¡Bienvenido a Raw Paw!",
-        description: `Hola familia ${formData.family_name}, ¡${formData.pet_name} está listo para comer sano!`,
-      });
+
+      navigate("/tienda");
 
       navigate("/tienda");
     } catch (error: any) {

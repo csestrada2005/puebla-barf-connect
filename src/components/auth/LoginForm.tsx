@@ -35,10 +35,6 @@ export function LoginForm() {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión correctamente",
-        });
         navigate(from, { replace: true });
       }
     } catch (error) {
