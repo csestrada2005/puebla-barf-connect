@@ -85,7 +85,7 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative px-4 sm:px-6">
+      <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative px-4 sm:px-6 lg:px-8">
         {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
@@ -103,7 +103,7 @@ export default function Carrito() {
           />
         </motion.div>
 
-        <div className="max-w-3xl mx-auto px-2 sm:px-0">
+        <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Tu Carrito</h1>
             <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive">
