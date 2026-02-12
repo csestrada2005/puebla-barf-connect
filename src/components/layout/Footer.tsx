@@ -25,7 +25,7 @@ export function Footer() {
             <h4 className="font-semibold text-sm md:text-base">Navegación</h4>
             <nav className="flex flex-col gap-1.5 md:gap-2 text-xs md:text-sm opacity-80">
               <Link to="/tienda" className="hover:opacity-100 transition-opacity">Productos</Link>
-              <Link to="/ai" className="hover:opacity-100 transition-opacity">Recomendador AI</Link>
+              <Link to="/ai" className="hover:opacity-100 transition-opacity">Suscripción IA</Link>
               <Link to="/cobertura" className="hover:opacity-100 transition-opacity">Cobertura</Link>
             </nav>
           </div>

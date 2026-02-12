@@ -370,7 +370,7 @@ export default function AIRecomendador() {
       setInteractionMode("guest");
       setMessages([{
         id: "guest-greeting",
-        content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. ¿Listo para encontrar el plan perfecto para tu mejor amigo? 🐾",
+        content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. Aquí puedes crear tu suscripción personalizada o hacer una compra única. ¿Listo para encontrar el plan perfecto para tu mejor amigo? 🐾",
         isBot: true,
       }]);
       setStep("guest_greeting");
@@ -397,7 +397,7 @@ export default function AIRecomendador() {
         setIsResultOpen(false);
         setMessages([{
           id: "welcome-new",
-          content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. Veo que aún no tienes perfiles de perritos.\n\n¿Cómo se llama el paciente? 🐾",
+          content: "¡Hola! 👋 Soy el Dogtor, tu asesor de nutrición canina. Aquí puedes crear tu suscripción personalizada. Veo que aún no tienes perfiles de perritos.\n\n¿Cómo se llama el paciente? 🐾",
           isBot: true,
         }]);
         setStep("profile_name");

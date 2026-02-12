@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { PromoPopup } from "@/components/PromoPopup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +15,7 @@ const proteinProducts = [{
   description: "Variedad de órganos y carne de res de primera calidad",
   image: productoRes,
   badge: "✨ Premium",
-  priceFrom: 349,
+  priceFrom: 70,
   slug: "barf-res-500g",
   benefits: ["Mayor variedad de órganos", "Proteína de alta densidad", "Ideal para perros activos"]
 }, {
@@ -26,7 +25,7 @@ const proteinProducts = [{
   description: "Fórmula balanceada y suave para el estómago",
   image: productoPollo,
   badge: null,
-  priceFrom: 299,
+  priceFrom: 60,
   slug: "barf-pollo-500g",
   benefits: ["Fácil digestión", "Ideal para estómagos sensibles", "Proteína magra"]
 }];
@@ -92,7 +91,6 @@ function ProteinCard({
 }
 export default function Tienda() {
   return <Layout>
-      <PromoPopup />
       <div className="container py-8 md:py-12">
         {/* Header */}
         <div className="text-center mb-6 md:mb-8">

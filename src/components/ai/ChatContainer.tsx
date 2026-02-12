@@ -34,7 +34,7 @@ export function ChatContainer({
       <div className="flex-shrink-0 text-center py-4">
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
           <Sparkles className="h-4 w-4" />
-          Asistente Raw Paw
+          Suscripción IA — El Dogtor
         </div>
       </div>
 

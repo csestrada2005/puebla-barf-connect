@@ -254,25 +254,6 @@ export default function SettingsView() {
               </div>
             </div>
 
-            <div className="space-y-2 pt-4 border-t">
-              <Label htmlFor="delivery-hour">Hora de envío del mensaje</Label>
-              <Select value={deliveryHour} onValueChange={setDeliveryHour}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona hora" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hours.map((hour) => (
-                    <SelectItem key={hour} value={hour}>
-                      {hour} hrs
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Cada día a esta hora se enviará el resumen de entregas por WhatsApp
-              </p>
-            </div>
-
             <Button
               onClick={() => saveDriverConfigMutation.mutate()}
               disabled={saveDriverConfigMutation.isPending || drivers.length === 0}
@@ -289,69 +270,9 @@ export default function SettingsView() {
             {drivers.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-primary">
                 <MessageSquare className="h-4 w-4" />
-                {drivers.length} chofer{drivers.length > 1 ? "es" : ""} configurado{drivers.length > 1 ? "s" : ""} • Mensaje a las {deliveryHour}
+                {drivers.length} chofer{drivers.length > 1 ? "es" : ""} configurado{drivers.length > 1 ? "s" : ""}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Test Notification Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5" />
-              Probar Notificación
-            </CardTitle>
-            <CardDescription>
-              Genera el mensaje de entregas de hoy y ábrelo en WhatsApp.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              onClick={async () => {
-                setTestingNotification(true);
-                try {
-                  const { data, error } = await supabase.functions.invoke("notify-driver");
-                  
-                  if (error) throw error;
-                  
-                  if (data.orderCount === 0) {
-                    toast({
-                      title: "Sin entregas",
-                      description: "No hay pedidos confirmados para entregar hoy.",
-                    });
-                  } else if (data.whatsappLink) {
-                    toast({
-                      title: `${data.orderCount} entregas encontradas`,
-                      description: "Abriendo WhatsApp...",
-                    });
-                    window.open(data.whatsappLink, "_blank");
-                  }
-                } catch (error) {
-                  console.error("Error testing notification:", error);
-                  toast({
-                    title: "Error",
-                    description: "No se pudo generar el mensaje.",
-                    variant: "destructive",
-                  });
-                } finally {
-                  setTestingNotification(false);
-                }
-              }}
-              disabled={testingNotification || drivers.length === 0}
-              variant="outline"
-              className="w-full gap-2"
-            >
-              {testingNotification ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ExternalLink className="h-4 w-4" />
-              )}
-              Generar mensaje y abrir WhatsApp
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              Esto genera el resumen de entregas confirmadas y abre WhatsApp Web para enviarlo al primer chofer.
-            </p>
           </CardContent>
         </Card>
 
@@ -360,8 +281,8 @@ export default function SettingsView() {
           <CardContent className="pt-6">
             <h4 className="font-medium text-sm mb-2">¿Cómo funciona?</h4>
             <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-              <li>Cada día a la hora configurada, los choferes recibirán un mensaje de WhatsApp</li>
-              <li>El mensaje incluye todas las entregas pendientes del día</li>
+              <li>Desde la sección de Pedidos, envía manualmente los pedidos del día a los choferes por WhatsApp</li>
+              <li>El mensaje incluye todas las entregas seleccionadas</li>
               <li>Incluye: nombre del cliente, dirección, teléfono y productos</li>
               <li>Los pedidos en estado "Confirmado" se incluyen automáticamente</li>
             </ul>
