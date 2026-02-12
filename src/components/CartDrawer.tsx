@@ -30,6 +30,9 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{item.name}</p>
+                  {item.packSize && (
+                    <p className="text-xs text-muted-foreground">{item.packSize} paquetes</p>
+                  )}
                   <p className="text-sm text-primary font-semibold">
                     ${(item.price * item.quantity).toLocaleString("es-MX")}
                   </p>

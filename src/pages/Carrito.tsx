@@ -85,7 +85,7 @@ export default function Carrito() {
 
   return (
     <Layout>
-      <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative">
+      <div ref={containerRef} className="container py-12 pb-48 lg:pb-48 relative px-4 sm:px-6">
         {/* Aussie (looking left) - fixed at bottom left, fades with scroll */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
@@ -118,8 +118,8 @@ export default function Carrito() {
               {items.map((item) => (
                 <Card key={item.id}>
                   <CardContent className="p-4">
-                    <div className="flex gap-4">
-                      <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center text-3xl shrink-0">
+                      <div className="flex gap-3 items-start">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-muted flex items-center justify-center text-3xl shrink-0">
                         {item.imageUrl ? (
                           <BrandImage src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                         ) : (
@@ -128,8 +128,11 @@ export default function Carrito() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold truncate">{item.name}</h3>
+                        {item.packSize && (
+                          <span className="text-xs text-muted-foreground">{item.packSize} paquetes</span>
+                        )}
                         <p className="text-lg font-bold text-primary">
-                          ${item.price.toLocaleString("es-MX")}
+                          ${(item.price * item.quantity).toLocaleString("es-MX")}
                         </p>
                         {item.isSubscription && (
                           <span className="text-xs text-muted-foreground">Suscripción mensual</span>
