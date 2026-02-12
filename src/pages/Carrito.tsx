@@ -20,13 +20,19 @@ export default function Carrito() {
   const subtotal = getSubtotal();
   const total = subtotal + (isConfirmed ? deliveryFee : 0);
 
+  // Reset any residual body styles from vaul Drawer (e.g. from /ai navigation)
+  useEffect(() => {
+    document.body.style.transform = '';
+    document.body.style.overflow = '';
+    document.body.style.pointerEvents = '';
+  }, []);
+
   // Hide dog when scrolled past the content section (into footer)
   useEffect(() => {
     const handleScroll = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
-        // Dog is visible when the container is in view
         const isInView = rect.top < viewportHeight && rect.bottom > 350;
         setIsVisible(isInView);
       }

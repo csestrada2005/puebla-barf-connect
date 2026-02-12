@@ -1497,10 +1497,17 @@ export default function AIRecomendador() {
 
     addItem(subscriptionItem);
     
-    // Navigate silently - no toast
-
+    // Close drawer first, then navigate after animation completes
+    // The vaul Drawer applies transform/overflow styles to <body>.
+    // Navigating immediately leaves residual styles that shift the cart page.
     setIsResultOpen(false);
-    navigate("/carrito");
+    setTimeout(() => {
+      // Reset any residual body styles from the drawer
+      document.body.style.transform = '';
+      document.body.style.overflow = '';
+      document.body.style.pointerEvents = '';
+      navigate("/carrito");
+    }, 350);
   };
 
   const handleChangePlan = () => {
