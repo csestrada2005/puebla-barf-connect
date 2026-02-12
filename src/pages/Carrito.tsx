@@ -117,8 +117,8 @@ export default function Carrito() {
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
                 <Card key={item.id}>
-                  <CardContent className="p-4 overflow-hidden">
-                    <div className="flex gap-3 items-start w-full overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex gap-3 items-start">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-muted flex items-center justify-center text-3xl shrink-0">
                         {item.imageUrl ? (
                           <BrandImage src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
