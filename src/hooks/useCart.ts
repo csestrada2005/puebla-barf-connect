@@ -19,6 +19,8 @@ export interface CartItem {
   isSubscription?: boolean;
   imageUrl?: string;
   subscriptionDetails?: SubscriptionDetails;
+  /** Number of individual packs in this bundle (7 or 14). Display only – price already reflects total. */
+  packSize?: number;
 }
 
 interface CartState {

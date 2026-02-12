@@ -47,7 +47,7 @@ const weekOptions = [
 export default function Producto() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { addItem, updateQuantity } = useCart();
+  const { addItem } = useCart();
   const { toast } = useToast();
   const [selectedLine, setSelectedLine] = useState<string | null>(null);
   const [selectedPresentation, setSelectedPresentation] = useState<string | null>(null);
@@ -89,18 +89,17 @@ export default function Producto() {
     if (!product) return;
     
     const selectedOption = weekOptions.find(o => o.value === selectedWeeks);
-    const qty = selectedOption?.multiplier || 7;
+    const packSize = selectedOption?.multiplier || 7;
+    const bundlePrice = Number(product.price) * packSize;
     
-    // First add item (creates with qty 1 or increments)
+    // Add as a single bundle item; price = total for the pack
     addItem({
-      id: product.id,
+      id: `${product.id}-${packSize}`,
       name: product.name,
-      price: product.price,
+      price: bundlePrice,
       imageUrl: product.image_url || undefined,
+      packSize,
     });
-    
-    // Then set exact quantity
-    updateQuantity(product.id, qty);
     setCartDrawerOpen(true);
   };
 
