@@ -31,7 +31,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{item.name}</p>
                   {item.packSize && (
-                    <p className="text-xs text-muted-foreground">{item.packSize} paquetes</p>
+                    <p className="text-xs text-muted-foreground">{item.packSize * item.quantity} paquetes</p>
                   )}
                   <p className="text-sm text-primary font-semibold">
                     ${(item.price * item.quantity).toLocaleString("es-MX")}

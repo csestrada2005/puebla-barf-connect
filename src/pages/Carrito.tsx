@@ -129,7 +129,7 @@ export default function Carrito() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold truncate">{item.name}</h3>
                         {item.packSize && (
-                          <span className="text-xs text-muted-foreground">{item.packSize} paquetes</span>
+                          <span className="text-xs text-muted-foreground">{item.packSize * item.quantity} paquetes</span>
                         )}
                         <p className="text-lg font-bold text-primary">
                           ${(item.price * item.quantity).toLocaleString("es-MX")}
