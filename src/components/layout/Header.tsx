@@ -10,13 +10,11 @@ import { cn } from "@/lib/utils";
 import logoChoco from "@/assets/brand/logo-choco.png";
 
 // Prefetch functions for route preloading (hover-based)
-const prefetchSuscripcion = () => import("@/pages/Suscripcion");
 const prefetchGuiasBarf = () => import("@/pages/GuiasBarf");
 const prefetchNosotros = () => import("@/pages/Nosotros");
 
 const navLinksLeft = [
   { href: "/tienda", label: "Tienda" },
-  { href: "/suscripcion", label: "Suscripción", prefetch: prefetchSuscripcion },
   { href: "/ai", label: "Recomendador AI" },
 ];
 
@@ -53,7 +51,7 @@ export function Header() {
             <Link
               key={link.href}
               to={link.href}
-              onMouseEnter={link.prefetch}
+              onMouseEnter={'prefetch' in link ? (link as any).prefetch : undefined}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location.pathname === link.href

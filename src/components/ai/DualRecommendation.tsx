@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, Repeat, ChevronDown, FlaskConical, Crown, Wallet } from "lucide-react";
+import { ShoppingCart, RotateCcw, Scale, Sparkles, Leaf, Eye, ChevronDown, FlaskConical, Crown, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -237,15 +237,6 @@ export function DualRecommendation({
         Agregar Plan ({currentOption.durationDays} días) — ${currentOption.totalPrice.toLocaleString("es-MX")}
       </Button>
 
-      {/* Subscription Quick CTA */}
-      <Button 
-        variant="outline" 
-        className="w-full gap-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground" 
-        onClick={() => navigate("/suscripcion")}
-      >
-        <Repeat className="h-4 w-4" />
-        Suscríbete y ahorra
-      </Button>
 
       {/* Collapsible Details Section */}
       <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>

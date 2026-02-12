@@ -20,7 +20,6 @@ const Cobertura = lazy(() => import("./pages/Cobertura"));
 const Carrito = lazy(() => import("./pages/Carrito"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const CheckoutConfirmacion = lazy(() => import("./pages/CheckoutConfirmacion"));
-const Suscripcion = lazy(() => import("./pages/Suscripcion"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Login = lazy(() => import("./pages/Login"));
 const Registro = lazy(() => import("./pages/Registro"));
@@ -74,11 +73,6 @@ const App = () => (
               <Route path="/checkout/confirmacion" element={
                 <Suspense fallback={<RouteSkeleton />}>
                   <CheckoutConfirmacion />
-                </Suspense>
-              } />
-              <Route path="/suscripcion" element={
-                <Suspense fallback={<RouteSkeleton />}>
-                  <Suscripcion />
                 </Suspense>
               } />
               <Route path="/faq" element={

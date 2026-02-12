@@ -238,9 +238,6 @@ export default function MiCuenta() {
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link to="/suscripcion">Modificar</Link>
-                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm"
