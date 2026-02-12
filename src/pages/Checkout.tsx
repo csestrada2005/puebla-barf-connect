@@ -217,12 +217,33 @@ export default function Checkout() {
     const newOrderNumber = generateOrderNumber();
     
     try {
+      // Build delivery_date from preferred day + delivery window hour
+      let deliveryDate: string | null = null;
+      if (formData.deliveryWindow) {
+        const hour = parseInt(formData.deliveryWindow, 10);
+        const dayMap: Record<string, number> = { tuesday: 2, wednesday: 3, friday: 5 };
+        const now = new Date();
+        let targetDate = new Date(now);
+        
+        if (formData.preferredDeliveryDay && dayMap[formData.preferredDeliveryDay] !== undefined) {
+          const targetDay = dayMap[formData.preferredDeliveryDay];
+          const currentDay = now.getDay();
+          let daysAhead = targetDay - currentDay;
+          if (daysAhead <= 0) daysAhead += 7;
+          targetDate.setDate(now.getDate() + daysAhead);
+        }
+        
+        targetDate.setHours(hour, 0, 0, 0);
+        deliveryDate = targetDate.toISOString();
+      }
+
       const orderPayload: any = {
         order_number: newOrderNumber,
         customer_name: formData.family_name,
         customer_phone: formData.phone,
         customer_address: [formData.address, formData.colonia ? `Col. ${formData.colonia}` : "", formData.postal_code ? `CP ${formData.postal_code}` : ""].filter(Boolean).join(", "),
         delivery_notes: [formData.references_notes, formData.special_notes].filter(Boolean).join(" | ") || null,
+        delivery_date: deliveryDate,
         items: items as any,
         subtotal,
         delivery_fee: deliveryFee,
