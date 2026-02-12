@@ -65,7 +65,7 @@ export function Layout({
               />
             </div>
             <span className="hidden md:block font-medium pr-1">
-              Asistente Nutricional
+              Suscripción IA
             </span>
           </Link>
         </div>

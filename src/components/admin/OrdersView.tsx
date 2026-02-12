@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from "./OrderCard";
 import { 
@@ -15,6 +16,7 @@ import {
   MessageSquare,
   CalendarDays,
   Trash2,
+  Truck,
 } from "lucide-react";
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, addWeeks, isWithinInterval, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -37,6 +39,7 @@ export default function OrdersView() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+  const [dailyReviewOpen, setDailyReviewOpen] = useState(false);
 
   // Calculate date ranges
   const dateRanges = useMemo(() => {
@@ -71,20 +74,20 @@ export default function OrdersView() {
     },
   });
 
-  // Fetch driver config
+  // Fetch driver config (multi-driver)
   const { data: driverConfig } = useQuery({
     queryKey: ["admin-driver-config"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("app_config")
         .select("key, value")
-        .in("key", ["driver_phone"]);
+        .in("key", ["driver_phone", "drivers"]);
       
       if (error) throw error;
       
-      const config: Record<string, string> = {};
+      const config: Record<string, any> = {};
       data?.forEach((item) => {
-        config[item.key] = item.value as string;
+        config[item.key] = item.value;
       });
       return config;
     },
@@ -168,6 +171,19 @@ export default function OrdersView() {
     }) || [];
   }, [orders, searchTerm, statusFilter, dateFilter, dateRanges]);
 
+  // Get today's confirmed orders for daily review
+  const todayConfirmedOrders = useMemo(() => {
+    if (!orders) return [];
+    const todayRange = dateRanges.today;
+    return orders.filter((order) => {
+      const orderDate = parseISO(order.created_at);
+      return (
+        order.status === "confirmed" &&
+        isWithinInterval(orderDate, { start: todayRange.start, end: todayRange.end })
+      );
+    });
+  }, [orders, dateRanges]);
+
   const handleUpdateOrder = async (orderId: string, field: string, value: any) => {
     await updateOrderMutation.mutateAsync({ orderId, updates: { [field]: value } });
   };
@@ -196,6 +212,54 @@ export default function OrdersView() {
     setSelectedOrders(new Set());
   };
 
+  const buildWhatsAppMessage = (orderList: typeof orders) => {
+    if (!orderList || orderList.length === 0) return "";
+    
+    const today = format(new Date(), "EEEE d 'de' MMMM", { locale: es });
+    const baseUrl = window.location.origin;
+    
+    let message = `🚚 *ENTREGAS PARA HOY*\n📅 ${today}\n\n`;
+    message += `Total: ${orderList.length} entrega(s)\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+    orderList.forEach((order, index) => {
+      const items = Array.isArray(order.items) 
+        ? order.items.map((item: any) => `  • ${item.name} x${item.quantity}`).join('\n')
+        : '  Sin productos';
+
+      // Detect incomplete address
+      const address = order.customer_address || "";
+      const isAddressIncomplete = address.length < 20 || !address.includes(",");
+      const addressDisplay = isAddressIncomplete ? `${address} ⚠️❓` : address;
+
+      // Delivery time
+      const deliveryTime = order.delivery_date 
+        ? format(parseISO(order.delivery_date), "HH:mm")
+        : "Sin hora asignada";
+
+      message += `📦 *PEDIDO ${index + 1}: ${order.order_number}*\n`;
+      message += `👤 ${order.customer_name}\n`;
+      message += `📍 ${addressDisplay}\n`;
+      message += `📞 ${order.customer_phone}\n`;
+      message += `🕐 Hora entrega: ${deliveryTime}\n`;
+      message += `\n🛒 Productos:\n${items}\n`;
+      message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo - COBRAR' : 'Tarjeta - YA PAGADO'})\n`;
+      
+      if (order.delivery_notes) {
+        message += `📝 Notas: ${order.delivery_notes}\n`;
+      }
+      
+      if (order.delivery_token) {
+        message += `\n✅ *Confirmar entrega:*\n${baseUrl}/entrega/${order.delivery_token}\n`;
+      }
+      
+      message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+    });
+
+    message += `✅ ¡Buen día de entregas!`;
+    return message;
+  };
+
   const sendWhatsAppForSelected = async () => {
     if (selectedOrders.size === 0) {
       toast({ title: "Selecciona al menos un pedido", variant: "destructive" });
@@ -218,38 +282,7 @@ export default function OrdersView() {
         return;
       }
 
-      const today = format(new Date(), "EEEE d 'de' MMMM", { locale: es });
-      const baseUrl = window.location.origin;
-      
-      let message = `🚚 *ENTREGAS PARA HOY*\n📅 ${today}\n\n`;
-      message += `Total: ${selectedOrderData.length} entrega(s)\n`;
-      message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-      selectedOrderData.forEach((order, index) => {
-        const items = Array.isArray(order.items) 
-          ? order.items.map((item: any) => `  • ${item.name} x${item.quantity}`).join('\n')
-          : '  Sin productos';
-
-        message += `📦 *PEDIDO ${index + 1}: ${order.order_number}*\n`;
-        message += `👤 ${order.customer_name}\n`;
-        message += `📍 ${order.customer_address}\n`;
-        message += `📞 ${order.customer_phone}\n`;
-        message += `\n🛒 Productos:\n${items}\n`;
-        message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo - COBRAR' : 'Tarjeta - YA PAGADO'})\n`;
-        
-        if (order.delivery_notes) {
-          message += `📝 Notas: ${order.delivery_notes}\n`;
-        }
-        
-        if (order.delivery_token) {
-          message += `\n✅ *Confirmar entrega:*\n${baseUrl}/entrega/${order.delivery_token}\n`;
-        }
-        
-        message += `\n━━━━━━━━━━━━━━━━━━━━\n\n`;
-      });
-
-      message += `✅ ¡Buen día de entregas!`;
-
+      const message = buildWhatsAppMessage(selectedOrderData);
       const whatsappLink = `https://wa.me/52${driverPhone}?text=${encodeURIComponent(message)}`;
       
       toast({
@@ -267,164 +300,261 @@ export default function OrdersView() {
     }
   };
 
+  const sendDailyOrders = () => {
+    const driverPhone = driverConfig?.driver_phone;
+    if (!driverPhone) {
+      toast({ title: "Configura el número del chofer primero", variant: "destructive" });
+      return;
+    }
+
+    const message = buildWhatsAppMessage(todayConfirmedOrders);
+    const whatsappLink = `https://wa.me/52${driverPhone}?text=${encodeURIComponent(message)}`;
+    
+    toast({
+      title: `${todayConfirmedOrders.length} pedido(s) del día enviados`,
+      description: "Abriendo WhatsApp...",
+    });
+
+    window.open(whatsappLink, "_blank");
+    setDailyReviewOpen(false);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Pedidos
-            </CardTitle>
-            <CardDescription>{filteredOrders.length} pedidos encontrados</CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 w-[200px]"
-              />
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Pedidos
+              </CardTitle>
+              <CardDescription>{filteredOrders.length} pedidos encontrados</CardDescription>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="new">Nuevos</SelectItem>
-                <SelectItem value="confirmed">Confirmados</SelectItem>
-                <SelectItem value="in_route">En ruta</SelectItem>
-                <SelectItem value="delivered">Entregados</SelectItem>
-                <SelectItem value="cancelled">Cancelados</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-wrap gap-2">
+              {/* Daily orders button */}
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setDailyReviewOpen(true)}
+              >
+                <Truck className="h-4 w-4" />
+                Mandar pedidos del día
+              </Button>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 w-[200px]"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="new">Nuevos</SelectItem>
+                  <SelectItem value="confirmed">Confirmados</SelectItem>
+                  <SelectItem value="in_route">En ruta</SelectItem>
+                  <SelectItem value="delivered">Entregados</SelectItem>
+                  <SelectItem value="cancelled">Cancelados</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
 
-        {/* Date Filters */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          <div className="flex items-center gap-1 mr-2">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Fecha:</span>
-          </div>
-          {(Object.entries(DATE_FILTER_CONFIG) as [DateFilter, { label: string }][]).map(([key, config]) => (
-            <Button
-              key={key}
-              variant={dateFilter === key ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDateFilter(key)}
-              className="h-8"
-            >
-              {config.label}
-              {key !== "all" && dateFilter === key && (
-                <span className="ml-1 text-xs opacity-70">
-                  ({format(dateRanges[key].start, "d/M")} - {format(dateRanges[key].end, "d/M")})
-                </span>
-              )}
-            </Button>
-          ))}
-        </div>
-
-        {/* Selection controls */}
-        {filteredOrders.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-4 border-t mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={selectAllVisible}
-            >
-              Seleccionar todos ({filteredOrders.length})
-            </Button>
-            {selectedOrders.size > 0 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearSelection}
-                >
-                  Limpiar ({selectedOrders.size})
-                </Button>
-                <Button
-                  onClick={sendWhatsAppForSelected}
-                  disabled={sendingWhatsApp || !driverConfig?.driver_phone}
-                  className="gap-2 bg-primary hover:bg-primary/90"
-                >
-                  {sendingWhatsApp ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <MessageSquare className="h-4 w-4" />
-                  )}
-                  Enviar {selectedOrders.size} al chofer
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="gap-2"
-                      disabled={deleteSelectedMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Eliminar ({selectedOrders.size})
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Eliminar {selectedOrders.size} pedido(s)?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Los pedidos seleccionados serán eliminados permanentemente.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteSelectedMutation.mutate(Array.from(selectedOrders))}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Eliminar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
-            )}
-            {!driverConfig?.driver_phone && (
-              <span className="text-xs text-muted-foreground">
-                ⚠️ Configura el número del chofer primero
-              </span>
-            )}
-          </div>
-        )}
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : filteredOrders.length > 0 ? (
-          <div className="space-y-3">
-            {filteredOrders.map((order: any) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                isSelected={selectedOrders.has(order.id)}
-                isExpanded={expandedOrder === order.id}
-                onToggleSelect={(e) => toggleOrderSelection(order.id, e)}
-                onToggleExpand={() => toggleExpand(order.id)}
-                onUpdate={(field, value) => handleUpdateOrder(order.id, field, value)}
-              />
+          {/* Date Filters */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            <div className="flex items-center gap-1 mr-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Fecha:</span>
+            </div>
+            {(Object.entries(DATE_FILTER_CONFIG) as [DateFilter, { label: string }][]).map(([key, config]) => (
+              <Button
+                key={key}
+                variant={dateFilter === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDateFilter(key)}
+                className="h-8"
+              >
+                {config.label}
+                {key !== "all" && dateFilter === key && (
+                  <span className="ml-1 text-xs opacity-70">
+                    ({format(dateRanges[key].start, "d/M")} - {format(dateRanges[key].end, "d/M")})
+                  </span>
+                )}
+              </Button>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No hay pedidos</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Selection controls */}
+          {filteredOrders.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-4 border-t mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={selectAllVisible}
+              >
+                Seleccionar todos ({filteredOrders.length})
+              </Button>
+              {selectedOrders.size > 0 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearSelection}
+                  >
+                    Limpiar ({selectedOrders.size})
+                  </Button>
+                  <Button
+                    onClick={sendWhatsAppForSelected}
+                    disabled={sendingWhatsApp || !driverConfig?.driver_phone}
+                    className="gap-2 bg-primary hover:bg-primary/90"
+                  >
+                    {sendingWhatsApp ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MessageSquare className="h-4 w-4" />
+                    )}
+                    Enviar {selectedOrders.size} al chofer
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="gap-2"
+                        disabled={deleteSelectedMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Eliminar ({selectedOrders.size})
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar {selectedOrders.size} pedido(s)?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción no se puede deshacer. Los pedidos seleccionados serán eliminados permanentemente.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteSelectedMutation.mutate(Array.from(selectedOrders))}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+              {!driverConfig?.driver_phone && (
+                <span className="text-xs text-muted-foreground">
+                  ⚠️ Configura el número del chofer primero
+                </span>
+              )}
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : filteredOrders.length > 0 ? (
+            <div className="space-y-3">
+              {filteredOrders.map((order: any) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  isSelected={selectedOrders.has(order.id)}
+                  isExpanded={expandedOrder === order.id}
+                  onToggleSelect={(e) => toggleOrderSelection(order.id, e)}
+                  onToggleExpand={() => toggleExpand(order.id)}
+                  onUpdate={(field, value) => handleUpdateOrder(order.id, field, value)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No hay pedidos</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Daily Orders Review Dialog */}
+      <Dialog open={dailyReviewOpen} onOpenChange={setDailyReviewOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Pedidos del día — {format(new Date(), "d 'de' MMMM", { locale: es })}
+            </DialogTitle>
+            <DialogDescription>
+              Revisa los pedidos confirmados antes de enviarlos al chofer por WhatsApp.
+            </DialogDescription>
+          </DialogHeader>
+
+          {todayConfirmedOrders.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <ShoppingCart className="h-10 w-10 mx-auto mb-3 opacity-50" />
+              <p>No hay pedidos confirmados para hoy</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {todayConfirmedOrders.map((order, index) => {
+                const items = Array.isArray(order.items) 
+                  ? order.items.map((item: any) => `${item.name} x${item.quantity}`).join(", ")
+                  : "Sin productos";
+                const address = order.customer_address || "";
+                const isAddressIncomplete = address.length < 20 || !address.includes(",");
+
+                return (
+                  <div key={order.id} className="p-3 border rounded-lg space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-sm">#{order.order_number}</span>
+                      <span className="text-sm font-semibold">${order.total}</span>
+                    </div>
+                    <p className="text-sm">👤 {order.customer_name}</p>
+                    <p className="text-sm">
+                      📍 {address} {isAddressIncomplete && <span className="text-amber-600 font-bold">⚠️ Verificar dirección</span>}
+                    </p>
+                    <p className="text-sm">📞 {order.customer_phone}</p>
+                    <p className="text-sm text-muted-foreground">🛒 {items}</p>
+                    <p className="text-xs text-muted-foreground">
+                      💳 {order.payment_method === "efectivo" ? "Cobrar en efectivo" : "Ya pagado"}
+                    </p>
+                    {order.delivery_notes && (
+                      <p className="text-xs text-muted-foreground">📝 {order.delivery_notes}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDailyReviewOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={sendDailyOrders}
+              disabled={todayConfirmedOrders.length === 0 || !driverConfig?.driver_phone}
+              className="gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Confirmar y enviar ({todayConfirmedOrders.length})
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

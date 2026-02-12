@@ -239,6 +239,16 @@ export default function MiCuenta() {
                         </div>
                         <div className="flex gap-2">
                           <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="gap-1"
+                            asChild
+                          >
+                            <a href="https://wa.me/5212213606464?text=Hola%2C%20quiero%20modificar%20mi%20suscripci%C3%B3n" target="_blank" rel="noopener noreferrer">
+                              ✏️ Modificar
+                            </a>
+                          </Button>
+                          <Button 
                             variant="ghost" 
                             size="sm"
                             className="text-destructive hover:text-destructive"

@@ -15,7 +15,7 @@ const prefetchNosotros = () => import("@/pages/Nosotros");
 
 const navLinksLeft = [
   { href: "/tienda", label: "Tienda" },
-  { href: "/ai", label: "Recomendador AI" },
+  { href: "/ai", label: "Suscripción IA" },
 ];
 
 const navLinksRight = [
