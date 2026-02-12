@@ -26,7 +26,6 @@ export function Footer() {
             <nav className="flex flex-col gap-1.5 md:gap-2 text-xs md:text-sm opacity-80">
               <Link to="/tienda" className="hover:opacity-100 transition-opacity">Productos</Link>
               <Link to="/ai" className="hover:opacity-100 transition-opacity">Recomendador AI</Link>
-              <Link to="/suscripcion" className="hover:opacity-100 transition-opacity">Suscripción</Link>
               <Link to="/cobertura" className="hover:opacity-100 transition-opacity">Cobertura</Link>
             </nav>
           </div>
