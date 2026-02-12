@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import { CartDrawer } from "@/components/CartDrawer";
 import { 
   ShoppingCart, 
   Check, 
@@ -39,14 +40,14 @@ const benefitIcons: Record<string, React.ReactNode> = {
 
 // Week options for purchasing
 const weekOptions = [
-  { value: "1", label: "1 semana", description: "Ideal para probar" },
-  { value: "2", label: "2 semanas", description: "Mejor precio por kg" },
+  { value: "1", label: "Semanal (7 días)", description: "7 paquetes", multiplier: 7 },
+  { value: "2", label: "Quincenal (14 días)", description: "14 paquetes", multiplier: 14 },
 ];
 
 export default function Producto() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, updateQuantity } = useCart();
   const { toast } = useToast();
   const [selectedLine, setSelectedLine] = useState<string | null>(null);
   const [selectedPresentation, setSelectedPresentation] = useState<string | null>(null);
@@ -82,9 +83,15 @@ export default function Producto() {
     }
   }, [product]);
 
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+
   const handleAddToCart = () => {
     if (!product) return;
     
+    const selectedOption = weekOptions.find(o => o.value === selectedWeeks);
+    const qty = selectedOption?.multiplier || 7;
+    
+    // First add item (creates with qty 1 or increments)
     addItem({
       id: product.id,
       name: product.name,
@@ -92,7 +99,9 @@ export default function Producto() {
       imageUrl: product.image_url || undefined,
     });
     
-    // Silent add - no toast popup
+    // Then set exact quantity
+    updateQuantity(product.id, qty);
+    setCartDrawerOpen(true);
   };
 
   // Find product by selected line and presentation
@@ -219,16 +228,21 @@ export default function Producto() {
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-primary">
-                ${Number(product.price).toLocaleString("es-MX")}
-              </span>
-              {product.original_price && (
-                <span className="text-xl text-muted-foreground line-through">
-                  ${Number(product.original_price).toLocaleString("es-MX")}
-                </span>
-              )}
-            </div>
+            {(() => {
+              const selectedOption = weekOptions.find(o => o.value === selectedWeeks);
+              const qty = selectedOption?.multiplier || 7;
+              const totalPrice = Number(product.price) * qty;
+              return (
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl font-bold text-primary">
+                    ${totalPrice.toLocaleString("es-MX")}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    ({qty} × ${Number(product.price).toLocaleString("es-MX")} c/u)
+                  </span>
+                </div>
+              );
+            })()}
 
             {/* Variant Selectors */}
             <div className="space-y-4">
@@ -299,14 +313,21 @@ export default function Producto() {
             </div>
 
             {/* Add to Cart */}
-            <Button 
-              size="lg" 
-              className="w-full gap-2 text-lg h-14"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Agregar al carrito
-            </Button>
+            {(() => {
+              const selectedOption = weekOptions.find(o => o.value === selectedWeeks);
+              const qty = selectedOption?.multiplier || 7;
+              const totalPrice = Number(product.price) * qty;
+              return (
+                <Button 
+                  size="lg" 
+                  className="w-full gap-2 text-lg h-14"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Agregar {qty} paquetes — ${totalPrice.toLocaleString("es-MX")}
+                </Button>
+              );
+            })()}
 
             {/* Delivery Info */}
             <Card className="bg-secondary/30 border-secondary">
@@ -348,7 +369,19 @@ export default function Producto() {
               </div>
             </div>
 
-            {/* Disclaimer */}
+            {/* Disclaimer - pack info */}
+            <Card className="bg-muted/50 border-amber-200">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-xs text-muted-foreground flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                  <span>
+                    <strong>¿Cómo funciona?</strong> Al seleccionar "Semanal" recibes 7 paquetes (1 por día), y con "Quincenal" recibes 14 paquetes. La presentación (500g o 1kg) es la cantidad por paquete.
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Vet Disclaimer */}
             <Card className="bg-muted/50">
               <CardContent className="pt-4 pb-4">
                 <p className="text-xs text-muted-foreground flex items-start gap-2">
@@ -361,6 +394,9 @@ export default function Producto() {
           </div>
         </div>
       </div>
+
+      {/* Cart Drawer */}
+      <CartDrawer open={cartDrawerOpen} onOpenChange={setCartDrawerOpen} />
     </Layout>
   );
 }
