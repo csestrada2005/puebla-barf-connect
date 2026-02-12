@@ -10,6 +10,7 @@ interface CoverageResultProps {
   deliveryFee?: number;
   onJoinWaitlist?: () => void;
   className?: string;
+  returnTo?: string;
 }
 
 export function CoverageResult({
@@ -18,6 +19,7 @@ export function CoverageResult({
   deliveryFee = 0,
   onJoinWaitlist,
   className,
+  returnTo,
 }: CoverageResultProps) {
   if (status === "checking") {
     return (
@@ -51,9 +53,15 @@ export function CoverageResult({
           ) : (
             <p className="text-sm text-success font-medium">¡Envío gratis!</p>
           )}
-          <Button asChild className="w-full">
-            <Link to="/tienda">Ver productos</Link>
-          </Button>
+          {returnTo ? (
+            <Button asChild className="w-full">
+              <Link to={returnTo}>Volver al checkout</Link>
+            </Button>
+          ) : (
+            <Button asChild className="w-full">
+              <Link to="/tienda">Ver productos</Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
     );

@@ -427,7 +427,7 @@ export default function Checkout() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Necesitas verificar tu cobertura antes de continuar.{" "}
-                <Link to="/cobertura" className="underline font-medium">Verificar ahora</Link>
+                <Link to="/cobertura?from=checkout" className="underline font-medium">Verificar ahora</Link>
               </AlertDescription>
             </Alert>
           )}
