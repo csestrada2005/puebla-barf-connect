@@ -87,7 +87,7 @@ const checkoutSchema = z.object({
   postal_code: z.string().optional().or(z.literal("")),
   references_notes: z.string().max(500).optional().or(z.literal("")),
   special_notes: z.string().max(1000).optional().or(z.literal("")),
-  deliveryWindow: z.string().optional(),
+  deliveryWindow: z.enum(["8", "9", "10"], { required_error: "Selecciona una ventana horaria" }),
   preferredDeliveryDay: z.enum(["", "tuesday", "wednesday", "friday"]).optional(),
 });
 
@@ -147,7 +147,7 @@ export default function Checkout() {
     postal_code: "",
     references_notes: "",
     special_notes: "",
-    deliveryWindow: "",
+    deliveryWindow: "" as "" | "8" | "9" | "10",
     preferredDeliveryDay: "" as "" | "tuesday" | "wednesday" | "friday",
   });
 
@@ -324,7 +324,7 @@ export default function Checkout() {
         `*Tel:* ${formData.phone}\n` +
         `*Dirección:* ${sanitizedAddress}\n` +
         (formData.references_notes ? `*Referencias:* ${sanitizeForWhatsApp(formData.references_notes)}\n` : "") +
-        (formData.deliveryWindow ? `*Ventana horaria:* ${sanitizeForWhatsApp(formData.deliveryWindow)}\n` : "") +
+        (formData.deliveryWindow ? `*Ventana horaria:* ${formData.deliveryWindow}:00 AM\n` : "") +
         (formData.preferredDeliveryDay ? `*Día preferido:* ${formData.preferredDeliveryDay === "tuesday" ? "Martes" : formData.preferredDeliveryDay === "wednesday" ? "Miércoles" : "Viernes"}\n` : "") +
         `\n*Entrega:* Mar/Mié/Vie 8-10 AM`
       );
@@ -547,14 +547,22 @@ export default function Checkout() {
 
                 {/* Delivery preferences - Collapsible */}
                 <CollapsibleSection title="Preferencias de Entrega" open={deliveryOpen} onOpenChange={setDeliveryOpen}>
-                  <div className="space-y-2">
-                    <Label htmlFor="deliveryWindow">Ventana horaria (opcional)</Label>
-                    <Input
-                      id="deliveryWindow"
-                      placeholder="Ej: 10am-2pm"
+                  <div className="space-y-3">
+                    <Label className="flex items-center gap-2">
+                      Ventana horaria <span className="text-destructive">*</span>
+                    </Label>
+                    <RadioGroup
                       value={formData.deliveryWindow}
-                      onChange={(e) => setFormData({ ...formData, deliveryWindow: e.target.value })}
-                    />
+                      onValueChange={(v) => setFormData({ ...formData, deliveryWindow: v as "8" | "9" | "10" })}
+                      className="flex flex-wrap gap-4"
+                    >
+                      {["8", "9", "10"].map((hour) => (
+                        <div key={hour} className="flex items-center space-x-2">
+                          <RadioGroupItem value={hour} id={`window-${hour}`} />
+                          <Label htmlFor={`window-${hour}`} className="cursor-pointer font-normal">{hour}:00 AM</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
                   </div>
 
                   <div className="space-y-3">
