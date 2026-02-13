@@ -1,46 +1,39 @@
 
 
-## Fix: Cart layout for subscription items on mobile
+# Corregir redireccion de CentumPay despues del pago
 
-### Root cause analysis
+## Problema
 
-After 5 attempts focusing on container padding (`px-*` classes, `container` class conflicts), the actual problem is **inside the card itself**, not the outer container. The container IS centered correctly.
+Despues de pagar en CentumPay, el usuario se queda en la pagina de CentumPay y no regresa a tu tienda. Esto pasa porque la URL de retorno configurada no es correcta.
 
-The real issues are:
+## Solucion (2 cambios)
 
-1. **Missing `shrink-0` on right controls**: The div containing the trash button and +/- controls (line 141) lacks `shrink-0`, so on narrow mobile screens with long subscription names, the flex layout compresses these controls, making the card look lopsided.
+### 1. Actualizar el secreto CENTUMPAY_WEBSITE_URL
 
-2. **Unnecessary quantity controls for subscriptions**: Subscription items always have quantity 1 (the `addItem` logic replaces existing subscriptions). Showing +/- buttons for subscriptions adds visual clutter and makes the right side heavier, creating an unbalanced layout.
+Cambiar el valor del secreto a: `https://rawpaw.store/checkout/confirmacion`
 
-3. **Long subscription names cause truncation issues**: Names like "Suscripcion Mensual - BARF Res 500g" are very long. While `truncate` clips the text, the overall card layout becomes left-heavy because the meaningful content (name + price) is all on the left with empty or compressed space on the right.
+Esto le indica a CentumPay que despues de procesar el pago, redirija al usuario a esa pagina de tu sitio.
 
-### Solution
+### 2. Respaldo: abrir CentumPay en nueva pestana
 
-**File: `src/pages/Carrito.tsx`**
+Como medida de seguridad en caso de que CentumPay no redirija correctamente, modificar `src/pages/Checkout.tsx` para:
 
-1. Add `shrink-0` to the right controls container (line 141) to prevent it from being compressed
-2. Conditionally hide +/- quantity controls for subscription items (they always have qty 1)
-3. For subscription items, show only a single trash/remove button on the right side, keeping the card compact and visually balanced
+- Abrir CentumPay en **nueva pestana** con `window.open`
+- Navegar la ventana actual a `/checkout/confirmacion` inmediatamente
+- La pagina de confirmacion ya tiene polling cada 5 segundos que detecta cuando el pago se completa
 
-### Technical changes
+Asi el usuario **siempre** ve la pagina de confirmacion, ya sea porque CentumPay lo redirige o porque la ventana original ya esta ahi esperando.
 
-```text
-Before (line 141):
-<div className="flex flex-col items-end gap-2">
-  <Button ... trash />
-  <div ... +/- controls />   <-- shown for ALL items
-</div>
+## Seccion tecnica
 
-After:
-<div className="flex flex-col items-end gap-2 shrink-0">
-  <Button ... trash />
-  {!item.isSubscription && (
-    <div ... +/- controls />  <-- hidden for subscriptions
-  )}
-</div>
+Archivo modificado: `src/pages/Checkout.tsx`
+
+Cambio: reemplazar `window.location.href = cpData.checkoutUrl` por:
+
+```typescript
+window.open(cpData.checkoutUrl, "_blank");
+navigate("/checkout/confirmacion");
 ```
 
-This is a one-file change with two specific modifications:
-- Line 141: add `shrink-0` to the class list
-- Lines 150-168: wrap quantity controls in `{!item.isSubscription && (...)}`
+Secreto actualizado: `CENTUMPAY_WEBSITE_URL` = `https://rawpaw.store/checkout/confirmacion`
 
