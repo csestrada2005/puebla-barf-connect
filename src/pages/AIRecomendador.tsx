@@ -762,6 +762,13 @@ export default function AIRecomendador() {
         
         // Save cancellation to database
         await saveCancellation("deceased");
+
+        // Send condolence email
+        if (user?.email) {
+          supabase.functions.invoke("send-condolence-email", {
+            body: { email: user.email, petName: dog?.name || "tu compañero", familyName: "" },
+          }).catch(err => console.error("Error sending condolence email:", err));
+        }
         
         // Long typing delay for sensitive response
         await addBotMessage(

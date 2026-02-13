@@ -268,6 +268,21 @@ export default function Checkout() {
 
       setOrderNumber(newOrderNumber);
 
+      // Send order confirmation email
+      if (formData.email) {
+        supabase.functions.invoke("send-order-email", {
+          body: {
+            email: formData.email,
+            familyName: formData.family_name,
+            orderNumber: newOrderNumber,
+            items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price * i.quantity })),
+            total,
+            paymentMethod,
+            deliveryAddress: [formData.address, formData.colonia ? `Col. ${formData.colonia}` : ""].filter(Boolean).join(", "),
+          },
+        }).catch(err => console.error("Error sending order email:", err));
+      }
+
       // Sync to Google Sheets
       const petInfo = dogName || (recommendation?.breed 
         ? `${recommendation.breed}${recommendation?.weight ? ` - ${recommendation.weight}kg` : ""}`
