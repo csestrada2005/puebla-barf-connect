@@ -66,6 +66,21 @@ export default function CheckoutConfirmacion() {
       if (result === "approved" || result === "completed" || result === "paid") {
         setStatus("approved");
         clearCart();
+
+        // Update order payment_status in database
+        const savedOrder = localStorage.getItem("centumpay_order_number");
+        if (savedOrder) {
+          supabase
+            .from("orders")
+            .update({ payment_status: "paid", status: "confirmed", updated_at: new Date().toISOString() })
+            .eq("order_number", savedOrder)
+            .eq("payment_status", "pending")
+            .then(({ error }) => {
+              if (error) console.error("Error updating payment status:", error);
+              else console.log("Order payment_status updated to paid");
+            });
+        }
+
         localStorage.removeItem("centumpay_sale_token");
         localStorage.removeItem("centumpay_order_number");
         return;

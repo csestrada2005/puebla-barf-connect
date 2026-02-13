@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     console.log("CentumPay webhook received:", JSON.stringify(body));
 
-    const { event, amount, currency, status, token, auth } = body;
+    const { event, amount, currency, status, token, auth, order_id } = body;
 
     // Verify HMAC signature
     const msg = apiKey + event + amount + currency + status + token;
@@ -54,30 +54,57 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (status === "approved") {
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      );
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
 
-      // Find order by matching the sale token stored in payment notes or order number
-      // We update orders where payment_status is pending and payment_method is tarjeta
-      const { error } = await supabase
+    if (status === "approved") {
+      // Try to match by order_id (order_number) first, fallback to latest pending
+      let query = supabase
         .from("orders")
         .update({
           payment_status: "paid",
           status: "confirmed",
+          updated_at: new Date().toISOString(),
         })
         .eq("payment_method", "tarjeta")
-        .eq("payment_status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1);
+        .eq("payment_status", "pending");
+
+      if (order_id) {
+        query = query.eq("order_number", order_id);
+        console.log("Matching webhook to order_number:", order_id);
+      } else {
+        query = query.order("created_at", { ascending: false }).limit(1);
+        console.log("No order_id in webhook, updating latest pending tarjeta order");
+      }
+
+      const { error } = await query;
 
       if (error) {
         console.error("Error updating order:", error);
       } else {
-        console.log("Order marked as paid");
+        console.log("Order marked as paid via webhook");
       }
+    } else if (status === "declined" || status === "rejected" || status === "failed") {
+      let query = supabase
+        .from("orders")
+        .update({
+          payment_status: "failed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("payment_method", "tarjeta")
+        .eq("payment_status", "pending");
+
+      if (order_id) {
+        query = query.eq("order_number", order_id);
+      } else {
+        query = query.order("created_at", { ascending: false }).limit(1);
+      }
+
+      const { error } = await query;
+      if (error) console.error("Error updating failed order:", error);
+      else console.log("Order marked as failed via webhook");
     }
 
     return new Response(
