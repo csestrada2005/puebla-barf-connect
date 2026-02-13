@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
     const result = await response.json();
     console.log("CentumPay status response:", JSON.stringify(result));
 
-    const status = result?.payload?.[0]?.status || "unknown";
+    const status = result?.payload?.status || result?.payload?.[0]?.status || "unknown";
 
     return new Response(
       JSON.stringify({ status, raw: result }),
