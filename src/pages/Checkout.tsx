@@ -127,6 +127,9 @@ export default function Checkout() {
   const [orderNumber, setOrderNumber] = useState("");
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percent: number } | null>(null);
+  const [discountError, setDiscountError] = useState("");
   
   // Collapsible section states
   const [contactOpen, setContactOpen] = useState(true);
@@ -190,7 +193,26 @@ export default function Checkout() {
   };
 
   const subtotal = getSubtotal();
-  const total = subtotal + (isConfirmed ? deliveryFee : 0);
+  const discountAmount = appliedDiscount ? Math.round(subtotal * (appliedDiscount.percent / 100)) : 0;
+  const total = subtotal - discountAmount + (isConfirmed ? deliveryFee : 0);
+
+  const VALID_CODES: Record<string, number> = {
+    "PRUEBA123456PRUEBA": 99,
+    "BIENVENIDO15": 15,
+  };
+
+  const handleApplyDiscount = () => {
+    const code = discountCode.trim().toUpperCase();
+    if (!code) return;
+    const percent = VALID_CODES[code];
+    if (percent) {
+      setAppliedDiscount({ code, percent });
+      setDiscountError("");
+    } else {
+      setDiscountError("Código inválido");
+      setAppliedDiscount(null);
+    }
+  };
 
   const generateOrderNumber = () => {
     const timestamp = Date.now().toString(36).toUpperCase();
@@ -697,6 +719,37 @@ export default function Checkout() {
                       </span>
                     </div>
                     
+                    {/* Discount code */}
+                    <div className="space-y-2">
+                      <Label htmlFor="discount-code" className="text-sm text-muted-foreground">Código de descuento</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="discount-code"
+                          placeholder="Ingresa tu código"
+                          value={discountCode}
+                          onChange={(e) => { setDiscountCode(e.target.value); setDiscountError(""); }}
+                          className="h-9 text-sm"
+                        />
+                        <Button type="button" variant="outline" size="sm" className="h-9 shrink-0" onClick={handleApplyDiscount}>
+                          Aplicar
+                        </Button>
+                      </div>
+                      {discountError && <p className="text-xs text-destructive">{discountError}</p>}
+                      {appliedDiscount && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-primary font-medium">🎉 -{appliedDiscount.percent}% ({appliedDiscount.code})</span>
+                          <button type="button" className="text-xs text-muted-foreground underline" onClick={() => { setAppliedDiscount(null); setDiscountCode(""); }}>Quitar</button>
+                        </div>
+                      )}
+                    </div>
+
+                    {appliedDiscount && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-primary">Descuento</span>
+                        <span className="text-primary font-medium">-${discountAmount.toLocaleString("es-MX")}</span>
+                      </div>
+                    )}
+
                     <Separator />
                     
                     <div className="flex justify-between font-bold text-lg">
