@@ -243,7 +243,12 @@ export default function OrdersView() {
       message += `📞 ${order.customer_phone}\n`;
       message += `🕐 Hora entrega: ${deliveryTime}\n`;
       message += `\n🛒 Productos:\n${items}\n`;
-      message += `💰 Total: $${order.total} (${order.payment_method === 'efectivo' ? 'Efectivo - COBRAR' : 'Tarjeta - YA PAGADO'})\n`;
+      const paymentLabel = order.payment_method === 'efectivo' 
+        ? 'Efectivo - COBRAR 💵' 
+        : order.payment_status === 'paid' 
+          ? 'Tarjeta - ✅ YA PAGADO' 
+          : 'Tarjeta - ⏳ PAGO PENDIENTE';
+      message += `💰 Total: $${order.total} (${paymentLabel})\n`;
       
       if (order.delivery_notes) {
         message += `📝 Notas: ${order.delivery_notes}\n`;
