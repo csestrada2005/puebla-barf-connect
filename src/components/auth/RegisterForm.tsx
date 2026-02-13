@@ -5,6 +5,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "./PasswordInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -161,10 +162,9 @@ export function RegisterForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña *</Label>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   placeholder="Mínimo 6 caracteres"
                   value={formData.password}
                   onChange={handleChange}
@@ -175,10 +175,9 @@ export function RegisterForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar Contraseña *</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
                   placeholder="Repite tu contraseña"
                   value={formData.confirmPassword}
                   onChange={handleChange}
