@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
@@ -154,9 +155,8 @@ export function LoginDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">Contraseña</Label>
-                <Input
+                <PasswordInput
                   id="login-password"
-                  type="password"
                   placeholder="••••••••"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
@@ -194,9 +194,8 @@ export function LoginDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-password">Contraseña</Label>
-                <Input
+                <PasswordInput
                   id="register-password"
-                  type="password"
                   placeholder="••••••••"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
@@ -205,9 +204,8 @@ export function LoginDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-confirm">Confirmar contraseña</Label>
-                <Input
+                <PasswordInput
                   id="register-confirm"
-                  type="password"
                   placeholder="••••••••"
                   value={registerConfirmPassword}
                   onChange={(e) => setRegisterConfirmPassword(e.target.value)}

@@ -35,8 +35,8 @@ const howItWorks = [{
   step: 1,
   title: "Cuéntanos sobre tu perro",
   description: "Nombre, peso, edad y nivel de actividad. El Dogtor analiza todo.",
-  image: stepPhoto1,
-  objectPosition: "center"
+  image: stepPhoto3,
+  objectPosition: "center 35%"
 }, {
   step: 2,
   title: "Recibe tu receta personalizada",
@@ -47,8 +47,8 @@ const howItWorks = [{
   step: 3,
   title: "Entrega en 24-48h",
   description: "Alimento fresco directo a tu puerta en Puebla.",
-  image: stepPhoto3,
-  objectPosition: "center 35%"
+  image: stepPhoto1,
+  objectPosition: "center"
 }];
 
 export default function Home() {
