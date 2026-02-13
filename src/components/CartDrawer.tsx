@@ -70,18 +70,20 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
         </div>
 
         {items.length > 0 && (
-          <SheetFooter className="flex-col gap-2 border-t pt-4">
-            <div className="flex justify-between w-full text-lg font-bold">
+          <div className="border-t pt-4 space-y-3">
+            <div className="flex justify-between text-lg font-bold px-1">
               <span>Total:</span>
               <span className="text-primary">${getSubtotal().toLocaleString("es-MX")}</span>
             </div>
-            <Button asChild className="w-full" size="lg" onClick={() => onOpenChange(false)}>
-              <Link to="/carrito">Ver carrito completo</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
-              <Link to="/checkout">Ir al checkout</Link>
-            </Button>
-          </SheetFooter>
+            <div className="flex flex-col gap-2">
+              <Button asChild className="w-full" size="lg" onClick={() => onOpenChange(false)}>
+                <Link to="/carrito">Ver carrito completo</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+                <Link to="/checkout">Ir al checkout</Link>
+              </Button>
+            </div>
+          </div>
         )}
       </SheetContent>
     </Sheet>
