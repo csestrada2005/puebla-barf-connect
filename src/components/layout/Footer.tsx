@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MessageCircle, Instagram, Facebook } from "lucide-react";
+import { MessageCircle, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandImage } from "@/components/ui/BrandImage";
 import isotipoBarky from "@/assets/brand/isotipo-barky.png";
@@ -54,13 +54,8 @@ export function Footer() {
                 </a>
               </Button>
               <Button variant="secondary" size="icon" asChild className="hover:bg-secondary/80 h-8 w-8 md:h-10 md:w-10">
-                <a href="https://instagram.com/rawpawmx" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/rawpawbarf" target="_blank" rel="noopener noreferrer">
                   <Instagram className="h-4 w-4 md:h-5 md:w-5" />
-                </a>
-              </Button>
-              <Button variant="secondary" size="icon" asChild className="hover:bg-secondary/80 h-8 w-8 md:h-10 md:w-10">
-                <a href="https://facebook.com/rawpawmx" target="_blank" rel="noopener noreferrer">
-                  <Facebook className="h-4 w-4 md:h-5 md:w-5" />
                 </a>
               </Button>
             </div>
