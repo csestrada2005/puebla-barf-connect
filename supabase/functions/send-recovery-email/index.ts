@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
 
     // Send branded email via Resend
     const emailResponse = await resend.emails.send({
-      from: "Raw Paw <hola@rawpaw.mx>",
+      from: "Raw Paw <hola@rawpaw.store>",
       to: [email],
       subject: "Restablece tu contraseña 🔑 | Raw Paw",
       html: `

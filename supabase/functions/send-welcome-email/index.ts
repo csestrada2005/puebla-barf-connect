@@ -97,8 +97,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Sending welcome email to ${email} for pet ${petName} (verified user ${userId})`);
 
+    const logoUrl = "https://gdnnxuxirkqsogcqmrps.supabase.co/storage/v1/object/public/email-assets/logo-rawpaw.png";
+
     const emailResponse = await resend.emails.send({
-      from: "Raw Paw <hola@rawpaw.mx>",
+      from: "Raw Paw <hola@rawpaw.store>",
       to: [email],
       subject: `¡Bienvenido a Raw Paw, familia ${familyName}! 🐾`,
       html: `
@@ -108,48 +110,58 @@ const handler = async (req: Request): Promise<Response> => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f8f4f0;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f4f0; padding: 40px 20px;">
+        <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ECEBE6;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ECEBE6; padding: 40px 20px;">
             <tr>
               <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                  <!-- Header -->
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 8px 30px rgba(63, 52, 43, 0.08);">
+                  
+                  <!-- Header with Logo -->
                   <tr>
-                    <td style="background: linear-gradient(135deg, #5a7c65 0%, #4a6b55 100%); padding: 40px 30px; text-align: center;">
-                      <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: bold;">🐾 Raw Paw</h1>
-                      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">la nueva forma de cuidarlos</p>
+                    <td style="background-color: #3F342B; padding: 32px 30px; text-align: center;">
+                      <img src="${logoUrl}" alt="Raw Paw" width="180" style="display: block; margin: 0 auto;" />
                     </td>
+                  </tr>
+
+                  <!-- Green accent bar -->
+                  <tr>
+                    <td style="background: linear-gradient(90deg, #677755, #CAD8A3); height: 4px; font-size: 0; line-height: 0;">&nbsp;</td>
                   </tr>
                   
                   <!-- Main Content -->
                   <tr>
-                    <td style="padding: 40px 30px;">
-                      <h2 style="color: #2d3748; margin: 0 0 20px 0; font-size: 24px;">
+                    <td style="padding: 48px 40px 32px 40px;">
+                      <h2 style="color: #3F342B; margin: 0 0 8px 0; font-size: 26px; font-weight: 700;">
                         ¡Hola familia ${familyName}! 👋
                       </h2>
+                      <h3 style="color: #677755; margin: 0 0 24px 0; font-size: 20px; font-weight: 600;">
+                        Bienvenidos a Raw Paw
+                      </h3>
                       
-                      <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                        Estamos muy emocionados de que <strong style="color: #5a7c65;">${petName}</strong> se una a la familia Raw Paw. 
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">
+                        Estamos muy emocionados de que <strong style="color: #677755;">${petName}</strong> se una a la familia Raw Paw. 
                         Has tomado la mejor decisión para la salud de tu mejor amigo.
                       </p>
                       
-                      <div style="background-color: #f0f5f1; border-radius: 12px; padding: 24px; margin: 24px 0;">
-                        <h3 style="color: #5a7c65; margin: 0 0 16px 0; font-size: 18px;">🥩 ¿Qué sigue?</h3>
-                        <ul style="color: #4a5568; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
+                      <!-- Steps box -->
+                      <div style="background-color: #f4f6f0; border-radius: 16px; padding: 24px; margin: 28px 0; border-left: 4px solid #CAD8A3;">
+                        <h3 style="color: #677755; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">🥩 ¿Qué sigue?</h3>
+                        <ul style="color: #4a5568; font-size: 15px; line-height: 2; margin: 0; padding-left: 20px;">
                           <li>Explora nuestra tienda de productos BARF</li>
                           <li>Usa nuestro recomendador con IA para encontrar el plan perfecto para ${petName}</li>
                           <li>¡Recibe entregas frescas directamente en tu puerta!</li>
                         </ul>
                       </div>
                       
-                      <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+                      <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin: 20px 0;">
                         Si tienes alguna duda, no dudes en contactarnos por WhatsApp. 
-                        Estamos aquí para ayudarte en cada paso del camino.
+                        Estamos aquí para ayudarte en cada paso del camino. 💚
                       </p>
                       
-                      <div style="text-align: center; margin: 32px 0;">
-                        <a href="https://puebla-barf-connect.lovable.app/tienda" 
-                           style="display: inline-block; background-color: #5a7c65; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                      <!-- CTA Button -->
+                      <div style="text-align: center; margin: 36px 0;">
+                        <a href="https://rawpaw.store/tienda" 
+                           style="display: inline-block; background-color: #677755; color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px;">
                           Ir a la Tienda 🛒
                         </a>
                       </div>
@@ -158,12 +170,15 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   <!-- Footer -->
                   <tr>
-                    <td style="background-color: #f8f4f0; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                      <p style="color: #718096; font-size: 14px; margin: 0 0 8px 0;">
-                        <strong>Raw Paw</strong> - Alimentación natural para perros
+                    <td style="background-color: #3F342B; padding: 28px 30px; text-align: center;">
+                      <p style="color: #CAD8A3; font-size: 14px; margin: 0 0 6px 0; font-weight: 600;">
+                        Raw Paw — la nueva forma de cuidarlos
                       </p>
-                      <p style="color: #a0aec0; font-size: 12px; margin: 0;">
-                        Puebla, México | WhatsApp: +52 221 360 6464
+                      <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin: 0;">
+                        Puebla, México · WhatsApp: +52 221 360 6464
+                      </p>
+                      <p style="color: rgba(255,255,255,0.3); font-size: 11px; margin: 12px 0 0 0;">
+                        © ${new Date().getFullYear()} Raw Paw. Todos los derechos reservados.
                       </p>
                     </td>
                   </tr>
