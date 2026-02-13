@@ -14,7 +14,7 @@ import {
   ChevronUp,
   Image as ImageIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
 type OrderStatus = "new" | "confirmed" | "in_route" | "delivered" | "cancelled";
@@ -88,6 +88,17 @@ export function OrderCard({
               {format(new Date(order.created_at), "d MMM, HH:mm", { locale: es })}
             </p>
           </div>
+
+          {/* Delivery day & time */}
+          {order.delivery_date && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 text-primary">
+              <Calendar className="h-3.5 w-3.5" />
+              <div className="text-xs font-medium leading-tight">
+                <p className="capitalize">{format(parseISO(order.delivery_date), "EEEE d MMM", { locale: es })}</p>
+                <p className="text-[10px] opacity-80">{format(parseISO(order.delivery_date), "h:mm a")}</p>
+              </div>
+            </div>
+          )}
           
           {/* Customer name - editable */}
           <div className="min-w-[120px]">

@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,8 +18,9 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format, subDays, startOfMonth, endOfMonth, subMonths, parseISO, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, getDay } from "date-fns";
 import { es } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -42,6 +44,8 @@ const STATUS_COLORS = {
   delivered: "#22c55e",
   cancelled: "#ef4444",
 };
+
+import { DeliveryCalendar } from "./DeliveryCalendar";
 
 export default function DashboardView() {
   // Fetch all orders
@@ -225,6 +229,10 @@ export default function DashboardView() {
           )}
         </CardContent>
       </Card>
+
+      {/* 📅 DELIVERY CALENDAR */}
+      <DeliveryCalendar orders={orders || []} />
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>

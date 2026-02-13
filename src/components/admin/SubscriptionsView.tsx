@@ -18,7 +18,7 @@ import {
   User,
   Trash2,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays, parseISO, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 
 const STATUS_OPTIONS = [
@@ -277,13 +277,18 @@ export default function SubscriptionsView() {
                           />
                         </td>
                         <td className="py-3 px-2">
-                          <EditableField
-                            value={sub.next_delivery_date}
-                            onSave={(v) => handleUpdateSubscription(sub.id, "next_delivery_date", v)}
-                            type="date"
-                            prefix={<Calendar className="h-3 w-3" />}
-                            emptyText="Sin fecha"
-                          />
+                          <div>
+                            <EditableField
+                              value={sub.next_delivery_date}
+                              onSave={(v) => handleUpdateSubscription(sub.id, "next_delivery_date", v)}
+                              type="date"
+                              prefix={<Calendar className="h-3 w-3" />}
+                              emptyText="Sin fecha"
+                            />
+                            {sub.status === "active" && sub.next_delivery_date && (
+                              <UpcomingDeliveries nextDate={sub.next_delivery_date} frequencyDays={sub.frequency_days || 7} />
+                            )}
+                          </div>
                         </td>
                         <td className="py-3 px-2">
                           <EditableSelect
@@ -344,6 +349,36 @@ export default function SubscriptionsView() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Helper component to show upcoming delivery dates
+function UpcomingDeliveries({ nextDate, frequencyDays }: { nextDate: string; frequencyDays: number }) {
+  const dates = [];
+  try {
+    let current = parseISO(nextDate);
+    // Show next 4 delivery dates
+    for (let i = 0; i < 4; i++) {
+      dates.push(current);
+      current = addDays(current, frequencyDays);
+    }
+  } catch {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {dates.map((d, i) => (
+        <span
+          key={i}
+          className={`text-[10px] px-1.5 py-0.5 rounded ${
+            i === 0 ? "bg-primary/15 text-primary font-medium" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {format(d, "EEE d/M", { locale: es })}
+        </span>
+      ))}
     </div>
   );
 }

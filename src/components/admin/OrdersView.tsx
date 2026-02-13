@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,16 +19,24 @@ import {
   Trash2,
   Truck,
 } from "lucide-react";
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, addWeeks, isWithinInterval, parseISO } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, addWeeks, isWithinInterval, parseISO, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 
 type DateFilter = "all" | "today" | "this_week" | "next_week";
+type DeliveryDayFilter = "all" | "martes" | "miercoles" | "viernes";
 
 const DATE_FILTER_CONFIG: Record<DateFilter, { label: string }> = {
   all: { label: "Todos" },
   today: { label: "Hoy" },
   this_week: { label: "Esta semana" },
   next_week: { label: "Próxima semana" },
+};
+
+const DELIVERY_DAY_CONFIG: Record<DeliveryDayFilter, { label: string; dayNumber?: number }> = {
+  all: { label: "Todos los días" },
+  martes: { label: "🟢 Martes", dayNumber: 2 },
+  miercoles: { label: "🔵 Miércoles", dayNumber: 3 },
+  viernes: { label: "🟠 Viernes", dayNumber: 5 },
 };
 
 export default function OrdersView() {
@@ -40,6 +49,7 @@ export default function OrdersView() {
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
   const [dailyReviewOpen, setDailyReviewOpen] = useState(false);
+  const [deliveryDayFilter, setDeliveryDayFilter] = useState<DeliveryDayFilter>("all");
 
   // Calculate date ranges
   const dateRanges = useMemo(() => {
@@ -167,9 +177,36 @@ export default function OrdersView() {
         }
       }
 
+      // Filter by delivery day of the week
+      if (deliveryDayFilter !== "all" && order.delivery_date) {
+        const deliveryDate = parseISO(order.delivery_date);
+        const dayNum = getDay(deliveryDate);
+        const expectedDay = DELIVERY_DAY_CONFIG[deliveryDayFilter].dayNumber;
+        if (dayNum !== expectedDay) return false;
+      } else if (deliveryDayFilter !== "all" && !order.delivery_date) {
+        return false;
+      }
+
       return true;
     }) || [];
-  }, [orders, searchTerm, statusFilter, dateFilter, dateRanges]);
+  }, [orders, searchTerm, statusFilter, dateFilter, dateRanges, deliveryDayFilter]);
+
+  // Group filtered orders by delivery date for display
+  const ordersByDeliveryDate = useMemo(() => {
+    const groups: Record<string, typeof filteredOrders> = {};
+    filteredOrders.forEach((order) => {
+      if (order.delivery_date) {
+        const key = format(parseISO(order.delivery_date), "EEEE d 'de' MMMM", { locale: es });
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(order);
+      } else {
+        const key = "Sin fecha asignada";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(order);
+      }
+    });
+    return groups;
+  }, [filteredOrders]);
 
   // Get today's confirmed orders for daily review
   const todayConfirmedOrders = useMemo(() => {
@@ -395,6 +432,25 @@ export default function OrdersView() {
             ))}
           </div>
 
+          {/* Delivery Day Filters */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex items-center gap-1 mr-2">
+              <Truck className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Día de entrega:</span>
+            </div>
+            {(Object.entries(DELIVERY_DAY_CONFIG) as [DeliveryDayFilter, { label: string }][]).map(([key, config]) => (
+              <Button
+                key={key}
+                variant={deliveryDayFilter === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDeliveryDayFilter(key)}
+                className="h-8"
+              >
+                {config.label}
+              </Button>
+            ))}
+          </div>
+
           {/* Selection controls */}
           {filteredOrders.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-4 border-t mt-4">
@@ -472,17 +528,28 @@ export default function OrdersView() {
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : filteredOrders.length > 0 ? (
-            <div className="space-y-3">
-              {filteredOrders.map((order: any) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  isSelected={selectedOrders.has(order.id)}
-                  isExpanded={expandedOrder === order.id}
-                  onToggleSelect={(e) => toggleOrderSelection(order.id, e)}
-                  onToggleExpand={() => toggleExpand(order.id)}
-                  onUpdate={(field, value) => handleUpdateOrder(order.id, field, value)}
-                />
+            <div className="space-y-6">
+              {Object.entries(ordersByDeliveryDate).map(([dateLabel, dateOrders]) => (
+                <div key={dateLabel}>
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <CalendarDays className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold capitalize text-primary">{dateLabel}</h3>
+                    <Badge variant="secondary" className="text-xs">{dateOrders.length}</Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {dateOrders.map((order: any) => (
+                      <OrderCard
+                        key={order.id}
+                        order={order}
+                        isSelected={selectedOrders.has(order.id)}
+                        isExpanded={expandedOrder === order.id}
+                        onToggleSelect={(e) => toggleOrderSelection(order.id, e)}
+                        onToggleExpand={() => toggleExpand(order.id)}
+                        onUpdate={(field, value) => handleUpdateOrder(order.id, field, value)}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
