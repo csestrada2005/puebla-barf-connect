@@ -14,7 +14,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-80 sm:w-96 flex flex-col">
+      <SheetContent side="right" className="w-80 sm:w-96 flex flex-col overflow-hidden">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
