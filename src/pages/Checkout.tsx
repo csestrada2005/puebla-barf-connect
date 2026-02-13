@@ -360,12 +360,18 @@ export default function Checkout() {
           localStorage.setItem("centumpay_order_number", newOrderNumber);
         }
 
-        // On mobile, window.open is blocked after async calls (popup blocker).
-        // Use location.href on mobile; CentumPay will redirect back via CENTUMPAY_WEBSITE_URL.
-        // On desktop, open in new tab and navigate to confirmation page as fallback.
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        // Mobile browsers block window.open after async calls.
+        // Use a temporary anchor click which is the most reliable cross-browser method.
+        const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (isMobile) {
-          window.location.href = cpData.checkoutUrl;
+          // Create a temporary <a> tag and click it — this bypasses popup blockers
+          const a = document.createElement("a");
+          a.href = cpData.checkoutUrl;
+          a.rel = "noopener noreferrer";
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
         } else {
           window.open(cpData.checkoutUrl, "_blank");
           navigate("/checkout/confirmacion");
