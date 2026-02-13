@@ -27,13 +27,13 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             <p className="text-center text-muted-foreground py-8">Tu carrito está vacío</p>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                <div className="flex-1 min-w-0">
+              <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg overflow-hidden">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-medium text-sm truncate">{item.name}</p>
                   {item.packSize && (
-                    <p className="text-xs text-muted-foreground">{item.packSize * item.quantity} paquetes</p>
+                    <p className="text-xs text-muted-foreground truncate">{item.packSize * item.quantity} paquetes</p>
                   )}
-                  <p className="text-sm text-primary font-semibold">
+                  <p className="text-sm text-primary font-semibold truncate">
                     ${(item.price * item.quantity).toLocaleString("es-MX")}
                   </p>
                 </div>
