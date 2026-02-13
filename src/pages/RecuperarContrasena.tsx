@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { supabase } from "@/integrations/supabase/client";
+// Recovery email is sent via custom edge function
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,14 +20,26 @@ export default function RecuperarContrasena() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/restablecer-contrasena`,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-recovery-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            email,
+            redirectTo: `${window.location.origin}/restablecer-contrasena`,
+          }),
+        }
+      );
 
-      if (error) {
+      if (!response.ok) {
+        const data = await response.json();
         toast({
           title: "Error",
-          description: error.message,
+          description: data.error || "Ocurrió un error al enviar el correo",
           variant: "destructive",
         });
       } else {
