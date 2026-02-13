@@ -360,8 +360,9 @@ export default function Checkout() {
           localStorage.setItem("centumpay_order_number", newOrderNumber);
         }
 
-        // Redirect to CentumPay checkout
-        window.location.href = cpData.checkoutUrl;
+        // Open CentumPay in new tab, navigate to confirmation page
+        window.open(cpData.checkoutUrl, "_blank");
+        navigate("/checkout/confirmacion");
         return;
       }
 
