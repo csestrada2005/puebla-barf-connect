@@ -93,6 +93,16 @@ export function CancellationModal({
         if (dogError) throw dogError;
       }
 
+      // Send cancellation email (non-deceased)
+      if (reason !== "deceased") {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.email) {
+          supabase.functions.invoke("send-cancellation-email", {
+            body: { email: user.email, petName: dogName || "tu peludo", familyName: "" },
+          }).catch(err => console.error("Error sending cancellation email:", err));
+        }
+      }
+
       toast({
         title: reason === "deceased" 
           ? "Lo sentimos mucho" 
@@ -142,6 +152,14 @@ export function CancellationModal({
           .eq("id", dogId);
 
         if (dogError) throw dogError;
+      }
+
+      // Send condolence email
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        supabase.functions.invoke("send-condolence-email", {
+          body: { email: user.email, petName: dogName || "tu compañero", familyName: "" },
+        }).catch(err => console.error("Error sending condolence email:", err));
       }
 
       toast({
