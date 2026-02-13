@@ -122,6 +122,11 @@ export function OrderCard({
               onSave={(v) => onUpdate("payment_method", v)}
               className="w-[110px]"
             />
+            {order.payment_method === "tarjeta" && (
+              <Badge variant={order.payment_status === "paid" ? "default" : "secondary"} className={`text-xs ${order.payment_status === "paid" ? "bg-green-600" : "bg-yellow-500 text-yellow-950"}`}>
+                {order.payment_status === "paid" ? "✅ Pagado" : "⏳ Pendiente"}
+              </Badge>
+            )}
             <EditableField
               value={order.total?.toString()}
               onSave={(v) => onUpdate("total", parseFloat(v) || 0)}

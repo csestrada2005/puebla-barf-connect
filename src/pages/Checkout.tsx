@@ -337,7 +337,7 @@ export default function Checkout() {
             items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
             total,
             subtotal,
-            discount: 0,
+            discount: discountAmount,
             orderNumber: newOrderNumber,
             customerEmail: formData.email,
             customerName: formData.family_name,
