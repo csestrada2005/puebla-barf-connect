@@ -398,6 +398,7 @@ export default function OrdersView() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pending">Pendientes</SelectItem>
                   <SelectItem value="new">Nuevos</SelectItem>
                   <SelectItem value="confirmed">Confirmados</SelectItem>
                   <SelectItem value="in_route">En ruta</SelectItem>

@@ -20,6 +20,7 @@ import { es } from "date-fns/locale";
 type OrderStatus = "new" | "confirmed" | "in_route" | "delivered" | "cancelled";
 
 const STATUS_OPTIONS = [
+  { value: "pending", label: "Pendiente", color: "bg-gray-100 text-gray-800" },
   { value: "new", label: "Nuevo", color: "bg-blue-100 text-blue-800" },
   { value: "confirmed", label: "Confirmado", color: "bg-yellow-100 text-yellow-800" },
   { value: "in_route", label: "En ruta", color: "bg-purple-100 text-purple-800" },
@@ -31,6 +32,12 @@ const PAYMENT_OPTIONS = [
   { value: "efectivo", label: "Efectivo" },
   { value: "tarjeta", label: "Tarjeta" },
   { value: "transferencia", label: "Transferencia" },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+  { value: "pending", label: "⏳ Pendiente", color: "bg-yellow-100 text-yellow-800" },
+  { value: "paid", label: "✅ Pagado", color: "bg-green-100 text-green-800" },
+  { value: "failed", label: "❌ Fallido", color: "bg-red-100 text-red-800" },
 ];
 
 interface OrderCardProps {
@@ -133,11 +140,12 @@ export function OrderCard({
               onSave={(v) => onUpdate("payment_method", v)}
               className="w-[110px]"
             />
-            {order.payment_method === "tarjeta" && (
-              <Badge variant={order.payment_status === "paid" ? "default" : "secondary"} className={`text-xs ${order.payment_status === "paid" ? "bg-green-600" : "bg-yellow-500 text-yellow-950"}`}>
-                {order.payment_status === "paid" ? "✅ Pagado" : "⏳ Pendiente"}
-              </Badge>
-            )}
+            <EditableSelect
+              value={order.payment_status || "pending"}
+              options={PAYMENT_STATUS_OPTIONS}
+              onSave={(v) => onUpdate("payment_status", v)}
+              className="w-[120px]"
+            />
             <EditableField
               value={order.total?.toString()}
               onSave={(v) => onUpdate("total", parseFloat(v) || 0)}
