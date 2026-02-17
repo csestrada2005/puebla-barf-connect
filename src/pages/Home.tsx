@@ -24,6 +24,7 @@ import heroBorderCollie from "@/assets/brand/hero-border-collie.png";
 import logoTaglineBlack from "@/assets/brand/logo-tagline-black.png";
 import herodog from "@/assets/brand/hero-dog.jpeg";
 import heroVideo from "@/assets/brand/hero-video.mp4";
+import heroHomeBg from "@/assets/brand/hero-home-bg.jpg";
 import stepPhoto1 from "@/assets/brand/step-photo-1.png";
 import stepPhoto2 from "@/assets/brand/step-photo-2.jpg";
 import stepPhoto3 from "@/assets/brand/step-photo-3.jpg";
@@ -148,7 +149,11 @@ export default function Home() {
       </section>
 
       {/* ===== DESKTOP HERO ===== */}
-      <section className="relative h-[calc(100svh-4rem)] hidden md:flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
+      <section className="relative h-[calc(100svh-4rem)] hidden md:flex items-center overflow-hidden">
+        {/* Background Image */}
+        <img src={heroHomeBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
         {/* Centered Logo at Top - PRIORITY */}
         <BrandImage 
           src={logoTaglineBlack} 
